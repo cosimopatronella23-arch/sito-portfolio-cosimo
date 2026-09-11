@@ -13,12 +13,16 @@ export function getGoogleAuth() {
   if (!email || !rawKey) return null;
 
   // Normalizza la chiave qualunque sia il modo in cui è stata incollata:
-  // "\n" scritti come testo, a-capo reali con CRLF, o spazi ai margini.
-  const privateKey = rawKey
-    .trim()
+  // virgolette esterne, "\n" scritti come testo, a-capo reali con CRLF.
+  let privateKey = rawKey.trim();
+  if (privateKey.startsWith('"') && privateKey.endsWith('"')) {
+    privateKey = privateKey.slice(1, -1);
+  }
+  privateKey = privateKey
     .replace(/\\n/g, "\n")
     .replace(/\r\n/g, "\n")
-    .replace(/\r/g, "\n");
+    .replace(/\r/g, "\n")
+    .trim();
 
   return new google.auth.JWT({
     email,
