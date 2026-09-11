@@ -1,26 +1,173 @@
 @import "tailwindcss";
 
+/* ---------------------------------------------------------------------- */
+/* Design tokens — vedi anche src/lib/fonts.ts per i font.                */
+/* Modifica solo qui per cambiare i colori in tutto il sito.              */
+/* ---------------------------------------------------------------------- */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #0b0a10;
+  --surface: #14121b;
+  --surface-hover: #1b1824;
+  --foreground: #f6f2ea;
+  --foreground-muted: #a39dae;
+  --border: rgba(246, 242, 234, 0.1);
+  --border-strong: rgba(246, 242, 234, 0.18);
+
+  --accent: #a78bfa;
+  --accent-strong: #8b5cf6;
+  --accent-blue: #6366f1;
+  --accent-pink: #ec4899;
+
+  --success: #34d399;
+  --warning: #fbbf24;
+  --error: #f87171;
 }
 
 @theme inline {
   --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-surface-hover: var(--surface-hover);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-foreground-muted: var(--foreground-muted);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+
+  --color-accent: var(--accent);
+  --color-accent-strong: var(--accent-strong);
+  --color-accent-blue: var(--accent-blue);
+  --color-accent-pink: var(--accent-pink);
+
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-error: var(--error);
+
+  --font-display: var(--font-sora);
+  --font-sans: var(--font-inter);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
+}
+
+* {
+  border-color: var(--border);
+}
+
+html {
+  background: var(--background);
+  color-scheme: dark;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+}
+
+/* Padding orizzontale unico per tutto il sito. Cambia qui per aggiustarlo ovunque.
+   clamp() lo tiene tra 20px (minimo di sicurezza per il tocco su mobile) e 24px. */
+.container-px {
+  padding-left: clamp(20px, 4vw, 24px);
+  padding-right: clamp(20px, 4vw, 24px);
+}
+
+::selection {
+  background: var(--accent-strong);
+  color: var(--background);
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/* Bordo sottile in evidenza al passaggio del mouse su card/elementi */
+.glow-border {
+  position: relative;
+}
+
+.glow-border::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: var(--accent);
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+.glow-border:hover::before,
+.glow-border:focus-within::before {
+  opacity: 1;
+}
+
+/* Stile per il testo scritto con l'editor di Tiptap (in /admin e sull'articolo pubblicato) */
+.prose-editor p {
+  margin-bottom: 1em;
+}
+
+.prose-editor h2 {
+  margin-top: 1.5em;
+  margin-bottom: 0.5em;
+  font-family: var(--font-display);
+  font-size: 1.5em;
+  font-weight: 600;
+  color: var(--foreground);
+}
+
+.prose-editor ul,
+.prose-editor ol {
+  margin-bottom: 1em;
+  padding-left: 1.25em;
+}
+
+.prose-editor ul {
+  list-style: disc;
+}
+
+.prose-editor ol {
+  list-style: decimal;
+}
+
+.prose-editor a {
+  color: var(--foreground);
+  text-decoration: underline;
+  text-decoration-color: var(--border-strong);
+  text-underline-offset: 4px;
+}
+
+.prose-editor a:hover {
+  color: var(--accent);
+}
+
+.prose-editor img {
+  margin: 1.5em 0;
+  max-width: 100%;
+}
+
+.prose-editor strong {
+  color: var(--foreground);
+  font-weight: 600;
+}
+
+/* Disattiva il cursore nativo quando il cursore custom è attivo (solo desktop, JS aggiunge la classe) */
+.cursor-active-custom,
+.cursor-active-custom a,
+.cursor-active-custom button {
+  cursor: none;
 }
