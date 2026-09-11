@@ -2,10 +2,10 @@ import type { Metadata } from "next";
 import type { BlogPost, Project, SiteSettings } from "./types";
 
 /**
- * URL base del sito. Aggiornalo con il tuo dominio definitivo prima del
- * deploy in produzione.
+ * URL base del sito. Aggiornalo qui quando colleghi un dominio tuo al posto
+ * dell'indirizzo *.vercel.app.
  */
-export const SITE_URL = "https://www.cosimopatronella.it";
+export const SITE_URL = "https://cosimopatronella.vercel.app";
 
 export function buildMetadata(input: {
   title: string;
