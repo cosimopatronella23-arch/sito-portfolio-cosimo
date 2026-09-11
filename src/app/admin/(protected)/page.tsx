@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getAllProjectsAdmin } from "@/lib/data/projects";
 import { getAllPostsAdmin } from "@/lib/data/blog";
+import { ExportButton } from "@/components/admin/ExportButton";
 
 export default async function AdminDashboardPage() {
   const [projects, posts] = await Promise.all([
@@ -49,6 +50,15 @@ export default async function AdminDashboardPage() {
             Articoli pubblicati / totali →
           </span>
         </Link>
+      </div>
+
+      <div className="flex flex-col gap-3 border-t border-border pt-8">
+        <h2 className="font-display text-lg font-semibold">Backup</h2>
+        <p className="max-w-md text-sm text-foreground-muted">
+          Scarica un file con tutti i contenuti attuali (progetti, articoli,
+          impostazioni). Utile da tenere da parte ogni tanto.
+        </p>
+        <ExportButton />
       </div>
     </div>
   );
