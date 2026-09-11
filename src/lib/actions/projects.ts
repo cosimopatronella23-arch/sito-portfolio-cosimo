@@ -90,6 +90,36 @@ export async function updateProject(
   redirect("/admin/progetti");
 }
 
+export async function duplicateProject(formData: FormData) {
+  const id = String(formData.get("id") || "");
+  if (!id) return;
+
+  const supabase = await createClient();
+  const { data: original, error: fetchError } = await supabase
+    .from("projects")
+    .select("*")
+    .eq("id", id)
+    .single();
+
+  if (fetchError || !original) return;
+
+  const {
+    id: _id,
+    created_at: _createdAt,
+    updated_at: _updatedAt,
+    ...rest
+  } = original;
+
+  await supabase.from("projects").insert({
+    ...rest,
+    slug: `${rest.slug}-copia-${Date.now().toString(36)}`,
+    title: `${rest.title} (copia)`,
+    status: "draft",
+  });
+
+  revalidatePath("/admin/progetti");
+}
+
 export async function deleteProject(formData: FormData) {
   const id = String(formData.get("id") || "");
   if (!id) return;

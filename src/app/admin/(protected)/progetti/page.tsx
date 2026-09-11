@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { getAllProjectsAdmin } from "@/lib/data/projects";
-import { deleteProject } from "@/lib/actions/projects";
+import { deleteProject, duplicateProject } from "@/lib/actions/projects";
 import { DeleteButton } from "@/components/admin/DeleteButton";
 
 export default async function AdminProjectsPage() {
@@ -57,6 +57,15 @@ export default async function AdminProjectsPage() {
               >
                 Modifica
               </Link>
+              <form action={duplicateProject}>
+                <input type="hidden" name="id" value={project.id} />
+                <button
+                  type="submit"
+                  className="text-sm text-foreground-muted hover:text-foreground"
+                >
+                  Duplica
+                </button>
+              </form>
               <form action={deleteProject}>
                 <input type="hidden" name="id" value={project.id} />
                 <DeleteButton />

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { getAllPostsAdmin } from "@/lib/data/blog";
-import { deletePost } from "@/lib/actions/blog";
+import { deletePost, duplicatePost } from "@/lib/actions/blog";
 import { DeleteButton } from "@/components/admin/DeleteButton";
 
 export default async function AdminBlogPage() {
@@ -52,6 +52,15 @@ export default async function AdminBlogPage() {
               >
                 Modifica
               </Link>
+              <form action={duplicatePost}>
+                <input type="hidden" name="id" value={post.id} />
+                <button
+                  type="submit"
+                  className="text-sm text-foreground-muted hover:text-foreground"
+                >
+                  Duplica
+                </button>
+              </form>
               <form action={deletePost}>
                 <input type="hidden" name="id" value={post.id} />
                 <DeleteButton />
