@@ -15,6 +15,9 @@ export async function generateMetadata(): Promise<Metadata> {
       default: settings.site_title,
       template: `%s | ${settings.site_title}`,
     },
+    verification: settings.google_site_verification_code
+      ? { google: settings.google_site_verification_code }
+      : undefined,
   };
 }
 
