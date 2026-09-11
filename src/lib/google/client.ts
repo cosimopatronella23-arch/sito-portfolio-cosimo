@@ -12,9 +12,13 @@ export function getGoogleAuth() {
 
   if (!email || !rawKey) return null;
 
-  // Nel .env la chiave ha gli "\n" scritti come testo: vanno trasformati
-  // in veri a capo prima di firmare le richieste.
-  const privateKey = rawKey.replace(/\\n/g, "\n");
+  // Normalizza la chiave qualunque sia il modo in cui è stata incollata:
+  // "\n" scritti come testo, a-capo reali con CRLF, o spazi ai margini.
+  const privateKey = rawKey
+    .trim()
+    .replace(/\\n/g, "\n")
+    .replace(/\r\n/g, "\n")
+    .replace(/\r/g, "\n");
 
   return new google.auth.JWT({
     email,
