@@ -7,8 +7,9 @@ import { createPublicClient } from "@/lib/supabase/publicClient";
  * di Supabase mette in pausa i progetti dopo un periodo di inattività.
  */
 export async function GET(request: Request) {
-  const authHeader = request.headers.get("authorization");
-  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+  const authHeader = request.headers.get("authorization")?.trim();
+  const expected = `Bearer ${process.env.CRON_SECRET?.trim()}`;
+  if (!process.env.CRON_SECRET || authHeader !== expected) {
     return new NextResponse("Unauthorized", { status: 401 });
   }
 
