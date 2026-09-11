@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { createHash } from "crypto";
 
 // Endpoint temporaneo di sola diagnostica, protetto dallo stesso CRON_SECRET.
 // Da rimuovere subito dopo aver risolto il problema della chiave Google.
@@ -20,5 +21,6 @@ export async function GET(request: Request) {
     containsRealNewline: raw.includes("\n"),
     containsCarriageReturn: raw.includes("\r"),
     lineCount: raw.split(/\r\n|\r|\n/).length,
+    sha256: createHash("sha256").update(raw.trim()).digest("hex"),
   });
 }
