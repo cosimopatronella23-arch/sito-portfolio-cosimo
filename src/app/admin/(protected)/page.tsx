@@ -2,6 +2,7 @@ import Link from "next/link";
 import { getAllProjectsAdmin } from "@/lib/data/projects";
 import { getAllPostsAdmin } from "@/lib/data/blog";
 import { ExportButton } from "@/components/admin/ExportButton";
+import { RevalidateButton } from "@/components/admin/RevalidateButton";
 
 export default async function AdminDashboardPage() {
   const [projects, posts] = await Promise.all([
@@ -50,6 +51,15 @@ export default async function AdminDashboardPage() {
             Articoli pubblicati / totali →
           </span>
         </Link>
+      </div>
+
+      <div className="flex flex-col gap-3 border-t border-border pt-8">
+        <h2 className="font-display text-lg font-semibold">Cache del sito</h2>
+        <p className="max-w-md text-sm text-foreground-muted">
+          Le pagine pubbliche si aggiornano da sole entro un&apos;ora dalle
+          modifiche. Se vuoi vederle subito online, aggiorna manualmente.
+        </p>
+        <RevalidateButton />
       </div>
 
       <div className="flex flex-col gap-3 border-t border-border pt-8">
