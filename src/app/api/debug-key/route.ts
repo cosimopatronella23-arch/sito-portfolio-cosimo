@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { createHash } from "crypto";
+import { getGoogleAuth } from "@/lib/google/client";
 
 // Endpoint temporaneo di sola diagnostica, protetto dallo stesso CRON_SECRET.
 // Da rimuovere subito dopo aver risolto il problema della chiave Google.
@@ -10,17 +10,18 @@ export async function GET(request: Request) {
     return new NextResponse("Unauthorized", { status: 401 });
   }
 
-  const raw = process.env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY ?? "";
+  const auth = getGoogleAuth();
+  if (!auth) {
+    return NextResponse.json({ ok: false, reason: "credenziali mancanti" });
+  }
 
-  return NextResponse.json({
-    length: raw.length,
-    startsWithQuote: raw.startsWith('"'),
-    endsWithQuote: raw.endsWith('"'),
-    startsWithDash: raw.startsWith("-----BEGIN"),
-    containsLiteralBackslashN: raw.includes("\\n"),
-    containsRealNewline: raw.includes("\n"),
-    containsCarriageReturn: raw.includes("\r"),
-    lineCount: raw.split(/\r\n|\r|\n/).length,
-    sha256: createHash("sha256").update(raw.trim()).digest("hex"),
-  });
+  try {
+    await auth.authorize();
+    return NextResponse.json({ ok: true, message: "Autenticazione riuscita" });
+  } catch (error) {
+    return NextResponse.json({
+      ok: false,
+      reason: error instanceof Error ? error.message : "errore sconosciuto",
+    });
+  }
 }
