@@ -20,6 +20,11 @@ export async function generateMetadata(): Promise<Metadata> {
 
 const HEX_COLOR_REGEX = /^#[0-9a-fA-F]{6}$/;
 
+// Le pagine pubbliche possono essere rigenerate ogni ora invece che ad ogni
+// visita: le modifiche da /admin restano istantanee comunque, grazie a
+// revalidatePath() già richiamato dalle Server Action.
+export const revalidate = 3600;
+
 export default async function SiteLayout({
   children,
 }: {

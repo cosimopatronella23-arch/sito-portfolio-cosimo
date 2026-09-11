@@ -1,8 +1,9 @@
+import { createPublicClient } from "@/lib/supabase/publicClient";
 import { createClient } from "@/lib/supabase/server";
 import type { Project } from "@/lib/types";
 
 export async function getPublishedProjects(): Promise<Project[]> {
-  const supabase = await createClient();
+  const supabase = createPublicClient();
   const { data, error } = await supabase
     .from("projects")
     .select("*")
@@ -13,7 +14,7 @@ export async function getPublishedProjects(): Promise<Project[]> {
 }
 
 export async function getProjectBySlug(slug: string): Promise<Project | null> {
-  const supabase = await createClient();
+  const supabase = createPublicClient();
   const { data, error } = await supabase
     .from("projects")
     .select("*")
@@ -25,7 +26,7 @@ export async function getProjectBySlug(slug: string): Promise<Project | null> {
   return data;
 }
 
-/** Per /admin: vede anche le bozze. */
+/** Per /admin: vede anche le bozze, richiede la sessione dell'utente loggato. */
 export async function getAllProjectsAdmin(): Promise<Project[]> {
   const supabase = await createClient();
   const { data, error } = await supabase

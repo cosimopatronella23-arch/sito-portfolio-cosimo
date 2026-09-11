@@ -3,7 +3,14 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { CoverImage } from "@/components/ui/CoverImage";
 import { buildMetadata, blogPostJsonLd } from "@/lib/seo";
-import { getPostBySlug } from "@/lib/data/blog";
+import { getPostBySlug, getPublishedPosts } from "@/lib/data/blog";
+
+export const revalidate = 3600;
+
+export async function generateStaticParams() {
+  const posts = await getPublishedPosts();
+  return posts.map((p) => ({ slug: p.slug }));
+}
 
 const dateFormatter = new Intl.DateTimeFormat("it-IT", {
   day: "numeric",

@@ -2,7 +2,14 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { ProjectDetail } from "@/components/project/ProjectDetail";
 import { buildMetadata, projectJsonLd } from "@/lib/seo";
-import { getProjectBySlug } from "@/lib/data/projects";
+import { getProjectBySlug, getPublishedProjects } from "@/lib/data/projects";
+
+export const revalidate = 3600;
+
+export async function generateStaticParams() {
+  const projects = await getPublishedProjects();
+  return projects.map((p) => ({ slug: p.slug }));
+}
 
 export async function generateMetadata(
   props: PageProps<"/progetti/[slug]">,
