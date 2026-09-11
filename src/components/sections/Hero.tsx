@@ -17,7 +17,10 @@ const fadeUp: Variants = {
 };
 
 export function Hero({ content }: { content: HomeContent }) {
-  const titleLines = content.hero_title_main.split("\n");
+  // Trim solo i bordi esterni: uno spazio finale prima della parte colorata
+  // va sempre aggiunto a parte qui sotto, non può dipendere da uno spazio
+  // "invisibile" salvato nel testo (si perde facilmente in un editor/trim).
+  const titleLines = content.hero_title_main.replace(/\s+$/, "").split("\n");
 
   return (
     <section className="relative overflow-hidden container-px pt-20 pb-24 sm:pt-28 sm:pb-32">
@@ -42,7 +45,7 @@ export function Hero({ content }: { content: HomeContent }) {
               {line}
             </Fragment>
           ))}
-          <span className="text-accent">{content.hero_title_accent}</span>
+          <span className="text-accent"> {content.hero_title_accent}</span>
         </motion.h1>
 
         <motion.p
