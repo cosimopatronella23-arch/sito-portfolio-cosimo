@@ -1,8 +1,10 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { updatePageSeo } from "@/lib/actions/settings";
 import { ImageUploader } from "./ImageUploader";
+import { SerpPreview } from "./SerpPreview";
+import { SITE_URL } from "@/lib/seo";
 import type { PageSeo } from "@/lib/types";
 
 const fieldClasses =
@@ -19,6 +21,8 @@ export function PageSeoForm({
   const [state, formAction, pending] = useActionState(action, {
     error: null,
   });
+  const [title, setTitle] = useState(seo?.seo_title ?? "");
+  const [description, setDescription] = useState(seo?.seo_description ?? "");
 
   return (
     <form action={formAction} className="flex flex-col gap-6">
@@ -27,6 +31,7 @@ export function PageSeoForm({
         <input
           name="seo_title"
           defaultValue={seo?.seo_title ?? ""}
+          onChange={(e) => setTitle(e.target.value)}
           className={fieldClasses}
         />
       </label>
@@ -36,10 +41,17 @@ export function PageSeoForm({
         <textarea
           name="seo_description"
           defaultValue={seo?.seo_description ?? ""}
+          onChange={(e) => setDescription(e.target.value)}
           rows={2}
           className={fieldClasses}
         />
       </label>
+
+      <SerpPreview
+        url={pageKey === "home" ? SITE_URL : `${SITE_URL}/${pageKey}`}
+        title={title}
+        description={description}
+      />
 
       <ImageUploader
         name="seo_og_image"

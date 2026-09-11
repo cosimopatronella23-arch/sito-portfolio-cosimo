@@ -1,9 +1,11 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { createProject, updateProject } from "@/lib/actions/projects";
 import { ImageUploader } from "./ImageUploader";
 import { ContentBlocksEditor } from "./ContentBlocksEditor";
+import { SerpPreview } from "./SerpPreview";
+import { SITE_URL } from "@/lib/seo";
 import type { Project } from "@/lib/types";
 
 const fieldClasses =
@@ -14,6 +16,11 @@ export function ProjectForm({ project }: { project?: Project }) {
   const [state, formAction, pending] = useActionState(action, {
     error: null,
   });
+  const [slug, setSlug] = useState(project?.slug ?? "");
+  const [seoTitle, setSeoTitle] = useState(project?.seo_title ?? "");
+  const [seoDescription, setSeoDescription] = useState(
+    project?.seo_description ?? "",
+  );
 
   return (
     <form action={formAction} className="flex flex-col gap-10">
@@ -32,6 +39,7 @@ export function ProjectForm({ project }: { project?: Project }) {
           <input
             name="slug"
             defaultValue={project?.slug}
+            onChange={(e) => setSlug(e.target.value)}
             required
             pattern="[a-z0-9-]+"
             title="Solo minuscole, numeri e trattini"
@@ -130,6 +138,7 @@ export function ProjectForm({ project }: { project?: Project }) {
           <input
             name="seo_title"
             defaultValue={project?.seo_title ?? ""}
+            onChange={(e) => setSeoTitle(e.target.value)}
             className={fieldClasses}
           />
         </label>
@@ -140,6 +149,7 @@ export function ProjectForm({ project }: { project?: Project }) {
           <textarea
             name="seo_description"
             defaultValue={project?.seo_description ?? ""}
+            onChange={(e) => setSeoDescription(e.target.value)}
             rows={2}
             className={fieldClasses}
           />
@@ -157,6 +167,12 @@ export function ProjectForm({ project }: { project?: Project }) {
           />
           Nascondi dai motori di ricerca (noindex)
         </label>
+
+        <SerpPreview
+          url={`${SITE_URL}/progetti/${slug || "slug-progetto"}`}
+          title={seoTitle || project?.title || ""}
+          description={seoDescription || project?.short_description || ""}
+        />
       </fieldset>
 
       {state.error ? <p className="text-sm text-error">{state.error}</p> : null}

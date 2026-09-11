@@ -1,9 +1,11 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { createPost, updatePost } from "@/lib/actions/blog";
 import { ImageUploader } from "./ImageUploader";
 import { RichTextEditor } from "./RichTextEditor";
+import { SerpPreview } from "./SerpPreview";
+import { SITE_URL } from "@/lib/seo";
 import type { BlogPost } from "@/lib/types";
 
 const fieldClasses =
@@ -19,6 +21,11 @@ export function PostForm({ post }: { post?: BlogPost }) {
   const [state, formAction, pending] = useActionState(action, {
     error: null,
   });
+  const [slug, setSlug] = useState(post?.slug ?? "");
+  const [seoTitle, setSeoTitle] = useState(post?.seo_title ?? "");
+  const [seoDescription, setSeoDescription] = useState(
+    post?.seo_description ?? "",
+  );
 
   return (
     <form action={formAction} className="flex flex-col gap-10">
@@ -37,6 +44,7 @@ export function PostForm({ post }: { post?: BlogPost }) {
           <input
             name="slug"
             defaultValue={post?.slug}
+            onChange={(e) => setSlug(e.target.value)}
             required
             pattern="[a-z0-9-]+"
             title="Solo minuscole, numeri e trattini"
@@ -106,6 +114,7 @@ export function PostForm({ post }: { post?: BlogPost }) {
           <input
             name="seo_title"
             defaultValue={post?.seo_title ?? ""}
+            onChange={(e) => setSeoTitle(e.target.value)}
             className={fieldClasses}
           />
         </label>
@@ -116,6 +125,7 @@ export function PostForm({ post }: { post?: BlogPost }) {
           <textarea
             name="seo_description"
             defaultValue={post?.seo_description ?? ""}
+            onChange={(e) => setSeoDescription(e.target.value)}
             rows={2}
             className={fieldClasses}
           />
@@ -133,6 +143,12 @@ export function PostForm({ post }: { post?: BlogPost }) {
           />
           Nascondi dai motori di ricerca (noindex)
         </label>
+
+        <SerpPreview
+          url={`${SITE_URL}/blog/${slug || "slug-articolo"}`}
+          title={seoTitle || post?.title || ""}
+          description={seoDescription || post?.excerpt || ""}
+        />
       </fieldset>
 
       {state.error ? <p className="text-sm text-error">{state.error}</p> : null}
