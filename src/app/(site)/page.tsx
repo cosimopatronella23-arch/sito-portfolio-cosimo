@@ -35,13 +35,17 @@ export default async function HomePage() {
         }}
       />
       <Hero content={settings.home_content} />
-      <Services
-        title={settings.home_content.services_title}
-        services={settings.home_content.services}
-      />
-      <ProjectsGrid />
-      <BlogPreview />
-      <ContactForm />
+      {settings.home_content.show_services ?? true ? (
+        <Services
+          title={settings.home_content.services_title}
+          services={settings.home_content.services}
+        />
+      ) : null}
+      {settings.home_content.show_projects ?? true ? <ProjectsGrid /> : null}
+      {settings.home_content.show_blog_preview ?? true ? (
+        <BlogPreview />
+      ) : null}
+      {settings.home_content.show_contact ?? true ? <ContactForm /> : null}
     </>
   );
 }

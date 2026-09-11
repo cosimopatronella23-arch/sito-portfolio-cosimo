@@ -66,6 +66,12 @@ export interface HomeContent {
   cta_secondary: string;
   services_title: string;
   services: ServiceItem[];
+  // Opzionali: se assenti (contenuti esistenti pre-esistenti), il valore è
+  // "visibile" di default — vedi ognuno dei ?? true nei punti in cui si usano.
+  show_services?: boolean;
+  show_projects?: boolean;
+  show_blog_preview?: boolean;
+  show_contact?: boolean;
 }
 
 export interface SiteSettings {

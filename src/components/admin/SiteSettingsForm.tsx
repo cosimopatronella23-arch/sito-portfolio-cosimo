@@ -197,6 +197,33 @@ export function SiteSettingsForm({ settings }: { settings: SiteSettings }) {
         </div>
       </fieldset>
 
+      <fieldset className="flex flex-col gap-3 border border-border-strong p-4">
+        <legend className="px-2 text-sm font-medium">
+          Sezioni visibili in homepage
+        </legend>
+        <p className="text-sm text-foreground-muted">
+          Disattiva temporaneamente una sezione senza perdere i contenuti. La
+          prima sezione (in alto) non è disattivabile.
+        </p>
+        {(
+          [
+            { name: "show_services", label: "Servizi" },
+            { name: "show_projects", label: "Progetti" },
+            { name: "show_blog_preview", label: "Anteprima blog" },
+            { name: "show_contact", label: "Contatti" },
+          ] as const
+        ).map(({ name, label }) => (
+          <label key={name} className="flex items-center gap-2 text-sm">
+            <input
+              type="checkbox"
+              name={name}
+              defaultChecked={settings.home_content[name] ?? true}
+            />
+            {label}
+          </label>
+        ))}
+      </fieldset>
+
       {state.error ? <p className="text-sm text-error">{state.error}</p> : null}
       {state.success ? <p className="text-sm text-success">Salvato.</p> : null}
 

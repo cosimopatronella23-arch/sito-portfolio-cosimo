@@ -8,16 +8,24 @@ type FormState = { error: string | null; success?: boolean };
 
 const HEX_COLOR_REGEX = /^#[0-9a-fA-F]{6}$/;
 
-const HOME_CONTENT_TEXT_FIELDS: Array<Exclude<keyof HomeContent, "services">> =
-  [
-    "hero_title_main",
-    "hero_title_accent",
-    "hero_subtitle",
-    "hero_quote",
-    "cta_primary",
-    "cta_secondary",
-    "services_title",
-  ];
+const HOME_CONTENT_TEXT_FIELDS: Array<
+  Exclude<
+    keyof HomeContent,
+    | "services"
+    | "show_services"
+    | "show_projects"
+    | "show_blog_preview"
+    | "show_contact"
+  >
+> = [
+  "hero_title_main",
+  "hero_title_accent",
+  "hero_subtitle",
+  "hero_quote",
+  "cta_primary",
+  "cta_secondary",
+  "services_title",
+];
 
 export async function updateSiteSettings(
   _prevState: FormState,
@@ -46,6 +54,10 @@ export async function updateSiteSettings(
     services = [];
   }
   homeContent.services = services.filter((s) => s.title.trim());
+  homeContent.show_services = formData.get("show_services") === "on";
+  homeContent.show_projects = formData.get("show_projects") === "on";
+  homeContent.show_blog_preview = formData.get("show_blog_preview") === "on";
+  homeContent.show_contact = formData.get("show_contact") === "on";
 
   const payload = {
     site_title: String(formData.get("site_title") || "").trim(),
