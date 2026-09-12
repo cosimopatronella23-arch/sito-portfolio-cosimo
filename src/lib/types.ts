@@ -80,9 +80,36 @@ export interface HeroAltBlockData {
   align: BlockAlign;
 }
 
+export interface TestimonialItem {
+  quote: string;
+  author: string;
+  role: string;
+}
+
+export interface TestimonianzeBlockData {
+  title: string;
+  items: TestimonialItem[];
+}
+
+export interface CtaBannerBlockData {
+  title: string;
+  subtitle: string;
+  ctaLabel: string;
+  ctaHref: string;
+  align: BlockAlign;
+}
+
+export interface GalleryBlockData {
+  title: string;
+  images: string[];
+}
+
 export type HomepageBlock =
   | { id: string; type: "testo_libero"; data: TestoLiberoBlockData }
-  | { id: string; type: "hero_alt"; data: HeroAltBlockData };
+  | { id: string; type: "hero_alt"; data: HeroAltBlockData }
+  | { id: string; type: "testimonianze"; data: TestimonianzeBlockData }
+  | { id: string; type: "cta_banner"; data: CtaBannerBlockData }
+  | { id: string; type: "gallery"; data: GalleryBlockData };
 
 export interface HomeContent {
   hero_title_main: string;

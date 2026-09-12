@@ -13,12 +13,18 @@ export function ImageUploader({
   name,
   label,
   defaultValue,
+  onChange,
 }: {
   name: string;
   label: string;
   defaultValue?: string | null;
+  onChange?: (url: string) => void;
 }) {
-  const [url, setUrl] = useState(defaultValue ?? "");
+  const [url, setUrlState] = useState(defaultValue ?? "");
+  function setUrl(next: string) {
+    setUrlState(next);
+    onChange?.(next);
+  }
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [libraryOpen, setLibraryOpen] = useState(false);

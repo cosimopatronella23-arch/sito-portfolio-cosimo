@@ -1,5 +1,8 @@
 import { TestoLibero } from "./TestoLibero";
 import { HeroAlt } from "./HeroAlt";
+import { Testimonianze } from "./Testimonianze";
+import { CtaBanner } from "./CtaBanner";
+import { Gallery } from "./Gallery";
 import type { HomepageBlock } from "@/lib/types";
 
 /**
@@ -18,6 +21,12 @@ export function BlockRenderer({ blocks }: { blocks?: HomepageBlock[] }) {
             return <TestoLibero key={block.id} data={block.data} />;
           case "hero_alt":
             return <HeroAlt key={block.id} data={block.data} />;
+          case "testimonianze":
+            return <Testimonianze key={block.id} data={block.data} />;
+          case "cta_banner":
+            return <CtaBanner key={block.id} data={block.data} />;
+          case "gallery":
+            return <Gallery key={block.id} data={block.data} />;
           default:
             return null;
         }

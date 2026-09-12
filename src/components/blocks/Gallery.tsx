@@ -1,0 +1,42 @@
+"use client";
+
+import { motion } from "framer-motion";
+import { CoverImage } from "@/components/ui/CoverImage";
+import type { GalleryBlockData } from "@/lib/types";
+
+/**
+ * Blocco "Gallery": griglia di immagini. Fase B del sistema di blocchi —
+ * vedi HomeContent.blocks.
+ */
+export function Gallery({ data }: { data: GalleryBlockData }) {
+  const images = (data.images ?? []).filter(Boolean);
+  if (images.length === 0) return null;
+
+  return (
+    <motion.section
+      initial={{ opacity: 0, y: 24 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-100px" }}
+      transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+      className="container-px py-20 sm:py-28"
+    >
+      {data.title ? (
+        <h2 className="font-display mb-12 text-3xl font-semibold tracking-tight sm:text-4xl">
+          {data.title}
+        </h2>
+      ) : null}
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
+        {images.map((src, i) => (
+          <CoverImage
+            key={src + i}
+            src={src}
+            alt=""
+            index={i}
+            className="aspect-square"
+            sizes="(min-width: 640px) 33vw, 50vw"
+          />
+        ))}
+      </div>
+    </motion.section>
+  );
+}
