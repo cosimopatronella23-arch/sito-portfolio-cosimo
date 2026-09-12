@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import clsx from "clsx";
 import type { TestimonianzeBlockData } from "@/lib/types";
 
 /**
@@ -9,6 +10,7 @@ import type { TestimonianzeBlockData } from "@/lib/types";
  */
 export function Testimonianze({ data }: { data: TestimonianzeBlockData }) {
   if (!data.items || data.items.length === 0) return null;
+  const centered = data.align === "center";
 
   return (
     <motion.section
@@ -19,7 +21,12 @@ export function Testimonianze({ data }: { data: TestimonianzeBlockData }) {
       className="container-px py-20 sm:py-28"
     >
       {data.title ? (
-        <h2 className="font-display mb-12 text-3xl font-semibold tracking-tight sm:text-4xl">
+        <h2
+          className={clsx(
+            "font-display mb-12 text-3xl font-semibold tracking-tight sm:text-4xl",
+            centered && "text-center",
+          )}
+        >
           {data.title}
         </h2>
       ) : null}

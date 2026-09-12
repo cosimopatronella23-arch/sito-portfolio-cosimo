@@ -19,7 +19,7 @@ export function HeroAlt({ data }: { data: HeroAltBlockData }) {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-100px" }}
       transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-      className="container-px border-t border-border py-24 sm:py-32"
+      className="container-px py-24 sm:py-32"
     >
       <div
         className={clsx(

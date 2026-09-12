@@ -89,6 +89,7 @@ export interface TestimonialItem {
 export interface TestimonianzeBlockData {
   title: string;
   items: TestimonialItem[];
+  align: BlockAlign;
 }
 
 export interface CtaBannerBlockData {
@@ -102,6 +103,7 @@ export interface CtaBannerBlockData {
 export interface GalleryBlockData {
   title: string;
   images: string[];
+  align: BlockAlign;
 }
 
 export type HomepageBlock =

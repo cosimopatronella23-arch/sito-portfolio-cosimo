@@ -38,9 +38,9 @@ function emptyBlock(type: HomepageBlock["type"]): HomepageBlock {
         data: { title: "", subtitle: "", ctaLabel: "", ctaHref: "", align: "left" },
       };
     case "testimonianze":
-      return { id, type, data: { title: "", items: [] } };
+      return { id, type, data: { title: "", items: [], align: "left" } };
     case "gallery":
-      return { id, type, data: { title: "", images: [] } };
+      return { id, type, data: { title: "", images: [], align: "left" } };
   }
 }
 
@@ -140,24 +140,20 @@ export function HomepageBlocksEditor({
             className={fieldClasses}
           />
 
-          {block.type === "testo_libero" ||
-          block.type === "hero_alt" ||
-          block.type === "cta_banner" ? (
-            <div className="flex items-center gap-4 text-sm">
-              <span className="text-foreground-muted">Allineamento:</span>
-              {(["left", "center"] as const).map((align) => (
-                <label key={align} className="flex items-center gap-1.5">
-                  <input
-                    type="radio"
-                    name={`align-${block.id}`}
-                    checked={(block.data.align ?? "left") === align}
-                    onChange={() => updateData(i, { align })}
-                  />
-                  {align === "left" ? "Sinistra" : "Centro"}
-                </label>
-              ))}
-            </div>
-          ) : null}
+          <div className="flex items-center gap-4 text-sm">
+            <span className="text-foreground-muted">Allineamento:</span>
+            {(["left", "center"] as const).map((align) => (
+              <label key={align} className="flex items-center gap-1.5">
+                <input
+                  type="radio"
+                  name={`align-${block.id}`}
+                  checked={(block.data.align ?? "left") === align}
+                  onChange={() => updateData(i, { align })}
+                />
+                {align === "left" ? "Sinistra" : "Centro"}
+              </label>
+            ))}
+          </div>
 
           {block.type === "testo_libero" ? (
             <>

@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import clsx from "clsx";
 import { CoverImage } from "@/components/ui/CoverImage";
 import type { GalleryBlockData } from "@/lib/types";
 
@@ -11,6 +12,7 @@ import type { GalleryBlockData } from "@/lib/types";
 export function Gallery({ data }: { data: GalleryBlockData }) {
   const images = (data.images ?? []).filter(Boolean);
   if (images.length === 0) return null;
+  const centered = data.align === "center";
 
   return (
     <motion.section
@@ -21,7 +23,12 @@ export function Gallery({ data }: { data: GalleryBlockData }) {
       className="container-px py-20 sm:py-28"
     >
       {data.title ? (
-        <h2 className="font-display mb-12 text-3xl font-semibold tracking-tight sm:text-4xl">
+        <h2
+          className={clsx(
+            "font-display mb-12 text-3xl font-semibold tracking-tight sm:text-4xl",
+            centered && "text-center",
+          )}
+        >
           {data.title}
         </h2>
       ) : null}
