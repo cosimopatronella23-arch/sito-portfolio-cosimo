@@ -157,7 +157,10 @@ export interface SiteSettings {
 }
 
 export interface PageSeo {
-  page_key: "home" | "servizi" | "contatti";
+  // Il sito è un one-pager: "home" è l'unica pagina reale con SEO propria.
+  // "servizi"/"contatti" sono solo ancore sulla homepage, non pagine
+  // separate — niente SEO indipendente per loro.
+  page_key: "home";
   seo_title: string;
   seo_description: string;
   seo_og_image: string | null;
