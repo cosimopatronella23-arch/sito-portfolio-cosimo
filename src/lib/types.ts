@@ -62,11 +62,14 @@ export interface NavLink {
   href: string;
 }
 
+export type BlockAlign = "left" | "center";
+
 export interface TestoLiberoBlockData {
   title: string;
   body: string;
   ctaLabel: string;
   ctaHref: string;
+  align: BlockAlign;
 }
 
 export interface HeroAltBlockData {
@@ -74,6 +77,7 @@ export interface HeroAltBlockData {
   subtitle: string;
   ctaLabel: string;
   ctaHref: string;
+  align: BlockAlign;
 }
 
 export type HomepageBlock =

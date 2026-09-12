@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import clsx from "clsx";
 import { Button } from "@/components/ui/Button";
 import type { TestoLiberoBlockData } from "@/lib/types";
 
@@ -9,6 +10,8 @@ import type { TestoLiberoBlockData } from "@/lib/types";
  * Fa parte della Fase A del sistema di blocchi — vedi HomeContent.blocks.
  */
 export function TestoLibero({ data }: { data: TestoLiberoBlockData }) {
+  const centered = data.align === "center";
+
   return (
     <motion.section
       initial={{ opacity: 0, y: 24 }}
@@ -17,7 +20,12 @@ export function TestoLibero({ data }: { data: TestoLiberoBlockData }) {
       transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
       className="container-px py-20 sm:py-28"
     >
-      <div className="mx-auto flex max-w-2xl flex-col gap-6 text-center">
+      <div
+        className={clsx(
+          "flex max-w-2xl flex-col gap-6",
+          centered ? "mx-auto text-center" : "text-left",
+        )}
+      >
         {data.title ? (
           <h2 className="font-display text-3xl font-semibold tracking-tight sm:text-4xl">
             {data.title}
@@ -30,7 +38,9 @@ export function TestoLibero({ data }: { data: TestoLiberoBlockData }) {
           />
         ) : null}
         {data.ctaLabel && data.ctaHref ? (
-          <div className="mt-2 flex justify-center">
+          <div
+            className={clsx("mt-2 flex", centered ? "justify-center" : "justify-start")}
+          >
             <Button href={data.ctaHref}>{data.ctaLabel}</Button>
           </div>
         ) : null}

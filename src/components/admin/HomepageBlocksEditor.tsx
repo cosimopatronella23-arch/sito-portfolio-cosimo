@@ -18,13 +18,19 @@ function emptyBlock(type: HomepageBlock["type"]): HomepageBlock {
     return {
       id,
       type,
-      data: { title: "", body: "", ctaLabel: "", ctaHref: "" },
+      data: { title: "", body: "", ctaLabel: "", ctaHref: "", align: "left" },
     };
   }
   return {
     id,
     type,
-    data: { title: "", subtitle: "", ctaLabel: "", ctaHref: "" },
+    data: {
+      title: "",
+      subtitle: "",
+      ctaLabel: "",
+      ctaHref: "",
+      align: "left",
+    },
   };
 }
 
@@ -121,6 +127,21 @@ export function HomepageBlocksEditor({
             placeholder="Titolo"
             className={fieldClasses}
           />
+
+          <div className="flex items-center gap-4 text-sm">
+            <span className="text-foreground-muted">Allineamento:</span>
+            {(["left", "center"] as const).map((align) => (
+              <label key={align} className="flex items-center gap-1.5">
+                <input
+                  type="radio"
+                  name={`align-${block.id}`}
+                  checked={(block.data.align ?? "left") === align}
+                  onChange={() => updateData(i, { align })}
+                />
+                {align === "left" ? "Sinistra" : "Centro"}
+              </label>
+            ))}
+          </div>
 
           {block.type === "testo_libero" ? (
             <>
