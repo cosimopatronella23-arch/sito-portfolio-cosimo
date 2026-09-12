@@ -5,17 +5,20 @@ import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { usePathname } from "next/navigation";
 import clsx from "clsx";
+import type { NavLink } from "@/lib/types";
 
-const NAV_LINKS = [
+const DEFAULT_NAV_LINKS: NavLink[] = [
   { label: "Servizi", href: "/#servizi" },
   { label: "Progetti", href: "/#progetti" },
   { label: "Blog", href: "/blog" },
   { label: "Contatti", href: "/#contatti" },
 ];
 
-export function Header() {
+export function Header({ navLinks }: { navLinks?: NavLink[] }) {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
+  const links =
+    navLinks && navLinks.length > 0 ? navLinks : DEFAULT_NAV_LINKS;
 
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
@@ -30,7 +33,7 @@ export function Header() {
         </Link>
 
         <nav className="hidden items-center gap-8 md:flex">
-          {NAV_LINKS.map((link) => (
+          {links.map((link) => (
             <Link
               key={link.href}
               href={link.href}
@@ -86,7 +89,7 @@ export function Header() {
             className="overflow-hidden border-t border-border md:hidden"
           >
             <div className="container-px flex flex-col gap-1 py-4">
-              {NAV_LINKS.map((link) => (
+              {links.map((link) => (
                 <Link
                   key={link.href}
                   href={link.href}

@@ -46,7 +46,7 @@ export default async function SiteLayout({
       ) : null}
       <SmoothScrollProvider />
       <CustomCursor />
-      <Header />
+      <Header navLinks={settings.home_content.nav_links} />
       <main className="flex-1">
         <PageTransition>{children}</PageTransition>
       </main>

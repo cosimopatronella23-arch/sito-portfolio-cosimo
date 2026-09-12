@@ -3,6 +3,7 @@
 import { useActionState, useState } from "react";
 import { updateSiteSettings } from "@/lib/actions/settings";
 import { ServicesEditor } from "./ServicesEditor";
+import { NavLinksEditor } from "./NavLinksEditor";
 import type { SiteSettings } from "@/lib/types";
 
 const fieldClasses =
@@ -222,6 +223,16 @@ export function SiteSettingsForm({ settings }: { settings: SiteSettings }) {
             {label}
           </label>
         ))}
+      </fieldset>
+
+      <fieldset className="flex flex-col gap-4 border border-border-strong p-4">
+        <legend className="px-2 text-sm font-medium">
+          Menu di navigazione
+        </legend>
+        <NavLinksEditor
+          name="nav_links"
+          defaultValue={settings.home_content.nav_links ?? []}
+        />
       </fieldset>
 
       {state.error ? <p className="text-sm text-error">{state.error}</p> : null}

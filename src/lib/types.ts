@@ -57,6 +57,11 @@ export interface ServiceItem {
   description: string;
 }
 
+export interface NavLink {
+  label: string;
+  href: string;
+}
+
 export interface HomeContent {
   hero_title_main: string;
   hero_title_accent: string;
@@ -72,6 +77,10 @@ export interface HomeContent {
   show_projects?: boolean;
   show_blog_preview?: boolean;
   show_contact?: boolean;
+  // Menu di navigazione dell'header: vive qui (invece che in una colonna
+  // dedicata) per evitare una migrazione al database. Se assente/vuoto, il
+  // sito usa i link di default già presenti nel codice — vedi Header.tsx.
+  nav_links?: NavLink[];
 }
 
 export interface SiteSettings {
