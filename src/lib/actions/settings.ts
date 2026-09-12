@@ -121,6 +121,7 @@ export async function updateSiteSettings(
   if (error) return { error: error.message };
 
   revalidatePath("/", "layout");
+  revalidatePath("/admin/impostazioni");
   return { error: null, success: true };
 }
 
@@ -144,5 +145,6 @@ export async function updatePageSeo(
   if (error) return { error: error.message };
 
   revalidatePath("/");
+  revalidatePath("/admin/impostazioni");
   return { error: null, success: true };
 }
