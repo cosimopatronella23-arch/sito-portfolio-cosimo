@@ -4,6 +4,7 @@ import { useActionState, useState } from "react";
 import { updateSiteSettings } from "@/lib/actions/settings";
 import { ServicesEditor } from "./ServicesEditor";
 import { NavLinksEditor } from "./NavLinksEditor";
+import { SettingsSection } from "./SettingsSection";
 import type { SiteSettings } from "@/lib/types";
 
 const fieldClasses =
@@ -16,75 +17,46 @@ export function SiteSettingsForm({ settings }: { settings: SiteSettings }) {
   const [accentColor, setAccentColor] = useState(settings.accent_color);
 
   return (
-    <form action={formAction} className="flex flex-col gap-6">
-      <label className="flex flex-col gap-2">
-        <span className="text-sm font-medium">Titolo del sito</span>
-        <input
-          name="site_title"
-          defaultValue={settings.site_title}
-          className={fieldClasses}
-        />
-      </label>
+    <form action={formAction} className="flex flex-col gap-4">
+      <SettingsSection title="Generale" defaultOpen>
+        <label className="flex flex-col gap-2">
+          <span className="text-sm font-medium">Titolo del sito</span>
+          <input
+            name="site_title"
+            defaultValue={settings.site_title}
+            className={fieldClasses}
+          />
+        </label>
 
-      <label className="flex flex-col gap-2">
-        <span className="text-sm font-medium">Email di contatto</span>
-        <input
-          name="contact_email"
-          type="email"
-          defaultValue={settings.contact_email}
-          className={fieldClasses}
-        />
-      </label>
+        <label className="flex flex-col gap-2">
+          <span className="text-sm font-medium">Email di contatto</span>
+          <input
+            name="contact_email"
+            type="email"
+            defaultValue={settings.contact_email}
+            className={fieldClasses}
+          />
+        </label>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        {(["instagram", "linkedin", "dribbble"] as const).map((key) => (
-          <label key={key} className="flex flex-col gap-2">
-            <span className="text-sm font-medium capitalize">{key}</span>
-            <input
-              name={`social_${key}`}
-              defaultValue={settings.social_links[key] ?? ""}
-              className={fieldClasses}
-            />
-          </label>
-        ))}
-      </div>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+          {(["instagram", "linkedin", "dribbble"] as const).map((key) => (
+            <label key={key} className="flex flex-col gap-2">
+              <span className="text-sm font-medium capitalize">{key}</span>
+              <input
+                name={`social_${key}`}
+                defaultValue={settings.social_links[key] ?? ""}
+                className={fieldClasses}
+              />
+            </label>
+          ))}
+        </div>
+      </SettingsSection>
 
-      <label className="flex flex-col gap-2">
-        <span className="text-sm font-medium">
-          Codice di verifica Google Search Console (opzionale)
-        </span>
-        <input
-          name="google_site_verification_code"
-          defaultValue={settings.google_site_verification_code ?? ""}
-          className={fieldClasses}
-        />
-      </label>
-
-      <label className="flex flex-col gap-2">
-        <span className="text-sm font-medium">
-          GA4 Measurement ID (es. G-XXXXXXXXXX)
-        </span>
-        <input
-          name="ga4_measurement_id"
-          defaultValue={settings.ga4_measurement_id ?? ""}
-          placeholder="G-XXXXXXXXXX"
-          pattern="G-[A-Z0-9]+"
-          title="Formato: G- seguito da lettere maiuscole e numeri"
-          className={fieldClasses}
-        />
-        <span className="text-xs text-foreground-muted">
-          Vuoto = analytics disattivato, nessun banner cookie mostrato.
-        </span>
-      </label>
-
-      <fieldset className="flex flex-col gap-4 border border-border-strong p-4">
-        <legend className="px-2 text-sm font-medium">
-          Colore accento del sito
-        </legend>
-        <p className="text-sm text-foreground-muted">
-          Cambia il colore usato per link, bottoni e dettagli in evidenza. Non
-          tocca lo sfondo scuro né il resto della palette.
-        </p>
+      <SettingsSection
+        title="Colore accento"
+        description="Cambia il colore usato per link, bottoni e dettagli in evidenza. Non tocca lo sfondo scuro né il resto della palette."
+        defaultOpen
+      >
         <div className="flex items-center gap-4">
           <input
             type="color"
@@ -102,11 +74,9 @@ export function SiteSettingsForm({ settings }: { settings: SiteSettings }) {
             className={fieldClasses}
           />
         </div>
-      </fieldset>
+      </SettingsSection>
 
-      <fieldset className="flex flex-col gap-4 border border-border-strong p-4">
-        <legend className="px-2 text-sm font-medium">Homepage</legend>
-
+      <SettingsSection title="Homepage — testi">
         <label className="flex flex-col gap-2">
           <span className="text-sm text-foreground-muted">
             Titolo principale (prima parte, non colorata — vai a capo con invio
@@ -196,37 +166,41 @@ export function SiteSettingsForm({ settings }: { settings: SiteSettings }) {
             defaultValue={settings.home_content.services}
           />
         </div>
-      </fieldset>
+      </SettingsSection>
 
-      <fieldset className="flex flex-col gap-3 border border-border-strong p-4">
-        <legend className="px-2 text-sm font-medium">
-          Sezioni visibili in homepage
-        </legend>
-        <p className="text-sm text-foreground-muted">
-          Disattiva temporaneamente una sezione senza perdere i contenuti. La
-          prima sezione (in alto) non è disattivabile.
-        </p>
-        {(
-          [
-            { name: "show_services", label: "Servizi" },
-            { name: "show_projects", label: "Progetti" },
-            { name: "show_blog_preview", label: "Anteprima blog" },
-            { name: "show_contact", label: "Contatti" },
-          ] as const
-        ).map(({ name, label }) => (
-          <label key={name} className="flex items-center gap-2 text-sm">
-            <input
-              type="checkbox"
-              name={name}
-              defaultChecked={settings.home_content[name] ?? true}
-            />
-            {label}
-          </label>
-        ))}
-      </fieldset>
+      <SettingsSection
+        title="Homepage — sezioni visibili"
+        description="Disattiva temporaneamente una sezione senza perdere i contenuti. La prima sezione (in alto) non è disattivabile."
+      >
+        <div className="flex flex-col gap-3">
+          {(
+            [
+              { name: "show_services", label: "Servizi" },
+              { name: "show_projects", label: "Progetti" },
+              { name: "show_blog_preview", label: "Anteprima blog" },
+              { name: "show_contact", label: "Contatti" },
+            ] as const
+          ).map(({ name, label }) => (
+            <label key={name} className="flex items-center gap-2 text-sm">
+              <input
+                type="checkbox"
+                name={name}
+                defaultChecked={settings.home_content[name] ?? true}
+              />
+              {label}
+            </label>
+          ))}
+        </div>
+      </SettingsSection>
 
-      <fieldset className="flex flex-col gap-4 border border-border-strong p-4">
-        <legend className="px-2 text-sm font-medium">Footer</legend>
+      <SettingsSection title="Menu di navigazione">
+        <NavLinksEditor
+          name="nav_links"
+          defaultValue={settings.home_content.nav_links ?? []}
+        />
+      </SettingsSection>
+
+      <SettingsSection title="Footer">
         <label className="flex flex-col gap-2">
           <span className="text-sm text-foreground-muted">
             Testo sotto il nome, in fondo al sito (vuoto = usa il testo
@@ -239,28 +213,54 @@ export function SiteSettingsForm({ settings }: { settings: SiteSettings }) {
             className={fieldClasses}
           />
         </label>
-      </fieldset>
+      </SettingsSection>
 
-      <fieldset className="flex flex-col gap-4 border border-border-strong p-4">
-        <legend className="px-2 text-sm font-medium">
-          Menu di navigazione
-        </legend>
-        <NavLinksEditor
-          name="nav_links"
-          defaultValue={settings.home_content.nav_links ?? []}
-        />
-      </fieldset>
+      <SettingsSection title="Integrazioni (Google)">
+        <label className="flex flex-col gap-2">
+          <span className="text-sm font-medium">
+            Codice di verifica Google Search Console (opzionale)
+          </span>
+          <input
+            name="google_site_verification_code"
+            defaultValue={settings.google_site_verification_code ?? ""}
+            className={fieldClasses}
+          />
+        </label>
 
-      {state.error ? <p className="text-sm text-error">{state.error}</p> : null}
-      {state.success ? <p className="text-sm text-success">Salvato.</p> : null}
+        <label className="flex flex-col gap-2">
+          <span className="text-sm font-medium">
+            GA4 Measurement ID (es. G-XXXXXXXXXX)
+          </span>
+          <input
+            name="ga4_measurement_id"
+            defaultValue={settings.ga4_measurement_id ?? ""}
+            placeholder="G-XXXXXXXXXX"
+            pattern="G-[A-Z0-9]+"
+            title="Formato: G- seguito da lettere maiuscole e numeri"
+            className={fieldClasses}
+          />
+          <span className="text-xs text-foreground-muted">
+            Vuoto = analytics disattivato, nessun banner cookie mostrato.
+          </span>
+        </label>
+      </SettingsSection>
 
-      <button
-        type="submit"
-        disabled={pending}
-        className="w-max bg-foreground px-6 py-3 text-sm font-medium text-background transition-colors hover:bg-accent disabled:opacity-50"
-      >
-        {pending ? "Salvo..." : "Salva impostazioni"}
-      </button>
+      <div className="flex flex-col gap-3 pt-2">
+        {state.error ? (
+          <p className="text-sm text-error">{state.error}</p>
+        ) : null}
+        {state.success ? (
+          <p className="text-sm text-success">Salvato.</p>
+        ) : null}
+
+        <button
+          type="submit"
+          disabled={pending}
+          className="w-max bg-foreground px-6 py-3 text-sm font-medium text-background transition-colors hover:bg-accent disabled:opacity-50"
+        >
+          {pending ? "Salvo..." : "Salva impostazioni"}
+        </button>
+      </div>
     </form>
   );
 }
