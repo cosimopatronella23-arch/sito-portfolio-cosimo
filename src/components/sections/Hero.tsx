@@ -17,10 +17,10 @@ const fadeUp: Variants = {
 };
 
 export function Hero({ content }: { content: HomeContent }) {
-  // Trim solo i bordi esterni: uno spazio finale prima della parte colorata
-  // va sempre aggiunto a parte qui sotto, non può dipendere da uno spazio
-  // "invisibile" salvato nel testo (si perde facilmente in un editor/trim).
-  const titleLines = content.hero_title_main.replace(/\s+$/, "").split("\n");
+  // Toglie solo spazi/tab finali (mai affidabili da un editor/trim), ma
+  // preserva un "a capo" finale intenzionale: serve a spingere il titolo
+  // accentato sulla riga successiva invece che in coda all'ultima riga.
+  const titleLines = content.hero_title_main.replace(/[ \t]+$/, "").split("\n");
 
   return (
     <section className="relative overflow-hidden container-px pt-20 pb-24 sm:pt-28 sm:pb-32">

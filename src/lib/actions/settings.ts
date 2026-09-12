@@ -26,7 +26,6 @@ const HOME_CONTENT_TEXT_FIELDS: Array<
     | "blocks"
   >
 > = [
-  "hero_title_main",
   "hero_title_accent",
   "hero_subtitle",
   "hero_quote",
@@ -57,6 +56,12 @@ export async function updateSiteSettings(
   for (const field of HOME_CONTENT_TEXT_FIELDS) {
     homeContent[field] = String(formData.get(field) || "").trim();
   }
+
+  // Trim solo iniziale: un "a capo" finale è intenzionale (spinge il titolo
+  // accentato sulla riga successiva) e non va tolto come farebbe .trim().
+  homeContent.hero_title_main = String(
+    formData.get("hero_title_main") || "",
+  ).replace(/^\s+/, "");
 
   // Sfondo/testo: vuoti = usa i default del sito, altrimenti devono essere
   // esadecimali validi (stessa regola dell'accento).
