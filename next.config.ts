@@ -6,6 +6,9 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       { protocol: "https", hostname: "*.supabase.co", pathname: "/storage/**" },
     ],
+    // AVIF quando il browser lo supporta (file più leggeri di WebP), con
+    // fallback automatico a WebP altrimenti — nessuna differenza visiva.
+    formats: ["image/avif", "image/webp"],
   },
 };
 

@@ -43,6 +43,11 @@ export function buildMetadata(input: {
   };
 }
 
+// Identificativo stabile della Person, riferito (non duplicato) da ogni
+// altro JSON-LD del sito: aiuta Google a capire che è sempre la stessa
+// entità dietro sito, progetti e articoli.
+const PERSON_ID = `${SITE_URL}/#person`;
+
 export function projectJsonLd(project: Project) {
   return {
     "@context": "https://schema.org",
@@ -51,7 +56,9 @@ export function projectJsonLd(project: Project) {
     description: project.short_description,
     creator: {
       "@type": "Person",
+      "@id": PERSON_ID,
       name: "Cosimo Patronella",
+      url: SITE_URL,
     },
     about: project.category,
     datePublished: project.created_at,
@@ -68,7 +75,9 @@ export function blogPostJsonLd(post: BlogPost) {
     description: post.excerpt,
     author: {
       "@type": "Person",
+      "@id": PERSON_ID,
       name: "Cosimo Patronella",
+      url: SITE_URL,
     },
     datePublished: post.published_at,
     dateModified: post.updated_at,
@@ -80,6 +89,7 @@ export function personJsonLd(settings: SiteSettings) {
   return {
     "@context": "https://schema.org",
     "@type": "Person",
+    "@id": PERSON_ID,
     name: "Cosimo Patronella",
     jobTitle: "Web Designer",
     url: SITE_URL,
