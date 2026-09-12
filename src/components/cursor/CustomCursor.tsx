@@ -31,8 +31,10 @@ export function CustomCursor() {
 
     document.documentElement.classList.add("cursor-active-custom");
 
-    const xTo = gsap.quickTo(dot, "x", { duration: 0.5, ease: "power3" });
-    const yTo = gsap.quickTo(dot, "y", { duration: 0.5, ease: "power3" });
+    // Ritardo breve solo per addolcire il movimento (effetto "morbido"),
+    // non abbastanza da percepirsi come lento o poco reattivo.
+    const xTo = gsap.quickTo(dot, "x", { duration: 0.15, ease: "power3" });
+    const yTo = gsap.quickTo(dot, "y", { duration: 0.15, ease: "power3" });
 
     function handleMove(e: MouseEvent) {
       xTo(e.clientX);
