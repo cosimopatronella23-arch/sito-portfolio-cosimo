@@ -4,6 +4,7 @@ import { useActionState, useState } from "react";
 import { createProject, updateProject } from "@/lib/actions/projects";
 import { ImageUploader } from "./ImageUploader";
 import { ContentBlocksEditor } from "./ContentBlocksEditor";
+import { ProjectGalleryEditor } from "./ProjectGalleryEditor";
 import { SerpPreview } from "./SerpPreview";
 import { SITE_URL } from "@/lib/seo";
 import type { Project } from "@/lib/types";
@@ -98,6 +99,16 @@ export function ProjectForm({ project }: { project?: Project }) {
         label="Immagine di copertina"
         defaultValue={project?.cover_image}
       />
+
+      <div className="flex flex-col gap-3">
+        <span className="text-sm font-medium">
+          Galleria (foto/GIF aggiuntive)
+        </span>
+        <ProjectGalleryEditor
+          name="gallery"
+          defaultValue={project?.gallery ?? []}
+        />
+      </div>
 
       <div className="flex flex-col gap-3">
         <span className="text-sm font-medium">Sezioni del progetto</span>

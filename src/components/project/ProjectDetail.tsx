@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { CoverImage } from "@/components/ui/CoverImage";
+import { ProjectCoverCarousel } from "./ProjectCoverCarousel";
 import { Button } from "@/components/ui/Button";
 import type { Project } from "@/lib/types";
 
@@ -37,14 +37,12 @@ export function ProjectDetail({ project }: { project: Project }) {
           </dl>
         </header>
 
-        <div className="aspect-[16/9] w-full overflow-hidden">
-          <CoverImage
-            src={project.cover_image}
-            alt={project.title}
-            priority
-            className="h-full w-full"
-          />
-        </div>
+        <ProjectCoverCarousel
+          images={[project.cover_image, ...project.gallery].filter(
+            (src): src is string => Boolean(src),
+          )}
+          alt={project.title}
+        />
 
         <div className="flex flex-col gap-12">
           {project.content_blocks.map((block) => (
