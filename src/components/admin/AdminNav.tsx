@@ -8,6 +8,7 @@ import { LogoutButton } from "./LogoutButton";
 const LINKS = [
   { label: "Progetti", href: "/admin/progetti" },
   { label: "Blog", href: "/admin/blog" },
+  { label: "Media", href: "/admin/media" },
   { label: "Analytics", href: "/admin/analytics" },
   { label: "Impostazioni", href: "/admin/impostazioni" },
 ];
