@@ -3,6 +3,7 @@
 import { useRef, useState } from "react";
 import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
+import { MediaLibraryPicker } from "./MediaLibraryPicker";
 
 /**
  * Carica un'immagine sul bucket "media" di Supabase Storage e salva l'URL
@@ -20,6 +21,7 @@ export function ImageUploader({
   const [url, setUrl] = useState(defaultValue ?? "");
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [libraryOpen, setLibraryOpen] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   async function handleFile(file: File) {
@@ -66,6 +68,13 @@ export function ImageUploader({
               ? "Cambia immagine"
               : "Carica immagine"}
         </button>
+        <button
+          type="button"
+          onClick={() => setLibraryOpen(true)}
+          className="text-sm text-foreground-muted hover:text-foreground"
+        >
+          Scegli da libreria
+        </button>
         {url ? (
           <button
             type="button"
@@ -88,6 +97,15 @@ export function ImageUploader({
         }}
       />
       <input type="hidden" name={name} value={url} />
+      {libraryOpen ? (
+        <MediaLibraryPicker
+          onSelect={(selected) => {
+            setUrl(selected);
+            setLibraryOpen(false);
+          }}
+          onClose={() => setLibraryOpen(false)}
+        />
+      ) : null}
     </div>
   );
 }
