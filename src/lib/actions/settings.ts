@@ -2,7 +2,13 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
-import type { HomeContent, NavLink, PageSeo, ServiceItem } from "@/lib/types";
+import type {
+  HomeContent,
+  HomepageBlock,
+  NavLink,
+  PageSeo,
+  ServiceItem,
+} from "@/lib/types";
 
 type FormState = { error: string | null; success?: boolean };
 
@@ -17,6 +23,7 @@ const HOME_CONTENT_TEXT_FIELDS: Array<
     | "show_blog_preview"
     | "show_contact"
     | "nav_links"
+    | "blocks"
   >
 > = [
   "hero_title_main",
@@ -83,6 +90,14 @@ export async function updateSiteSettings(
   homeContent.nav_links = navLinks.filter(
     (link) => link.label.trim() && link.href.trim(),
   );
+
+  let blocks: HomepageBlock[] = [];
+  try {
+    blocks = JSON.parse(String(formData.get("blocks") || "[]"));
+  } catch {
+    blocks = [];
+  }
+  homeContent.blocks = blocks.filter((b) => b.id && b.type);
 
   const payload = {
     site_title: String(formData.get("site_title") || "").trim(),

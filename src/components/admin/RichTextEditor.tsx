@@ -43,9 +43,11 @@ function ToolbarButton({
 export function RichTextEditor({
   name,
   defaultValue = "",
+  onChange,
 }: {
   name: string;
   defaultValue?: string;
+  onChange?: (html: string) => void;
 }) {
   const editor = useEditor({
     immediatelyRender: false,
@@ -66,12 +68,16 @@ export function RichTextEditor({
 
   useEffect(() => {
     if (!editor) return;
-    const update = () => setHtml(editor.getHTML());
+    const update = () => {
+      const nextHtml = editor.getHTML();
+      setHtml(nextHtml);
+      onChange?.(nextHtml);
+    };
     editor.on("update", update);
     return () => {
       editor.off("update", update);
     };
-  }, [editor]);
+  }, [editor, onChange]);
 
   if (!editor) {
     return (

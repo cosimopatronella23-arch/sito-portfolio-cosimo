@@ -4,6 +4,7 @@ import { useActionState, useState } from "react";
 import { updateSiteSettings } from "@/lib/actions/settings";
 import { ServicesEditor } from "./ServicesEditor";
 import { NavLinksEditor } from "./NavLinksEditor";
+import { HomepageBlocksEditor } from "./HomepageBlocksEditor";
 import { SettingsSection } from "./SettingsSection";
 import { contrastRatio } from "@/lib/contrast";
 import type { SiteSettings } from "@/lib/types";
@@ -274,6 +275,16 @@ export function SiteSettingsForm({ settings }: { settings: SiteSettings }) {
             </label>
           ))}
         </div>
+      </SettingsSection>
+
+      <SettingsSection
+        title="Blocchi extra homepage"
+        description="Sezioni aggiuntive mostrate dopo il blog, prima dei Contatti. Se non ne aggiungi, la homepage resta esattamente com'è oggi."
+      >
+        <HomepageBlocksEditor
+          name="blocks"
+          defaultValue={settings.home_content.blocks ?? []}
+        />
       </SettingsSection>
 
       <SettingsSection title="Menu di navigazione">

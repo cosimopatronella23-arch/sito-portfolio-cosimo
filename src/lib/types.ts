@@ -62,6 +62,24 @@ export interface NavLink {
   href: string;
 }
 
+export interface TestoLiberoBlockData {
+  title: string;
+  body: string;
+  ctaLabel: string;
+  ctaHref: string;
+}
+
+export interface HeroAltBlockData {
+  title: string;
+  subtitle: string;
+  ctaLabel: string;
+  ctaHref: string;
+}
+
+export type HomepageBlock =
+  | { id: string; type: "testo_libero"; data: TestoLiberoBlockData }
+  | { id: string; type: "hero_alt"; data: HeroAltBlockData };
+
 export interface HomeContent {
   hero_title_main: string;
   hero_title_accent: string;
@@ -88,6 +106,10 @@ export interface HomeContent {
   // dedicata) per evitare una migrazione al database. Se assente/vuoto, il
   // sito usa i link di default già presenti nel codice — vedi Header.tsx.
   nav_links?: NavLink[];
+  // Fase A del sistema di blocchi: sezioni extra aggiunte in coda alla
+  // homepage (prima dei Contatti). Se assente/vuoto, la homepage resta
+  // esattamente come oggi — le sezioni fisse non sono ancora convertite.
+  blocks?: HomepageBlock[];
 }
 
 export interface SiteSettings {

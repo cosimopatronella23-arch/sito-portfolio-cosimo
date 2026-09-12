@@ -4,6 +4,7 @@ import { Services } from "@/components/sections/Services";
 import { ProjectsGrid } from "@/components/sections/ProjectsGrid";
 import { BlogPreview } from "@/components/sections/BlogPreview";
 import { ContactForm } from "@/components/sections/ContactForm";
+import { BlockRenderer } from "@/components/blocks/BlockRenderer";
 import { buildMetadata, personJsonLd } from "@/lib/seo";
 import { getPageSeo, getSiteSettings } from "@/lib/data/settings";
 
@@ -45,6 +46,7 @@ export default async function HomePage() {
       {settings.home_content.show_blog_preview ?? true ? (
         <BlogPreview />
       ) : null}
+      <BlockRenderer blocks={settings.home_content.blocks} />
       {settings.home_content.show_contact ?? true ? <ContactForm /> : null}
     </>
   );
