@@ -26,6 +26,7 @@ const HOME_CONTENT_TEXT_FIELDS: Array<
   "cta_primary",
   "cta_secondary",
   "services_title",
+  "footer_tagline",
 ];
 
 export async function updateSiteSettings(

@@ -24,8 +24,8 @@ export async function Footer() {
             Cosimo Patronella
           </span>
           <p className="max-w-sm text-sm text-foreground-muted">
-            Disegno e sviluppo siti su misura, dal primo schizzo al giorno in
-            cui li metti online.
+            {siteSettings.home_content.footer_tagline ||
+              "Disegno e sviluppo siti su misura, dal primo schizzo al giorno in cui li metti online."}
           </p>
         </div>
 

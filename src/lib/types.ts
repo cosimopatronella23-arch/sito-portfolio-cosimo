@@ -71,6 +71,9 @@ export interface HomeContent {
   cta_secondary: string;
   services_title: string;
   services: ServiceItem[];
+  // Vive qui per lo stesso motivo di nav_links: evitare una migrazione al
+  // database. Se assente/vuoto, il footer usa il testo di default nel codice.
+  footer_tagline?: string;
   // Opzionali: se assenti (contenuti esistenti pre-esistenti), il valore è
   // "visibile" di default — vedi ognuno dei ?? true nei punti in cui si usano.
   show_services?: boolean;

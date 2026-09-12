@@ -226,6 +226,22 @@ export function SiteSettingsForm({ settings }: { settings: SiteSettings }) {
       </fieldset>
 
       <fieldset className="flex flex-col gap-4 border border-border-strong p-4">
+        <legend className="px-2 text-sm font-medium">Footer</legend>
+        <label className="flex flex-col gap-2">
+          <span className="text-sm text-foreground-muted">
+            Testo sotto il nome, in fondo al sito (vuoto = usa il testo
+            attuale)
+          </span>
+          <textarea
+            name="footer_tagline"
+            defaultValue={settings.home_content.footer_tagline ?? ""}
+            rows={2}
+            className={fieldClasses}
+          />
+        </label>
+      </fieldset>
+
+      <fieldset className="flex flex-col gap-4 border border-border-strong p-4">
         <legend className="px-2 text-sm font-medium">
           Menu di navigazione
         </legend>
