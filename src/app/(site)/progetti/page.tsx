@@ -1,8 +1,17 @@
 import type { Metadata } from "next";
 import { SectionHeading } from "@/components/ui/SectionHeading";
-import { ProjectScreen } from "@/components/project/ProjectScreen";
+import { ProjectPairScreen } from "@/components/project/ProjectPairScreen";
 import { buildMetadata } from "@/lib/seo";
 import { getPublishedProjects } from "@/lib/data/projects";
+import type { Project } from "@/lib/types";
+
+function chunkInPairs(items: Project[]): Project[][] {
+  const pairs: Project[][] = [];
+  for (let i = 0; i < items.length; i += 2) {
+    pairs.push(items.slice(i, i + 2));
+  }
+  return pairs;
+}
 
 export const revalidate = 3600;
 
@@ -23,6 +32,7 @@ export default async function ProjectsIndexPage() {
         new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
     );
   const ordered = [...featured, ...rest];
+  const pairs = chunkInPairs(ordered);
 
   return (
     <div className="relative">
@@ -36,12 +46,12 @@ export default async function ProjectsIndexPage() {
         </p>
       ) : (
         <div className="mt-14 flex flex-col sm:mt-20">
-          {ordered.map((project, i) => (
-            <ProjectScreen
-              key={project.id}
-              project={project}
+          {pairs.map((pair, i) => (
+            <ProjectPairScreen
+              key={pair.map((p) => p.id).join("-")}
+              projects={pair}
               index={i}
-              total={ordered.length}
+              total={pairs.length}
             />
           ))}
         </div>
