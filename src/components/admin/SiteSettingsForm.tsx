@@ -5,7 +5,11 @@ import { updateSiteSettings } from "@/lib/actions/settings";
 import { ServicesEditor } from "./ServicesEditor";
 import { NavLinksEditor } from "./NavLinksEditor";
 import { SettingsSection } from "./SettingsSection";
+import { contrastRatio } from "@/lib/contrast";
 import type { SiteSettings } from "@/lib/types";
+
+const DEFAULT_BACKGROUND = "#0b0a10";
+const DEFAULT_FOREGROUND = "#f6f2ea";
 
 const fieldClasses =
   "w-full border-0 border-b border-border-strong bg-transparent px-0 py-2 text-foreground placeholder:text-foreground-muted focus-visible:border-accent focus-visible:outline-none";
@@ -15,6 +19,13 @@ export function SiteSettingsForm({ settings }: { settings: SiteSettings }) {
     error: null,
   });
   const [accentColor, setAccentColor] = useState(settings.accent_color);
+  const [backgroundColor, setBackgroundColor] = useState(
+    settings.home_content.background_color || DEFAULT_BACKGROUND,
+  );
+  const [foregroundColor, setForegroundColor] = useState(
+    settings.home_content.foreground_color || DEFAULT_FOREGROUND,
+  );
+  const ratio = contrastRatio(backgroundColor, foregroundColor);
 
   return (
     <form action={formAction} className="flex flex-col gap-4">
@@ -53,27 +64,99 @@ export function SiteSettingsForm({ settings }: { settings: SiteSettings }) {
       </SettingsSection>
 
       <SettingsSection
-        title="Colore accento"
-        description="Cambia il colore usato per link, bottoni e dettagli in evidenza. Non tocca lo sfondo scuro né il resto della palette."
+        title="Colori del sito"
+        description="Attenzione a sfondo e testo: un contrasto troppo basso rende il sito difficile da leggere. Il colore accento (bottoni, link) è più sicuro da cambiare da solo."
         defaultOpen
       >
-        <div className="flex items-center gap-4">
-          <input
-            type="color"
-            value={accentColor}
-            onChange={(e) => setAccentColor(e.target.value)}
-            className="h-11 w-11 shrink-0 cursor-pointer border border-border-strong bg-transparent"
-            aria-label="Colore accento"
-          />
-          <input
-            name="accent_color"
-            value={accentColor}
-            onChange={(e) => setAccentColor(e.target.value)}
-            pattern="#[0-9a-fA-F]{6}"
-            title="Formato esadecimale, es. #a78bfa"
-            className={fieldClasses}
-          />
+        <label className="flex flex-col gap-2">
+          <span className="text-sm font-medium">Colore accento</span>
+          <div className="flex items-center gap-4">
+            <input
+              type="color"
+              value={accentColor}
+              onChange={(e) => setAccentColor(e.target.value)}
+              className="h-11 w-11 shrink-0 cursor-pointer border border-border-strong bg-transparent"
+              aria-label="Colore accento"
+            />
+            <input
+              name="accent_color"
+              value={accentColor}
+              onChange={(e) => setAccentColor(e.target.value)}
+              pattern="#[0-9a-fA-F]{6}"
+              title="Formato esadecimale, es. #a78bfa"
+              className={fieldClasses}
+            />
+          </div>
+        </label>
+
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <label className="flex flex-col gap-2">
+            <span className="text-sm font-medium">Colore sfondo</span>
+            <div className="flex items-center gap-4">
+              <input
+                type="color"
+                value={backgroundColor}
+                onChange={(e) => setBackgroundColor(e.target.value)}
+                className="h-11 w-11 shrink-0 cursor-pointer border border-border-strong bg-transparent"
+                aria-label="Colore sfondo"
+              />
+              <input
+                name="background_color"
+                value={backgroundColor}
+                onChange={(e) => setBackgroundColor(e.target.value)}
+                pattern="#[0-9a-fA-F]{6}"
+                className={fieldClasses}
+              />
+            </div>
+          </label>
+
+          <label className="flex flex-col gap-2">
+            <span className="text-sm font-medium">Colore testo</span>
+            <div className="flex items-center gap-4">
+              <input
+                type="color"
+                value={foregroundColor}
+                onChange={(e) => setForegroundColor(e.target.value)}
+                className="h-11 w-11 shrink-0 cursor-pointer border border-border-strong bg-transparent"
+                aria-label="Colore testo"
+              />
+              <input
+                name="foreground_color"
+                value={foregroundColor}
+                onChange={(e) => setForegroundColor(e.target.value)}
+                pattern="#[0-9a-fA-F]{6}"
+                className={fieldClasses}
+              />
+            </div>
+          </label>
         </div>
+
+        <div
+          className="flex flex-col gap-2 border border-border-strong p-6"
+          style={{ backgroundColor, color: foregroundColor }}
+        >
+          <span className="text-xs opacity-70">Anteprima sfondo/testo</span>
+          <span className="font-display text-xl font-semibold">
+            Siti fatti bene, non sfornati in serie.
+          </span>
+          <span style={{ color: accentColor }} className="text-sm">
+            Un dettaglio con il colore accento.
+          </span>
+        </div>
+
+        {ratio !== null ? (
+          ratio < 4.5 ? (
+            <p className="text-sm text-warning">
+              Contrasto {ratio.toFixed(1)}:1 — sotto la soglia consigliata
+              (4.5:1) per il testo normale. Il sito resterà leggibile ma sotto
+              lo standard di accessibilità.
+            </p>
+          ) : (
+            <p className="text-sm text-success">
+              Contrasto {ratio.toFixed(1)}:1 — buono.
+            </p>
+          )
+        ) : null}
       </SettingsSection>
 
       <SettingsSection title="Homepage — testi">

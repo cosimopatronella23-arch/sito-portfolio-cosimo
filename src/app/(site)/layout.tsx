@@ -37,13 +37,28 @@ export default async function SiteLayout({
   const accent = HEX_COLOR_REGEX.test(settings.accent_color)
     ? settings.accent_color
     : null;
+  const background = HEX_COLOR_REGEX.test(
+    settings.home_content.background_color ?? "",
+  )
+    ? settings.home_content.background_color
+    : null;
+  const foreground = HEX_COLOR_REGEX.test(
+    settings.home_content.foreground_color ?? "",
+  )
+    ? settings.home_content.foreground_color
+    : null;
+  const customColors = [
+    accent ? `--accent: ${accent}; --accent-strong: ${accent};` : "",
+    background ? `--background: ${background};` : "",
+    foreground ? `--foreground: ${foreground};` : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
 
   return (
     <>
-      {/* Colore accento personalizzabile da /admin/impostazioni. */}
-      {accent ? (
-        <style>{`:root { --accent: ${accent}; --accent-strong: ${accent}; }`}</style>
-      ) : null}
+      {/* Colori personalizzabili da /admin/impostazioni. */}
+      {customColors ? <style>{`:root { ${customColors} }`}</style> : null}
       <SmoothScrollProvider />
       <CustomCursor />
       <Header navLinks={settings.home_content.nav_links} />

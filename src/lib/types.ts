@@ -74,6 +74,10 @@ export interface HomeContent {
   // Vive qui per lo stesso motivo di nav_links: evitare una migrazione al
   // database. Se assente/vuoto, il footer usa il testo di default nel codice.
   footer_tagline?: string;
+  // Sfondo e testo principale del sito (oltre all'accento, già in una
+  // colonna dedicata). Vuoti = usa i colori di default in globals.css.
+  background_color?: string;
+  foreground_color?: string;
   // Opzionali: se assenti (contenuti esistenti pre-esistenti), il valore è
   // "visibile" di default — vedi ognuno dei ?? true nei punti in cui si usano.
   show_services?: boolean;

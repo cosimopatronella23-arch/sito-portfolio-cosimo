@@ -27,6 +27,8 @@ const HOME_CONTENT_TEXT_FIELDS: Array<
   "cta_secondary",
   "services_title",
   "footer_tagline",
+  "background_color",
+  "foreground_color",
 ];
 
 export async function updateSiteSettings(
@@ -47,6 +49,17 @@ export async function updateSiteSettings(
   const homeContent = {} as HomeContent;
   for (const field of HOME_CONTENT_TEXT_FIELDS) {
     homeContent[field] = String(formData.get(field) || "").trim();
+  }
+
+  // Sfondo/testo: vuoti = usa i default del sito, altrimenti devono essere
+  // esadecimali validi (stessa regola dell'accento).
+  for (const field of ["background_color", "foreground_color"] as const) {
+    const value = homeContent[field];
+    if (value && !HEX_COLOR_REGEX.test(value)) {
+      return {
+        error: "I colori devono essere esadecimali tipo #0b0a10, oppure vuoti.",
+      };
+    }
   }
 
   let services: ServiceItem[] = [];
