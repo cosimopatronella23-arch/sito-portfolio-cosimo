@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ProjectCoverCarousel } from "./ProjectCoverCarousel";
+import { ProjectMediaGallery } from "./ProjectMediaGallery";
 import { Button } from "@/components/ui/Button";
 import type { Project } from "@/lib/types";
 
@@ -37,7 +37,7 @@ export function ProjectDetail({ project }: { project: Project }) {
           </dl>
         </header>
 
-        <ProjectCoverCarousel
+        <ProjectMediaGallery
           images={[project.cover_image, ...project.gallery].filter(
             (src): src is string => Boolean(src),
           )}
