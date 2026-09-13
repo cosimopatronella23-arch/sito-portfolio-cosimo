@@ -22,23 +22,19 @@ export function CustomCursor() {
       "(prefers-reduced-motion: reduce)",
     ).matches;
 
-    if (!supportsFinePointer || prefersReducedMotion) {
+    // Anche da fermo (senza l'inversione di colore, già tolta) il cursore
+    // custom restava percepibilmente a scatti su Safari/Mac: il problema
+    // non era solo il mix-blend-mode ma il ricalcolo continuo via GSAP ad
+    // ogni movimento del mouse. Su Safari si rinuncia del tutto e si torna
+    // al puntatore di sistema — la regola CSS accanto nasconde comunque il
+    // pallino, questo evita pure di far girare il loop JS inutilmente.
+    if (!supportsFinePointer || prefersReducedMotion || isSafari()) {
       return;
     }
 
     const dot = dotRef.current;
     const label = labelRef.current;
     if (!dot || !label) return;
-
-    // Safari ricompone tutto lo strato di blending ad ogni frame quando un
-    // elemento con mix-blend-mode si muove via transform — è la causa dello
-    // scatto del cursore segnalato solo lì. Su Safari si rinuncia
-    // all'inversione di colore e si torna a un pallino pieno, senza blend:
-    // Chrome continua a vedere l'effetto originale.
-    if (isSafari()) {
-      dot.style.mixBlendMode = "normal";
-      dot.style.backgroundColor = "var(--accent)";
-    }
 
     document.documentElement.classList.add("cursor-active-custom");
 
@@ -107,7 +103,7 @@ export function CustomCursor() {
   return (
     <div
       ref={dotRef}
-      className="pointer-events-none fixed top-0 left-0 z-[9999] hidden h-3.5 w-3.5 rotate-45 -translate-x-1/2 -translate-y-1/2 items-center justify-center bg-white text-background mix-blend-difference transition-[width,height,padding,transform] duration-300 ease-out [&[data-expanded='text']]:h-auto [&[data-expanded='text']]:w-auto [&[data-expanded='text']]:rotate-0 [&[data-expanded='text']]:px-4 [&[data-expanded='text']]:py-2 [@media(hover:hover)_and_(pointer:fine)]:flex"
+      className="custom-cursor-dot pointer-events-none fixed top-0 left-0 z-[9999] hidden h-3.5 w-3.5 rotate-45 -translate-x-1/2 -translate-y-1/2 items-center justify-center bg-white text-background mix-blend-difference transition-[width,height,padding,transform] duration-300 ease-out [&[data-expanded='text']]:h-auto [&[data-expanded='text']]:w-auto [&[data-expanded='text']]:rotate-0 [&[data-expanded='text']]:px-4 [&[data-expanded='text']]:py-2 [@media(hover:hover)_and_(pointer:fine)]:flex"
       aria-hidden="true"
     >
       <span

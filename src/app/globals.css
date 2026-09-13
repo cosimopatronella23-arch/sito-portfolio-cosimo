@@ -212,6 +212,14 @@ body {
     backdrop-filter: none;
     background-color: var(--background);
   }
+
+  /* Anche da fermo il pallino restava a scatti su Safari: si nasconde del
+     tutto e resta il puntatore di sistema normale. La regola JS gemella
+     (CustomCursor.tsx) evita pure di far girare inutilmente il loop che lo
+     muoveva. */
+  .custom-cursor-dot {
+    display: none !important;
+  }
 }
 
 /* ---------------------------------------------------------------------- */
