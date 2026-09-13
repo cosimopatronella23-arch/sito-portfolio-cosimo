@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import clsx from "clsx";
 import { Button } from "@/components/ui/Button";
+import { pickTextColors } from "@/lib/contrast";
 import type { CtaBannerBlockData } from "@/lib/types";
 
 /**
@@ -12,6 +13,7 @@ import type { CtaBannerBlockData } from "@/lib/types";
  */
 export function CtaBanner({ data }: { data: CtaBannerBlockData }) {
   const centered = data.align === "center";
+  const colors = pickTextColors(data.backgroundColor);
 
   return (
     <motion.section
@@ -22,6 +24,11 @@ export function CtaBanner({ data }: { data: CtaBannerBlockData }) {
       className="container-px py-16 sm:py-20"
     >
       <div
+        style={
+          data.backgroundColor
+            ? { backgroundColor: data.backgroundColor, borderColor: colors?.border }
+            : undefined
+        }
         className={clsx(
           "flex flex-col gap-6 border border-border-strong bg-surface p-10 sm:p-14",
           centered
@@ -31,12 +38,20 @@ export function CtaBanner({ data }: { data: CtaBannerBlockData }) {
       >
         <div className={clsx("flex flex-col gap-2", !centered && "sm:max-w-xl")}>
           {data.title ? (
-            <h2 className="font-display text-2xl font-semibold tracking-tight sm:text-3xl">
+            <h2
+              style={colors ? { color: colors.text } : undefined}
+              className="font-display text-2xl font-semibold tracking-tight sm:text-3xl"
+            >
               {data.title}
             </h2>
           ) : null}
           {data.subtitle ? (
-            <p className="text-foreground-muted">{data.subtitle}</p>
+            <p
+              style={colors ? { color: colors.muted } : undefined}
+              className="text-foreground-muted"
+            >
+              {data.subtitle}
+            </p>
           ) : null}
         </div>
         {data.ctaLabel && data.ctaHref ? (

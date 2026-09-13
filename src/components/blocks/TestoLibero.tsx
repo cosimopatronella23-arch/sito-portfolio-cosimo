@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import clsx from "clsx";
 import { Button } from "@/components/ui/Button";
+import { pickTextColors } from "@/lib/contrast";
 import type { TestoLiberoBlockData } from "@/lib/types";
 
 /**
@@ -11,6 +12,7 @@ import type { TestoLiberoBlockData } from "@/lib/types";
  */
 export function TestoLibero({ data }: { data: TestoLiberoBlockData }) {
   const centered = data.align === "center";
+  const colors = pickTextColors(data.backgroundColor);
 
   return (
     <motion.section
@@ -18,6 +20,7 @@ export function TestoLibero({ data }: { data: TestoLiberoBlockData }) {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-100px" }}
       transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+      style={data.backgroundColor ? { backgroundColor: data.backgroundColor } : undefined}
       className="container-px py-20 sm:py-28"
     >
       <div
@@ -27,12 +30,16 @@ export function TestoLibero({ data }: { data: TestoLiberoBlockData }) {
         )}
       >
         {data.title ? (
-          <h2 className="font-display text-3xl font-semibold tracking-tight sm:text-4xl">
+          <h2
+            style={colors ? { color: colors.text } : undefined}
+            className="font-display text-3xl font-semibold tracking-tight sm:text-4xl"
+          >
             {data.title}
           </h2>
         ) : null}
         {data.body ? (
           <div
+            style={colors ? { color: colors.muted } : undefined}
             className="prose-editor text-foreground-muted"
             dangerouslySetInnerHTML={{ __html: data.body }}
           />

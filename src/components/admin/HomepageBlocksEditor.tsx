@@ -155,6 +155,34 @@ export function HomepageBlocksEditor({
             ))}
           </div>
 
+          <div className="flex items-center gap-3 text-sm">
+            <span className="text-foreground-muted">
+              Sfondo di questa sezione:
+            </span>
+            <input
+              type="color"
+              value={block.data.backgroundColor || "#0b0a10"}
+              onChange={(e) =>
+                updateData(i, { backgroundColor: e.target.value })
+              }
+              className="h-8 w-8 shrink-0 cursor-pointer border border-border-strong bg-transparent"
+              aria-label="Colore di sfondo del blocco"
+            />
+            {block.data.backgroundColor ? (
+              <button
+                type="button"
+                onClick={() => updateData(i, { backgroundColor: "" })}
+                className="text-xs text-foreground-muted hover:text-foreground"
+              >
+                Usa lo sfondo del sito
+              </button>
+            ) : (
+              <span className="text-xs text-foreground-muted">
+                Sfondo del sito (predefinito)
+              </span>
+            )}
+          </div>
+
           {block.type === "testo_libero" ? (
             <>
               <span className="text-sm text-foreground-muted">Testo</span>

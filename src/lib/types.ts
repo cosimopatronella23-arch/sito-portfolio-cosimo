@@ -64,7 +64,15 @@ export interface NavLink {
 
 export type BlockAlign = "left" | "center";
 
-export interface TestoLiberoBlockData {
+// Comune a tutti i blocchi: sfondo personalizzato per la singola sezione.
+// Vuoto = usa lo sfondo del sito come sempre; se impostato, testo e bordi
+// del blocco si adattano automaticamente (chiaro/scuro) per restare
+// leggibili — vedi pickTextColors in src/lib/contrast.ts.
+interface BlockBackground {
+  backgroundColor?: string;
+}
+
+export interface TestoLiberoBlockData extends BlockBackground {
   title: string;
   body: string;
   ctaLabel: string;
@@ -72,7 +80,7 @@ export interface TestoLiberoBlockData {
   align: BlockAlign;
 }
 
-export interface HeroAltBlockData {
+export interface HeroAltBlockData extends BlockBackground {
   title: string;
   subtitle: string;
   ctaLabel: string;
@@ -86,13 +94,13 @@ export interface TestimonialItem {
   role: string;
 }
 
-export interface TestimonianzeBlockData {
+export interface TestimonianzeBlockData extends BlockBackground {
   title: string;
   items: TestimonialItem[];
   align: BlockAlign;
 }
 
-export interface CtaBannerBlockData {
+export interface CtaBannerBlockData extends BlockBackground {
   title: string;
   subtitle: string;
   ctaLabel: string;
@@ -100,7 +108,7 @@ export interface CtaBannerBlockData {
   align: BlockAlign;
 }
 
-export interface GalleryBlockData {
+export interface GalleryBlockData extends BlockBackground {
   title: string;
   images: string[];
   align: BlockAlign;

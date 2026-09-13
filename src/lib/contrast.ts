@@ -12,6 +12,25 @@ export function contrastRatio(hex1: string, hex2: string): number | null {
   return (lighter + 0.05) / (darker + 0.05);
 }
 
+/**
+ * Dato un colore di sfondo, sceglie testo/bordi chiari o scuri per restare
+ * leggibile — usato dai blocchi homepage con sfondo personalizzato per
+ * sezione. Torna null se lo sfondo non è impostato (= usa i colori
+ * predefiniti del sito, nessun override).
+ */
+export function pickTextColors(backgroundHex?: string | null) {
+  if (!backgroundHex) return null;
+  const luminance = relativeLuminance(backgroundHex);
+  if (luminance === null) return null;
+
+  const isLight = luminance > 0.4;
+  return {
+    text: isLight ? "#0b0a10" : "#f6f2ea",
+    muted: isLight ? "rgba(11,10,16,0.7)" : "rgba(246,242,234,0.7)",
+    border: isLight ? "rgba(11,10,16,0.18)" : "rgba(246,242,234,0.18)",
+  };
+}
+
 function relativeLuminance(hex: string): number | null {
   const match = /^#([0-9a-fA-F]{6})$/.exec(hex);
   if (!match) return null;

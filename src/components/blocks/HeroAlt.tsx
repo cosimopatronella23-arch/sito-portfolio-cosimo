@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import clsx from "clsx";
 import { Button } from "@/components/ui/Button";
+import { pickTextColors } from "@/lib/contrast";
 import type { HeroAltBlockData } from "@/lib/types";
 
 /**
@@ -12,6 +13,7 @@ import type { HeroAltBlockData } from "@/lib/types";
  */
 export function HeroAlt({ data }: { data: HeroAltBlockData }) {
   const centered = data.align === "center";
+  const colors = pickTextColors(data.backgroundColor);
 
   return (
     <motion.section
@@ -19,6 +21,7 @@ export function HeroAlt({ data }: { data: HeroAltBlockData }) {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-100px" }}
       transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+      style={data.backgroundColor ? { backgroundColor: data.backgroundColor } : undefined}
       className="container-px py-24 sm:py-32"
     >
       <div
@@ -28,12 +31,18 @@ export function HeroAlt({ data }: { data: HeroAltBlockData }) {
         )}
       >
         {data.title ? (
-          <h2 className="font-display text-4xl font-semibold tracking-tight text-balance sm:text-5xl">
+          <h2
+            style={colors ? { color: colors.text } : undefined}
+            className="font-display text-4xl font-semibold tracking-tight text-balance sm:text-5xl"
+          >
             {data.title}
           </h2>
         ) : null}
         {data.subtitle ? (
-          <p className="max-w-xl text-lg text-foreground-muted">
+          <p
+            style={colors ? { color: colors.muted } : undefined}
+            className="max-w-xl text-lg text-foreground-muted"
+          >
             {data.subtitle}
           </p>
         ) : null}
