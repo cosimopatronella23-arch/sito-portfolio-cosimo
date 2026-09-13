@@ -9,23 +9,18 @@ import { sectionStyle } from "@/lib/contrast";
 // home man mano che i progetti crescono di numero.
 const HOMEPAGE_LIMIT = 5;
 
-function byRecency(a: { created_at: string }, b: { created_at: string }) {
-  return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-}
-
 export async function ProjectsGrid({
   backgroundColor,
 }: {
   backgroundColor?: string;
 } = {}) {
+  // getPublishedProjects() restituisce già i progetti ordinati per
+  // "sort_order" (il campo che scegli tu da /admin): qui basta filtrare
+  // senza riordinare. Solo i progetti con "In evidenza" spuntato — qualsiasi
+  // altro progetto pubblicato resta visibile solo in /progetti, mai qui —
+  // nessun ripiego automatico se non ne hai ancora segnato nessuno.
   const published = await getPublishedProjects();
-  // Solo i progetti con "In evidenza" spuntato in /admin: qualsiasi altro
-  // progetto pubblicato resta visibile solo in /progetti, mai qui — nessun
-  // ripiego automatico se non ne hai ancora segnato nessuno.
-  const ordered = published
-    .filter((p) => p.featured)
-    .sort(byRecency)
-    .slice(0, HOMEPAGE_LIMIT);
+  const ordered = published.filter((p) => p.featured).slice(0, HOMEPAGE_LIMIT);
 
   if (ordered.length === 0) return null;
 

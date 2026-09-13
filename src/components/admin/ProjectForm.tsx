@@ -118,6 +118,15 @@ export function ProjectForm({ project }: { project?: Project }) {
               <option value="published">Pubblicato</option>
             </select>
           </label>
+          <label className="flex flex-col gap-2 text-sm">
+            Ordine (i numeri più bassi vengono mostrati prima)
+            <input
+              name="sort_order"
+              type="number"
+              defaultValue={project?.sort_order ?? 0}
+              className={fieldClasses}
+            />
+          </label>
         </div>
       </SettingsSection>
 

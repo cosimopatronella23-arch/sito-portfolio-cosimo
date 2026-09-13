@@ -31,6 +31,9 @@ export interface Project {
   content_blocks: ContentBlock[];
   external_link: string | null;
   featured: boolean;
+  /** Ordine manuale di comparsa (più basso = prima), sia in homepage (solo
+   *  quelli con "featured") sia in /progetti (tutti i pubblicati). */
+  sort_order: number;
   status: ContentStatus;
   seo_title: string | null;
   seo_description: string | null;

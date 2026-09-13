@@ -30,15 +30,11 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function ProjectsIndexPage() {
-  const published = await getPublishedProjects();
-  const featured = published.filter((p) => p.featured);
-  const rest = published
-    .filter((p) => !p.featured)
-    .sort(
-      (a, b) =>
-        new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
-    );
-  const ordered = [...featured, ...rest];
+  // getPublishedProjects() li restituisce già ordinati per "sort_order" (il
+  // campo che scegli tu da /admin per ogni progetto) — qui non c'è più
+  // bisogno di raggruppare per "in evidenza": qui mostriamo tutti i
+  // progetti pubblicati, nell'ordine deciso.
+  const ordered = await getPublishedProjects();
   const pairs = chunkInPairs(ordered);
 
   return (

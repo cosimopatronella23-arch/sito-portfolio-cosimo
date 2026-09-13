@@ -33,7 +33,14 @@ function normalizeProject<T extends { gallery: unknown } | null>(
   project: T,
 ): T {
   if (!project) return project;
-  return { ...project, gallery: normalizeGallery(project.gallery) };
+  // "sort_order" esiste nel codice da subito, ma sul database compare solo
+  // dopo la migrazione 0007 — finché non viene eseguita, va di default a 0
+  // per tutti invece di far fallire la pagina.
+  return {
+    sort_order: 0,
+    ...project,
+    gallery: normalizeGallery(project.gallery),
+  };
 }
 
 export async function getPublishedProjects(): Promise<Project[]> {
@@ -45,7 +52,9 @@ export async function getPublishedProjects(): Promise<Project[]> {
       .eq("status", "published");
 
     if (error) throw error;
-    return (data ?? []).map(normalizeProject);
+    return (data ?? [])
+      .map(normalizeProject)
+      .sort((a, b) => a.sort_order - b.sort_order);
   });
 }
 

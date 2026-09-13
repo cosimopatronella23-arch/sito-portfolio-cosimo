@@ -35,6 +35,7 @@ function parseProjectForm(formData: FormData) {
     content_blocks: contentBlocks,
     external_link: String(formData.get("external_link") || "").trim() || null,
     featured: formData.get("featured") === "on",
+    sort_order: Number(formData.get("sort_order")) || 0,
     status: String(formData.get("status") || "draft") as ContentStatus,
     seo_title: String(formData.get("seo_title") || "").trim() || null,
     seo_description:
@@ -42,6 +43,19 @@ function parseProjectForm(formData: FormData) {
     seo_og_image: String(formData.get("seo_og_image") || "").trim() || null,
     seo_noindex: formData.get("seo_noindex") === "on",
   };
+}
+
+// "sort_order" esiste nel codice da subito, ma sul database compare solo
+// dopo aver eseguito la migrazione 0007 in Supabase Studio. Nella finestra
+// di tempo prima che venga eseguita, salvare un progetto non deve rompersi
+// per gli altri campi: se l'errore è proprio "colonna non trovata", si
+// ritenta senza sort_order.
+function isMissingSortOrderColumn(error: { code: string; message: string } | null) {
+  return (
+    !!error &&
+    (error.code === "PGRST204" || error.code === "42703") &&
+    error.message.includes("sort_order")
+  );
 }
 
 export async function createProject(
@@ -54,7 +68,12 @@ export async function createProject(
   }
 
   const supabase = await createClient();
-  const { error } = await supabase.from("projects").insert(payload);
+  let { error } = await supabase.from("projects").insert(payload);
+
+  if (isMissingSortOrderColumn(error)) {
+    const { sort_order: _sortOrder, ...withoutSortOrder } = payload;
+    ({ error } = await supabase.from("projects").insert(withoutSortOrder));
+  }
 
   if (error) {
     return { error: error.message };
@@ -77,10 +96,18 @@ export async function updateProject(
   }
 
   const supabase = await createClient();
-  const { error } = await supabase
+  let { error } = await supabase
     .from("projects")
     .update(payload)
     .eq("id", id);
+
+  if (isMissingSortOrderColumn(error)) {
+    const { sort_order: _sortOrder, ...withoutSortOrder } = payload;
+    ({ error } = await supabase
+      .from("projects")
+      .update(withoutSortOrder)
+      .eq("id", id));
+  }
 
   if (error) {
     return { error: error.message };
