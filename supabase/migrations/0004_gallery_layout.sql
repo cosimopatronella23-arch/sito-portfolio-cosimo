@@ -15,6 +15,12 @@ create or replace function _gallery_to_jsonb(g text[]) returns jsonb as $$
   from unnest(g) as item;
 $$ language sql immutable;
 
+-- Va tolto il valore predefinito vecchio prima di cambiare tipo: Postgres
+-- proverebbe a convertirlo automaticamente e fallirebbe (è un array di
+-- testo, non compatibile con jsonb).
+alter table projects
+  alter column gallery drop default;
+
 alter table projects
   alter column gallery type jsonb
   using _gallery_to_jsonb(gallery);
