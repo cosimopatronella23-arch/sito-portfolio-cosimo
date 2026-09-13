@@ -1,8 +1,15 @@
 "use client";
 
+import { useRef } from "react";
 import Link from "next/link";
-import { motion } from "framer-motion";
+import {
+  motion,
+  useReducedMotion,
+  useScroll,
+  useTransform,
+} from "framer-motion";
 import { CoverImage } from "@/components/ui/CoverImage";
+import { GenerativeGrid } from "@/components/ui/GenerativeGrid";
 import { ProjectMediaGallery } from "./ProjectMediaGallery";
 import { Button } from "@/components/ui/Button";
 import type { Project } from "@/lib/types";
@@ -18,47 +25,71 @@ const EASE_OUT: [number, number, number, number] = [0.22, 1, 0.36, 1];
  * lo stesso template con contenuti diversi.
  */
 export function ProjectDetail({ project }: { project: Project }) {
+  // La copertina resta "agganciata" in cima mentre si scorre, restringendosi
+  // leggermente (scroll-linked, non scroll-jacking: lo scroll nativo non
+  // viene mai intercettato, si legge solo quanto si è avanzati per pilotare
+  // una trasformazione). Bloccato con prefers-reduced-motion.
+  const heroWrapperRef = useRef<HTMLDivElement>(null);
+  const shouldReduceMotion = useReducedMotion();
+  const { scrollYProgress } = useScroll({
+    target: heroWrapperRef,
+    offset: ["start start", "end start"],
+  });
+  // Lo "sgancio" dallo sticky avviene a circa metà del wrapper (la cui
+  // altezza è volutamente quasi doppia rispetto alla copertina): il
+  // restringimento deve completarsi entro quel punto, non oltre — altrimenti
+  // si fermerebbe a metà effetto quando la copertina torna a scorrere con
+  // il resto della pagina.
+  const heroScale = useTransform(scrollYProgress, [0, 0.45], [1, 0.92]);
+
   return (
     <article className="pb-20 sm:pb-28">
-      <div className="relative h-[70svh] w-full overflow-hidden sm:h-[90vh]">
+      <div ref={heroWrapperRef} className="relative h-[130vh] sm:h-[170vh]">
         <motion.div
-          className="absolute inset-0"
-          initial={{ scale: 1.15 }}
-          animate={{ scale: 1 }}
-          transition={{ duration: 1.4, ease: EASE_OUT }}
+          style={shouldReduceMotion ? undefined : { scale: heroScale }}
+          className="sticky top-0 h-[70svh] w-full origin-top overflow-hidden sm:h-[90vh]"
         >
-          <CoverImage
-            src={project.cover_image}
-            alt={project.title}
-            priority
-            className="h-full w-full"
+          <motion.div
+            className="absolute inset-0"
+            initial={{ scale: 1.15 }}
+            animate={{ scale: 1 }}
+            transition={{ duration: 1.4, ease: EASE_OUT }}
+          >
+            <CoverImage
+              src={project.cover_image}
+              alt={project.title}
+              priority
+              className="h-full w-full"
+            />
+          </motion.div>
+
+          <GenerativeGrid />
+
+          <div
+            className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-black/40"
+            aria-hidden="true"
           />
-        </motion.div>
 
-        <div
-          className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-black/40"
-          aria-hidden="true"
-        />
+          <Link
+            href="/#progetti"
+            className="container-px absolute top-6 z-10 w-max text-sm text-white/70 transition-colors hover:text-white sm:top-10"
+          >
+            ← Torna ai progetti
+          </Link>
 
-        <Link
-          href="/#progetti"
-          className="container-px absolute top-6 z-10 w-max text-sm text-white/70 transition-colors hover:text-white sm:top-10"
-        >
-          ← Torna ai progetti
-        </Link>
-
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.9, ease: EASE_OUT, delay: 0.2 }}
-          className="container-px absolute bottom-10 flex flex-col gap-4 sm:bottom-14"
-        >
-          <p className="text-xs font-medium tracking-wide text-accent uppercase">
-            {project.category} — {project.year}
-          </p>
-          <h1 className="font-display max-w-3xl text-4xl leading-[1.05] font-semibold text-balance text-white sm:text-6xl md:text-7xl">
-            {project.title}
-          </h1>
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.9, ease: EASE_OUT, delay: 0.2 }}
+            className="container-px absolute bottom-10 flex flex-col gap-4 sm:bottom-14"
+          >
+            <p className="text-xs font-medium tracking-wide text-accent uppercase">
+              {project.category} — {project.year}
+            </p>
+            <h1 className="font-display max-w-3xl text-4xl leading-[1.05] font-semibold text-balance text-white sm:text-6xl md:text-7xl">
+              {project.title}
+            </h1>
+          </motion.div>
         </motion.div>
       </div>
 

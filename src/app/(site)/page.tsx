@@ -36,16 +36,16 @@ export default async function HomePage() {
         }}
       />
       <Hero content={settings.home_content} />
+      {settings.home_content.show_projects ?? true ? (
+        <ProjectsGrid
+          backgroundColor={settings.home_content.section_colors?.projects}
+        />
+      ) : null}
       {settings.home_content.show_services ?? true ? (
         <Services
           title={settings.home_content.services_title}
           services={settings.home_content.services}
           backgroundColor={settings.home_content.section_colors?.services}
-        />
-      ) : null}
-      {settings.home_content.show_projects ?? true ? (
-        <ProjectsGrid
-          backgroundColor={settings.home_content.section_colors?.projects}
         />
       ) : null}
       {settings.home_content.show_blog_preview ?? true ? (

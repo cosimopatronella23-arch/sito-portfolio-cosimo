@@ -5,6 +5,16 @@ import { SectionHeading } from "@/components/ui/SectionHeading";
 import { sectionStyle } from "@/lib/contrast";
 import type { ServiceItem } from "@/lib/types";
 
+// Un gradiente diverso per ogni card (si ripete se i servizi sono più di 4),
+// stesso set di colori-accento già usato per i blob animati altrove nel
+// sito — coerenza visiva, nessun asset nuovo.
+const CARD_GRADIENTS = [
+  "conic-gradient(from 180deg, var(--accent), var(--accent-blue))",
+  "conic-gradient(from 90deg, var(--accent-pink), var(--accent-strong))",
+  "conic-gradient(from 270deg, var(--accent-blue), var(--accent-pink))",
+  "conic-gradient(from 0deg, var(--accent-strong), var(--accent))",
+];
+
 export function Services({
   title,
   services,
@@ -23,7 +33,7 @@ export function Services({
       <div className="flex flex-col gap-14">
         <SectionHeading title={title} />
 
-        <div className="flex flex-col border-y border-border">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           {services.map((service, i) => (
             <motion.div
               key={`${i}-${service.title}`}
@@ -31,21 +41,26 @@ export function Services({
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-80px" }}
               transition={{ duration: 0.5, delay: i * 0.06 }}
-              className="group relative grid grid-cols-[3rem_1fr] items-baseline gap-x-6 gap-y-2 border-b border-border py-8 pl-0 transition-[padding] duration-300 last:border-b-0 hover:pl-4 sm:grid-cols-[4.5rem_1fr_1fr] sm:items-center sm:gap-x-10 sm:py-10"
+              className="group relative flex min-h-56 flex-col justify-between overflow-hidden border border-border p-8"
             >
-              <span
-                className="absolute top-0 left-0 h-full w-1 origin-center scale-y-0 bg-accent transition-transform duration-300 group-hover:scale-y-100"
+              <div
                 aria-hidden="true"
+                className="absolute inset-0 scale-125 opacity-0 blur-2xl transition-[opacity,transform] duration-500 ease-out group-hover:scale-100 group-hover:opacity-30 group-focus-within:opacity-30"
+                style={{ background: CARD_GRADIENTS[i % CARD_GRADIENTS.length] }}
               />
-              <span className="font-display text-3xl font-semibold text-foreground/20 transition-colors duration-300 group-hover:text-accent sm:text-4xl">
+
+              <span className="font-display relative text-5xl font-semibold text-foreground/15 transition-colors duration-500 group-hover:text-foreground/25 sm:text-6xl">
                 {String(i + 1).padStart(2, "0")}
               </span>
-              <h3 className="font-display text-2xl font-semibold tracking-tight">
-                {service.title}
-              </h3>
-              <p className="text-foreground-muted col-span-2 sm:col-span-1 sm:text-right">
-                {service.description}
-              </p>
+
+              <div className="relative flex flex-col gap-2">
+                <h3 className="font-display text-2xl font-semibold tracking-tight transition-transform duration-500 ease-out group-hover:-translate-y-1">
+                  {service.title}
+                </h3>
+                <p className="max-w-md text-foreground-muted transition-transform duration-500 ease-out group-hover:-translate-y-1">
+                  {service.description}
+                </p>
+              </div>
             </motion.div>
           ))}
         </div>

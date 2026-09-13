@@ -8,8 +8,8 @@ import clsx from "clsx";
 import type { NavLink } from "@/lib/types";
 
 const DEFAULT_NAV_LINKS: NavLink[] = [
-  { label: "Servizi", href: "/#servizi" },
   { label: "Progetti", href: "/#progetti" },
+  { label: "Servizi", href: "/#servizi" },
   { label: "Blog", href: "/blog" },
   { label: "Contatti", href: "/#contatti" },
 ];
