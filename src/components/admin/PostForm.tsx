@@ -5,6 +5,7 @@ import { createPost, updatePost } from "@/lib/actions/blog";
 import { ImageUploader } from "./ImageUploader";
 import { RichTextEditor } from "./RichTextEditor";
 import { SerpPreview } from "./SerpPreview";
+import { SettingsSection } from "./SettingsSection";
 import { SITE_URL } from "@/lib/seo";
 import type { BlogPost } from "@/lib/types";
 
@@ -28,85 +29,87 @@ export function PostForm({ post }: { post?: BlogPost }) {
   );
 
   return (
-    <form action={formAction} className="flex flex-col gap-10">
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-        <label className="flex flex-col gap-2">
-          <span className="text-sm font-medium">Titolo</span>
-          <input
-            name="title"
-            defaultValue={post?.title}
-            required
-            className={fieldClasses}
-          />
-        </label>
-        <label className="flex flex-col gap-2">
-          <span className="text-sm font-medium">Slug (URL)</span>
-          <input
-            name="slug"
-            defaultValue={post?.slug}
-            onChange={(e) => setSlug(e.target.value)}
-            required
-            pattern="[a-z0-9-]+"
-            title="Solo minuscole, numeri e trattini"
-            className={fieldClasses}
-          />
-        </label>
-        <label className="flex flex-col gap-2">
-          <span className="text-sm font-medium">Categoria</span>
-          <input
-            name="category"
-            defaultValue={post?.category}
-            className={fieldClasses}
-          />
-        </label>
-        <label className="flex flex-col gap-2">
-          <span className="text-sm font-medium">Data pubblicazione</span>
-          <input
-            name="published_at"
-            type="date"
-            defaultValue={toDateInputValue(post?.published_at)}
-            className={fieldClasses}
-          />
-        </label>
-      </div>
+    <form action={formAction} className="flex flex-col gap-6">
+      <SettingsSection id="sez-dati-base" title="Dati base" defaultOpen>
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+          <label className="flex flex-col gap-2">
+            <span className="text-sm font-medium">Titolo</span>
+            <input
+              name="title"
+              defaultValue={post?.title}
+              required
+              className={fieldClasses}
+            />
+          </label>
+          <label className="flex flex-col gap-2">
+            <span className="text-sm font-medium">Slug (URL)</span>
+            <input
+              name="slug"
+              defaultValue={post?.slug}
+              onChange={(e) => setSlug(e.target.value)}
+              required
+              pattern="[a-z0-9-]+"
+              title="Solo minuscole, numeri e trattini"
+              className={fieldClasses}
+            />
+          </label>
+          <label className="flex flex-col gap-2">
+            <span className="text-sm font-medium">Categoria</span>
+            <input
+              name="category"
+              defaultValue={post?.category}
+              className={fieldClasses}
+            />
+          </label>
+          <label className="flex flex-col gap-2">
+            <span className="text-sm font-medium">Data pubblicazione</span>
+            <input
+              name="published_at"
+              type="date"
+              defaultValue={toDateInputValue(post?.published_at)}
+              className={fieldClasses}
+            />
+          </label>
+        </div>
 
-      <label className="flex flex-col gap-2">
-        <span className="text-sm font-medium">
-          Riassunto (per le anteprime)
-        </span>
-        <textarea
-          name="excerpt"
-          defaultValue={post?.excerpt}
-          rows={2}
-          className={fieldClasses}
+        <label className="flex flex-col gap-2">
+          <span className="text-sm font-medium">
+            Riassunto (per le anteprime)
+          </span>
+          <textarea
+            name="excerpt"
+            defaultValue={post?.excerpt}
+            rows={2}
+            className={fieldClasses}
+          />
+        </label>
+
+        <label className="flex flex-col gap-2 text-sm">
+          Stato
+          <select
+            name="status"
+            defaultValue={post?.status ?? "draft"}
+            className="w-max border border-border-strong bg-transparent px-3 py-2"
+          >
+            <option value="draft">Bozza</option>
+            <option value="published">Pubblicato</option>
+          </select>
+        </label>
+      </SettingsSection>
+
+      <SettingsSection id="sez-media" title="Media">
+        <ImageUploader
+          name="cover_image"
+          label="Immagine di copertina"
+          defaultValue={post?.cover_image}
         />
-      </label>
+      </SettingsSection>
 
-      <ImageUploader
-        name="cover_image"
-        label="Immagine di copertina"
-        defaultValue={post?.cover_image}
-      />
-
-      <div className="flex flex-col gap-2">
-        <span className="text-sm font-medium">Contenuto articolo</span>
+      <SettingsSection id="sez-contenuto" title="Contenuto">
         <RichTextEditor name="content" defaultValue={post?.content} />
-      </div>
+      </SettingsSection>
 
-      <label className="flex flex-col gap-2 text-sm">
-        Stato
-        <select
-          name="status"
-          defaultValue={post?.status ?? "draft"}
-          className="w-max border border-border-strong bg-transparent px-3 py-2"
-        >
-          <option value="draft">Bozza</option>
-          <option value="published">Pubblicato</option>
-        </select>
-      </label>
-
-      <fieldset className="flex flex-col gap-4 border border-border-strong p-4">
-        <legend className="px-2 text-sm font-medium">SEO</legend>
+      <SettingsSection id="sez-seo" title="SEO">
         <label className="flex flex-col gap-2">
           <span className="text-sm text-foreground-muted">
             Titolo SEO (vuoto = usa il titolo)
@@ -149,17 +152,19 @@ export function PostForm({ post }: { post?: BlogPost }) {
           title={seoTitle || post?.title || ""}
           description={seoDescription || post?.excerpt || ""}
         />
-      </fieldset>
+      </SettingsSection>
 
       {state.error ? <p className="text-sm text-error">{state.error}</p> : null}
 
-      <button
-        type="submit"
-        disabled={pending}
-        className="w-max bg-foreground px-6 py-3 text-sm font-medium text-background transition-colors hover:bg-accent disabled:opacity-50"
-      >
-        {pending ? "Salvo..." : "Salva articolo"}
-      </button>
+      <div className="sticky bottom-0 flex flex-wrap items-center gap-4 border-t border-border-strong bg-background py-4">
+        <button
+          type="submit"
+          disabled={pending}
+          className="w-max bg-foreground px-6 py-3 text-sm font-medium text-background transition-colors hover:bg-accent disabled:opacity-50"
+        >
+          {pending ? "Salvo..." : "Salva articolo"}
+        </button>
+      </div>
     </form>
   );
 }

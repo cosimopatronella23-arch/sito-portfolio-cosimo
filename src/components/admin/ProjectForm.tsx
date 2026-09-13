@@ -6,6 +6,7 @@ import { ImageUploader } from "./ImageUploader";
 import { ContentBlocksEditor } from "./ContentBlocksEditor";
 import { ProjectGalleryEditor } from "./ProjectGalleryEditor";
 import { SerpPreview } from "./SerpPreview";
+import { SettingsSection } from "./SettingsSection";
 import { SITE_URL } from "@/lib/seo";
 import type { Project } from "@/lib/types";
 
@@ -24,124 +25,128 @@ export function ProjectForm({ project }: { project?: Project }) {
   );
 
   return (
-    <form action={formAction} className="flex flex-col gap-10">
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-        <label className="flex flex-col gap-2">
-          <span className="text-sm font-medium">Titolo</span>
-          <input
-            name="title"
-            defaultValue={project?.title}
-            required
-            className={fieldClasses}
-          />
-        </label>
-        <label className="flex flex-col gap-2">
-          <span className="text-sm font-medium">Slug (URL)</span>
-          <input
-            name="slug"
-            defaultValue={project?.slug}
-            onChange={(e) => setSlug(e.target.value)}
-            required
-            pattern="[a-z0-9-]+"
-            title="Solo minuscole, numeri e trattini"
-            className={fieldClasses}
-          />
-        </label>
-        <label className="flex flex-col gap-2">
-          <span className="text-sm font-medium">Categoria</span>
-          <input
-            name="category"
-            defaultValue={project?.category}
-            className={fieldClasses}
-          />
-        </label>
-        <label className="flex flex-col gap-2">
-          <span className="text-sm font-medium">Cliente</span>
-          <input
-            name="client"
-            defaultValue={project?.client}
-            className={fieldClasses}
-          />
-        </label>
-        <label className="flex flex-col gap-2">
-          <span className="text-sm font-medium">Anno</span>
-          <input
-            name="year"
-            type="number"
-            defaultValue={project?.year ?? new Date().getFullYear()}
-            className={fieldClasses}
-          />
-        </label>
-        <label className="flex flex-col gap-2">
-          <span className="text-sm font-medium">Link esterno (opzionale)</span>
-          <input
-            name="external_link"
-            defaultValue={project?.external_link ?? ""}
-            className={fieldClasses}
-          />
-        </label>
-      </div>
+    <form action={formAction} className="flex flex-col gap-6">
+      <SettingsSection id="sez-dati-base" title="Dati base" defaultOpen>
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+          <label className="flex flex-col gap-2">
+            <span className="text-sm font-medium">Titolo</span>
+            <input
+              name="title"
+              defaultValue={project?.title}
+              required
+              className={fieldClasses}
+            />
+          </label>
+          <label className="flex flex-col gap-2">
+            <span className="text-sm font-medium">Slug (URL)</span>
+            <input
+              name="slug"
+              defaultValue={project?.slug}
+              onChange={(e) => setSlug(e.target.value)}
+              required
+              pattern="[a-z0-9-]+"
+              title="Solo minuscole, numeri e trattini"
+              className={fieldClasses}
+            />
+          </label>
+          <label className="flex flex-col gap-2">
+            <span className="text-sm font-medium">Categoria</span>
+            <input
+              name="category"
+              defaultValue={project?.category}
+              className={fieldClasses}
+            />
+          </label>
+          <label className="flex flex-col gap-2">
+            <span className="text-sm font-medium">Cliente</span>
+            <input
+              name="client"
+              defaultValue={project?.client}
+              className={fieldClasses}
+            />
+          </label>
+          <label className="flex flex-col gap-2">
+            <span className="text-sm font-medium">Anno</span>
+            <input
+              name="year"
+              type="number"
+              defaultValue={project?.year ?? new Date().getFullYear()}
+              className={fieldClasses}
+            />
+          </label>
+          <label className="flex flex-col gap-2">
+            <span className="text-sm font-medium">
+              Link esterno (opzionale)
+            </span>
+            <input
+              name="external_link"
+              defaultValue={project?.external_link ?? ""}
+              className={fieldClasses}
+            />
+          </label>
+        </div>
 
-      <label className="flex flex-col gap-2">
-        <span className="text-sm font-medium">
-          Descrizione breve (per la card)
-        </span>
-        <textarea
-          name="short_description"
-          defaultValue={project?.short_description}
-          rows={2}
-          className={fieldClasses}
+        <label className="flex flex-col gap-2">
+          <span className="text-sm font-medium">
+            Descrizione breve (per la card)
+          </span>
+          <textarea
+            name="short_description"
+            defaultValue={project?.short_description}
+            rows={2}
+            className={fieldClasses}
+          />
+        </label>
+
+        <div className="flex flex-wrap items-center gap-8">
+          <label className="flex items-center gap-2 text-sm">
+            <input
+              type="checkbox"
+              name="featured"
+              defaultChecked={project?.featured}
+            />
+            In evidenza
+          </label>
+          <label className="flex flex-col gap-2 text-sm">
+            Stato
+            <select
+              name="status"
+              defaultValue={project?.status ?? "draft"}
+              className="border border-border-strong bg-transparent px-3 py-2"
+            >
+              <option value="draft">Bozza</option>
+              <option value="published">Pubblicato</option>
+            </select>
+          </label>
+        </div>
+      </SettingsSection>
+
+      <SettingsSection id="sez-media" title="Media">
+        <ImageUploader
+          name="cover_image"
+          label="Immagine di copertina"
+          defaultValue={project?.cover_image}
         />
-      </label>
 
-      <ImageUploader
-        name="cover_image"
-        label="Immagine di copertina"
-        defaultValue={project?.cover_image}
-      />
+        <div className="flex flex-col gap-3">
+          <span className="text-sm font-medium">
+            Galleria (foto/GIF aggiuntive)
+          </span>
+          <ProjectGalleryEditor
+            name="gallery"
+            defaultValue={project?.gallery ?? []}
+          />
+        </div>
+      </SettingsSection>
 
-      <div className="flex flex-col gap-3">
-        <span className="text-sm font-medium">
-          Galleria (foto/GIF aggiuntive)
-        </span>
-        <ProjectGalleryEditor
-          name="gallery"
-          defaultValue={project?.gallery ?? []}
-        />
-      </div>
-
-      <div className="flex flex-col gap-3">
-        <span className="text-sm font-medium">Sezioni del progetto</span>
+      <SettingsSection id="sez-contenuto" title="Contenuto">
         <ContentBlocksEditor
           name="content_blocks"
           defaultValue={project?.content_blocks}
         />
-      </div>
+      </SettingsSection>
 
-      <div className="flex flex-wrap items-center gap-8">
-        <label className="flex items-center gap-2 text-sm">
-          <input
-            type="checkbox"
-            name="featured"
-            defaultChecked={project?.featured}
-          />
-          In evidenza
-        </label>
-        <label className="flex flex-col gap-2 text-sm">
-          Stato
-          <select
-            name="status"
-            defaultValue={project?.status ?? "draft"}
-            className="border border-border-strong bg-transparent px-3 py-2"
-          >
-            <option value="draft">Bozza</option>
-            <option value="published">Pubblicato</option>
-          </select>
-        </label>
-      </div>
-
-      <fieldset className="flex flex-col gap-4 border border-border-strong p-4">
-        <legend className="px-2 text-sm font-medium">SEO</legend>
+      <SettingsSection id="sez-seo" title="SEO">
         <label className="flex flex-col gap-2">
           <span className="text-sm text-foreground-muted">
             Titolo SEO (vuoto = usa il titolo)
@@ -184,17 +189,19 @@ export function ProjectForm({ project }: { project?: Project }) {
           title={seoTitle || project?.title || ""}
           description={seoDescription || project?.short_description || ""}
         />
-      </fieldset>
+      </SettingsSection>
 
       {state.error ? <p className="text-sm text-error">{state.error}</p> : null}
 
-      <button
-        type="submit"
-        disabled={pending}
-        className="w-max bg-foreground px-6 py-3 text-sm font-medium text-background transition-colors hover:bg-accent disabled:opacity-50"
-      >
-        {pending ? "Salvo..." : "Salva progetto"}
-      </button>
+      <div className="sticky bottom-0 flex flex-wrap items-center gap-4 border-t border-border-strong bg-background py-4">
+        <button
+          type="submit"
+          disabled={pending}
+          className="w-max bg-foreground px-6 py-3 text-sm font-medium text-background transition-colors hover:bg-accent disabled:opacity-50"
+        >
+          {pending ? "Salvo..." : "Salva progetto"}
+        </button>
+      </div>
     </form>
   );
 }
