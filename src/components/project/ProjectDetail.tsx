@@ -9,7 +9,6 @@ import {
   useTransform,
 } from "framer-motion";
 import { CoverImage } from "@/components/ui/CoverImage";
-import { GenerativeGrid } from "@/components/ui/GenerativeGrid";
 import { ProjectMediaGallery } from "./ProjectMediaGallery";
 import { Button } from "@/components/ui/Button";
 import type { Project } from "@/lib/types";
@@ -62,8 +61,6 @@ export function ProjectDetail({ project }: { project: Project }) {
               className="h-full w-full"
             />
           </motion.div>
-
-          <GenerativeGrid />
 
           <div
             className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-black/40"

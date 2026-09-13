@@ -167,32 +167,6 @@ body {
   will-change: transform, border-radius;
 }
 
-/* ---------------------------------------------------------------------- */
-/* GenerativeGrid — griglia di colori dietro le copertine progetto.         */
-/* ---------------------------------------------------------------------- */
-@keyframes generative-grid-shift {
-  0% {
-    filter: hue-rotate(0deg);
-  }
-  100% {
-    filter: hue-rotate(360deg);
-  }
-}
-
-.generative-grid {
-  background-image: repeating-conic-gradient(
-    from 0deg,
-    var(--accent) 0deg 90deg,
-    var(--accent-blue) 90deg 180deg,
-    var(--accent-pink) 180deg 270deg,
-    var(--accent-strong) 270deg 360deg
-  );
-  background-size: 64px 64px;
-  mix-blend-mode: overlay;
-  opacity: 0.5;
-  animation: generative-grid-shift 20s linear infinite;
-}
-
 /* Safari (desktop e iOS — questa query non intercetta Chrome/Edge, nemmeno
    su Mac) rallenta molto di più di Chrome nel ricomporre ogni frame un
    livello con blur/mix-blend-mode animato: è la causa degli scatti su
@@ -202,10 +176,6 @@ body {
   .animated-blob {
     animation: none;
     filter: blur(40px);
-  }
-
-  .generative-grid {
-    animation: none;
   }
 
   header.sticky {
