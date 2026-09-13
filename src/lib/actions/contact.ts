@@ -11,6 +11,15 @@ export async function sendContactMessage(
   _prevState: FormState,
   formData: FormData,
 ): Promise<FormState> {
+  // Campo trappola per i bot: invisibile e irraggiungibile da tastiera per
+  // una persona reale, ma i bot che compilano automaticamente ogni campo di
+  // solito lo riempiono. Se è pieno, fingiamo che sia andato tutto bene
+  // senza inviare nulla né avvisare il bot che è stato scoperto.
+  const honeypot = String(formData.get("website") || "").trim();
+  if (honeypot) {
+    return { error: null, success: true };
+  }
+
   const name = String(formData.get("name") || "").trim();
   const email = String(formData.get("email") || "").trim();
   const message = String(formData.get("message") || "").trim();

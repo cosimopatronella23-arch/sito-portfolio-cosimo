@@ -35,6 +35,29 @@ export function ImageUploader({
   const inputRef = useRef<HTMLInputElement>(null);
 
   async function handleFile(file: File) {
+    // L'attributo "accept" dell'input file è solo un suggerimento per il
+    // selettore del sistema operativo: chiunque può comunque trascinare o
+    // scegliere un file di tipo diverso. Controlliamo qui il tipo MIME reale
+    // prima di caricarlo — evita ad esempio SVG con script incorporati,
+    // eseguibili o altri formati non previsti nel bucket pubblico "media".
+    const allowed = accept
+      .split(",")
+      .map((t) => t.trim())
+      .filter(Boolean);
+    // "image/*" fa eccezione per gli SVG: possono contenere <script> ed
+    // eseguirlo se qualcuno apre il file direttamente dal suo URL pubblico.
+    const isAllowed =
+      file.type !== "image/svg+xml" &&
+      allowed.some((pattern) =>
+        pattern.endsWith("/*")
+          ? file.type.startsWith(pattern.slice(0, -1))
+          : file.type === pattern,
+      );
+    if (!isAllowed) {
+      setError("Formato file non supportato.");
+      return;
+    }
+
     setUploading(true);
     setError(null);
 

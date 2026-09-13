@@ -68,6 +68,15 @@ export function ContactForm({
         <SectionHeading title="Raccontami cosa stai costruendo." />
 
         <form action={formAction} className="flex flex-col gap-6">
+          <input
+            type="text"
+            name="website"
+            tabIndex={-1}
+            autoComplete="off"
+            aria-hidden="true"
+            className="absolute h-0 w-0 opacity-0"
+            style={{ pointerEvents: "none" }}
+          />
           {FIELDS.map((field) => (
             <div key={field.name} className="flex flex-col gap-2">
               <label htmlFor={field.name} className="sr-only">
