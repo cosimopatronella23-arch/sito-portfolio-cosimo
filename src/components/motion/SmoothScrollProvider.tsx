@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
+import { usePathname } from "next/navigation";
 import Lenis from "lenis";
 
 /**
@@ -9,6 +10,9 @@ import Lenis from "lenis";
  * preferisce ridurre le animazioni (prefers-reduced-motion).
  */
 export function SmoothScrollProvider() {
+  const lenisRef = useRef<Lenis | null>(null);
+  const pathname = usePathname();
+
   useEffect(() => {
     const prefersReducedMotion = window.matchMedia(
       "(prefers-reduced-motion: reduce)",
@@ -21,6 +25,7 @@ export function SmoothScrollProvider() {
       easing: (t) => 1 - Math.pow(1 - t, 3),
       smoothWheel: true,
     });
+    lenisRef.current = lenis;
 
     let rafId: number;
     function raf(time: number) {
@@ -32,8 +37,18 @@ export function SmoothScrollProvider() {
     return () => {
       cancelAnimationFrame(rafId);
       lenis.destroy();
+      lenisRef.current = null;
     };
   }, []);
+
+  // Lenis tiene una propria posizione di scroll indipendente da
+  // window.scrollTo: cambiando pagina (Next.js non la rimonta, essendo nel
+  // layout condiviso) restava fermo al punto in cui ci si trovava sulla
+  // pagina precedente, invece di tornare in cima. "immediate" evita che il
+  // reset stesso venga visto come uno scroll animato.
+  useEffect(() => {
+    lenisRef.current?.scrollTo(0, { immediate: true });
+  }, [pathname]);
 
   return null;
 }
