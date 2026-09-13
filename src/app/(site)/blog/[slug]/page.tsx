@@ -41,7 +41,11 @@ export default async function BlogPostPage(props: PageProps<"/blog/[slug]">) {
 
   return (
     <article className="container-px py-20 sm:py-28">
-      <div className="flex flex-col gap-10">
+      {/* Colonna unica per testo E immagine: prima l'immagine di copertina
+          era a piena larghezza mentre il testo restava stretto, uno squilibrio
+          che la faceva sembrare sproporzionata rispetto al resto. Ora
+          condividono la stessa larghezza, come un vero editoriale. */}
+      <div className="mx-auto flex max-w-3xl flex-col gap-10">
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -57,28 +61,33 @@ export default async function BlogPostPage(props: PageProps<"/blog/[slug]">) {
         </Link>
 
         <header className="flex flex-col gap-5">
-          <h1 className="font-display text-4xl font-semibold tracking-tight text-balance sm:text-5xl">
+          <p className="text-xs font-medium tracking-wide text-accent uppercase">
+            {post.category}
+          </p>
+          <h1 className="font-display text-4xl leading-[1.1] font-semibold tracking-tight text-balance sm:text-5xl">
             {post.title}
           </h1>
-          <p className="text-sm text-foreground-muted">
-            {post.category} ·{" "}
-            <time dateTime={post.published_at}>
-              {dateFormatter.format(new Date(post.published_at))}
-            </time>
-          </p>
+          <time
+            dateTime={post.published_at}
+            className="text-sm text-foreground-muted"
+          >
+            {dateFormatter.format(new Date(post.published_at))}
+          </time>
         </header>
 
-        <div className="aspect-[16/9] w-full overflow-hidden">
-          <CoverImage
-            src={post.cover_image}
-            alt={post.title}
-            priority
-            className="h-full w-full"
-          />
-        </div>
+        {post.cover_image ? (
+          <div className="aspect-[3/2] w-full overflow-hidden border border-border-strong">
+            <CoverImage
+              src={post.cover_image}
+              alt={post.title}
+              priority
+              className="h-full w-full"
+            />
+          </div>
+        ) : null}
 
         <div
-          className="prose-editor max-w-3xl text-base leading-relaxed text-foreground-muted"
+          className="prose-editor text-base leading-relaxed text-foreground-muted"
           dangerouslySetInnerHTML={{ __html: post.content }}
         />
       </div>

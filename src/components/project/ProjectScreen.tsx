@@ -23,7 +23,6 @@ export function ProjectScreen({
     <Link
       href={`/progetti/${project.slug}`}
       data-cursor="link"
-      data-cursor-text="Vedi progetto"
       style={{ zIndex: index + 1 }}
       className="group sticky top-0 flex h-[85svh] w-full items-end overflow-hidden shadow-[0_-1px_40px_rgba(0,0,0,0.5)] sm:h-screen"
     >

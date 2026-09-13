@@ -11,7 +11,10 @@ const EASE_OUT: [number, number, number, number] = [0.22, 1, 0.36, 1];
 export function ProjectDetail({ project }: { project: Project }) {
   return (
     <article className="container-px py-20 sm:py-28">
-      <div className="flex flex-col gap-10">
+      {/* Stessa larghezza per testo e galleria: prima le foto sfondavano a
+          piena larghezza mentre il testo restava stretto, facendo sembrare
+          le immagini più grandi e importanti di tutto il resto. */}
+      <div className="mx-auto flex max-w-4xl flex-col gap-10">
         <Link
           href="/#progetti"
           className="w-max text-sm text-foreground-muted hover:text-foreground"
@@ -25,6 +28,9 @@ export function ProjectDetail({ project }: { project: Project }) {
           transition={{ duration: 0.9, ease: EASE_OUT }}
           className="flex flex-col gap-5"
         >
+          <p className="text-xs font-medium tracking-wide text-accent uppercase">
+            {project.category}
+          </p>
           <h1 className="font-display text-4xl font-semibold tracking-tight text-balance sm:text-5xl">
             {project.title}
           </h1>
@@ -39,10 +45,6 @@ export function ProjectDetail({ project }: { project: Project }) {
             <div>
               <dt className="text-foreground-muted">Anno</dt>
               <dd className="font-medium">{project.year}</dd>
-            </div>
-            <div>
-              <dt className="text-foreground-muted">Categoria</dt>
-              <dd className="font-medium">{project.category}</dd>
             </div>
           </dl>
         </motion.header>

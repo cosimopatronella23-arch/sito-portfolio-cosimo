@@ -39,7 +39,6 @@ export function ProjectPairScreen({
           key={project.id}
           href={`/progetti/${project.slug}`}
           data-cursor="link"
-          data-cursor-text="Vedi progetto"
           className={`group relative flex items-end overflow-hidden ${
             projects.length === 1 ? "col-span-2" : ""
           }`}

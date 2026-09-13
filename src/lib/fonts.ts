@@ -1,4 +1,4 @@
-import { Sora, Inter } from "next/font/google";
+import { Sora, Manrope } from "next/font/google";
 
 export const sora = Sora({
   variable: "--font-sora",
@@ -7,9 +7,12 @@ export const sora = Sora({
   display: "swap",
 });
 
-export const inter = Inter({
+// Manrope al posto di Inter: stessa leggibilità ma con più carattere (occhio
+// più largo, terminali leggermente arrotondati) — meno "font di sistema",
+// più coerente con un display font deciso come Sora.
+export const inter = Manrope({
   variable: "--font-inter",
   subsets: ["latin"],
-  weight: ["400", "500", "600"],
+  weight: ["400", "500", "600", "700"],
   display: "swap",
 });
