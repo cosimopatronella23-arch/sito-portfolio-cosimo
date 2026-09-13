@@ -91,9 +91,7 @@ export function ProjectMediaGallery({
         <div
           key={row.map((r) => r.url).join("-")}
           className={
-            row.length === 2
-              ? "grid grid-cols-1 gap-4 sm:grid-cols-2"
-              : undefined
+            row.length === 2 ? "grid grid-cols-2 gap-3 sm:gap-4" : undefined
           }
         >
           {row.map((item, i) => (

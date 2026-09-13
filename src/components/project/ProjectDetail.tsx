@@ -1,7 +1,12 @@
+"use client";
+
 import Link from "next/link";
+import { motion } from "framer-motion";
 import { ProjectMediaGallery } from "./ProjectMediaGallery";
 import { Button } from "@/components/ui/Button";
 import type { Project } from "@/lib/types";
+
+const EASE_OUT: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
 export function ProjectDetail({ project }: { project: Project }) {
   return (
@@ -14,7 +19,12 @@ export function ProjectDetail({ project }: { project: Project }) {
           ← Torna ai progetti
         </Link>
 
-        <header className="flex flex-col gap-5">
+        <motion.header
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.9, ease: EASE_OUT }}
+          className="flex flex-col gap-5"
+        >
           <h1 className="font-display text-4xl font-semibold tracking-tight text-balance sm:text-5xl">
             {project.title}
           </h1>
@@ -35,28 +45,41 @@ export function ProjectDetail({ project }: { project: Project }) {
               <dd className="font-medium">{project.category}</dd>
             </div>
           </dl>
-        </header>
+        </motion.header>
 
-        <ProjectMediaGallery
-          items={[
-            ...(project.cover_image
-              ? [{ url: project.cover_image, layout: "full" as const }]
-              : []),
-            ...project.gallery,
-          ]}
-          alt={project.title}
-        />
+        <motion.div
+          initial={{ opacity: 0, scale: 1.06 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 1.1, ease: EASE_OUT, delay: 0.1 }}
+        >
+          <ProjectMediaGallery
+            items={[
+              ...(project.cover_image
+                ? [{ url: project.cover_image, layout: "full" as const }]
+                : []),
+              ...project.gallery,
+            ]}
+            alt={project.title}
+          />
+        </motion.div>
 
         <div className="flex flex-col gap-12">
           {project.content_blocks.map((block) => (
-            <section key={block.heading} className="flex flex-col gap-3">
+            <motion.section
+              key={block.heading}
+              initial={{ opacity: 0, y: 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-80px" }}
+              transition={{ duration: 0.7, ease: EASE_OUT }}
+              className="flex flex-col gap-3"
+            >
               <h2 className="font-display text-2xl font-semibold">
                 {block.heading}
               </h2>
               <p className="max-w-2xl text-base leading-relaxed text-foreground-muted">
                 {block.body}
               </p>
-            </section>
+            </motion.section>
           ))}
         </div>
 

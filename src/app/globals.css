@@ -70,11 +70,15 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans);
-  overflow-x: hidden;
   /* Non deve mai esistere una larghezza "di troppo": se un elemento sporge
      anche di poco (arrotondamenti di grid/gap, transizioni in corso), va
      tagliato qui invece di rendere l'intera pagina scorrevole in orizzontale
-     — su mobile si sentirebbe come uno swipe laterale indesiderato. */
+     — su mobile si sentirebbe come uno swipe laterale indesiderato.
+     NB: niente "overflow-x: hidden" qui — su <body> trasformerebbe l'elemento
+     in un proprio contenitore di scroll (per via del calcolo automatico di
+     overflow-y), rompendo tutti gli effetti "position: sticky" del sito
+     (progetti in homepage e pagina /progetti). Il taglio orizzontale è già
+     garantito da "overflow-x: hidden" su <html> più il max-width qui sotto. */
   max-width: 100vw;
 }
 

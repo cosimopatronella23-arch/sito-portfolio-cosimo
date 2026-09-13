@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { SectionHeading } from "@/components/ui/SectionHeading";
+import { ProjectScreen } from "@/components/project/ProjectScreen";
 import { ProjectPairScreen } from "@/components/project/ProjectPairScreen";
 import { buildMetadata } from "@/lib/seo";
 import { getPublishedProjects } from "@/lib/data/projects";
@@ -45,16 +46,33 @@ export default async function ProjectsIndexPage() {
           Nessun progetto pubblicato ancora.
         </p>
       ) : (
-        <div className="mt-14 flex flex-col sm:mt-20">
-          {pairs.map((pair, i) => (
-            <ProjectPairScreen
-              key={pair.map((p) => p.id).join("-")}
-              projects={pair}
-              index={i}
-              total={pairs.length}
-            />
-          ))}
-        </div>
+        <>
+          {/* Mobile: un progetto a schermo, stessa pila della homepage —
+              due riquadri affiancati non lascerebbero spazio a un'immagine
+              leggibile su schermi stretti. */}
+          <div className="mt-14 flex flex-col sm:hidden">
+            {ordered.map((project, i) => (
+              <ProjectScreen
+                key={project.id}
+                project={project}
+                index={i}
+                total={ordered.length}
+              />
+            ))}
+          </div>
+
+          {/* Desktop: coppie affiancate per schermata. */}
+          <div className="mt-14 hidden flex-col sm:mt-20 sm:flex">
+            {pairs.map((pair, i) => (
+              <ProjectPairScreen
+                key={pair.map((p) => p.id).join("-")}
+                projects={pair}
+                index={i}
+                total={pairs.length}
+              />
+            ))}
+          </div>
+        </>
       )}
     </div>
   );

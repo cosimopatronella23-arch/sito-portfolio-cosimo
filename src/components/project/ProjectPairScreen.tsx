@@ -6,11 +6,15 @@ import { CoverImage } from "@/components/ui/CoverImage";
 import type { Project } from "@/lib/types";
 
 /**
- * Variante a 2 colonne di ProjectScreen, usata solo nella pagina /progetti
- * (l'elenco completo). Stessa animazione e stesso linguaggio visivo, ma una
- * coppia di progetti per "schermata sticky" invece di uno solo — pensata per
- * restare leggibile quando i progetti pubblicati crescono di numero. La
- * homepage continua a usare ProjectScreen (una colonna), invariata.
+ * Variante a 2 colonne di ProjectScreen, usata solo su desktop nella pagina
+ * /progetti (l'elenco completo) — su mobile la stessa pagina torna a usare
+ * ProjectScreen (una colonna a schermo intero), perché due riquadri affiancati
+ * dentro un'unica schermata sticky non hanno spazio per un'immagine leggibile
+ * sotto una certa larghezza. Stessa animazione e stesso linguaggio visivo
+ * della homepage, solo raddoppiata per restare leggibile quando i progetti
+ * pubblicati crescono di numero. Se la coppia ha un solo progetto (numero
+ * dispari), quello occupa l'intera larghezza invece di lasciare una colonna
+ * vuota.
  */
 export function ProjectPairScreen({
   projects,
@@ -24,7 +28,7 @@ export function ProjectPairScreen({
   return (
     <div
       style={{ zIndex: index + 1 }}
-      className="sticky top-0 grid h-[85svh] w-full grid-cols-1 overflow-hidden shadow-[0_-1px_40px_rgba(0,0,0,0.5)] sm:h-screen sm:grid-cols-2"
+      className="sticky top-0 grid h-screen w-full grid-cols-2 overflow-hidden shadow-[0_-1px_40px_rgba(0,0,0,0.5)]"
     >
       <span className="font-display container-px pointer-events-none absolute top-6 z-10 text-sm text-white/60 sm:top-10">
         {String(index + 1).padStart(2, "0")} / {String(total).padStart(2, "0")}
@@ -36,7 +40,9 @@ export function ProjectPairScreen({
           href={`/progetti/${project.slug}`}
           data-cursor="link"
           data-cursor-text="Vedi progetto"
-          className="group relative flex items-end overflow-hidden"
+          className={`group relative flex items-end overflow-hidden ${
+            projects.length === 1 ? "col-span-2" : ""
+          }`}
         >
           <motion.div
             className="absolute inset-0"
