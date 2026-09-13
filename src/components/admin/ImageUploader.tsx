@@ -4,21 +4,25 @@ import { useRef, useState } from "react";
 import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
 import { MediaLibraryPicker } from "./MediaLibraryPicker";
+import { isVideoUrl } from "@/lib/isVideoUrl";
 
 /**
- * Carica un'immagine sul bucket "media" di Supabase Storage e salva l'URL
- * pubblico in un input nascosto con il `name` passato.
+ * Carica un'immagine (o un video, se `accept` lo permette) sul bucket
+ * "media" di Supabase Storage e salva l'URL pubblico in un input nascosto
+ * con il `name` passato.
  */
 export function ImageUploader({
   name,
   label,
   defaultValue,
   onChange,
+  accept = "image/*",
 }: {
   name: string;
   label: string;
   defaultValue?: string | null;
   onChange?: (url: string) => void;
+  accept?: string;
 }) {
   const [url, setUrlState] = useState(defaultValue ?? "");
   function setUrl(next: string) {
@@ -58,7 +62,18 @@ export function ImageUploader({
       <span className="text-sm font-medium">{label}</span>
       {url ? (
         <div className="relative aspect-video w-full max-w-xs overflow-hidden border border-border-strong">
-          <Image src={url} alt="" fill sizes="320px" className="object-cover" />
+          {isVideoUrl(url) ? (
+            <video
+              src={url}
+              muted
+              loop
+              playsInline
+              autoPlay
+              className="h-full w-full object-cover"
+            />
+          ) : (
+            <Image src={url} alt="" fill sizes="320px" className="object-cover" />
+          )}
         </div>
       ) : null}
       <div className="flex items-center gap-3">
@@ -71,7 +86,7 @@ export function ImageUploader({
           {uploading
             ? "Carico..."
             : url
-              ? "Cambia immagine"
+              ? "Cambia file"
               : "Carica immagine"}
         </button>
         <button
@@ -95,7 +110,7 @@ export function ImageUploader({
       <input
         ref={inputRef}
         type="file"
-        accept="image/*"
+        accept={accept}
         className="hidden"
         onChange={(e) => {
           const file = e.target.files?.[0];

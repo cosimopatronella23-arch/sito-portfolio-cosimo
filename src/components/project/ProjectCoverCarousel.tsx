@@ -3,8 +3,39 @@
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { CoverImage } from "@/components/ui/CoverImage";
+import { isVideoUrl } from "@/lib/isVideoUrl";
 
 const AUTOPLAY_MS = 4000;
+
+/** Immagine o video (muto, autoplay, loop) — stesso trattamento visivo. */
+function MediaSlide({
+  src,
+  alt,
+  priority,
+  className,
+}: {
+  src: string | null;
+  alt: string;
+  priority?: boolean;
+  className?: string;
+}) {
+  if (src && isVideoUrl(src)) {
+    return (
+      <video
+        src={src}
+        autoPlay
+        muted
+        loop
+        playsInline
+        className={`object-cover ${className ?? ""}`}
+      />
+    );
+  }
+
+  return (
+    <CoverImage src={src} alt={alt} priority={priority} className={className} />
+  );
+}
 
 /**
  * Copertina progetto: se c'è solo un'immagine, statica come prima. Se ce ne
@@ -50,7 +81,7 @@ export function ProjectCoverCarousel({
   if (images.length === 1) {
     return (
       <div className="aspect-[16/9] w-full overflow-hidden">
-        <CoverImage src={images[0]} alt={alt} priority className="h-full w-full" />
+        <MediaSlide src={images[0]} alt={alt} priority className="h-full w-full" />
       </div>
     );
   }
@@ -76,7 +107,7 @@ export function ProjectCoverCarousel({
           transition={{ duration: 0.5, ease: "easeOut" }}
           className="absolute inset-0"
         >
-          <CoverImage
+          <MediaSlide
             src={images[index]}
             alt={alt}
             priority={index === 0}

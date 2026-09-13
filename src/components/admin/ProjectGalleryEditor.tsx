@@ -31,17 +31,19 @@ export function ProjectGalleryEditor({
   return (
     <div className="flex flex-col gap-3">
       <p className="text-sm text-foreground-muted">
-        Foto/GIF aggiuntive, mostrate a scorrimento automatico dopo la
-        copertina nella pagina del progetto.
+        Foto o brevi video (MP4/WebM) aggiuntivi, mostrati a scorrimento
+        automatico dopo la copertina nella pagina del progetto. I video
+        partono in automatico, senza audio, in loop.
       </p>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         {images.map((img, i) => (
           <div key={i} className="flex flex-col gap-2">
             <ImageUploader
               name={`project-gallery-${i}`}
-              label={`Immagine ${i + 1}`}
+              label={`Immagine o video ${i + 1}`}
               defaultValue={img}
               onChange={(url) => update(i, url)}
+              accept="image/*,video/mp4,video/webm"
             />
             <button
               type="button"
