@@ -19,11 +19,15 @@ export async function ProjectsGrid({
   backgroundColor?: string;
 } = {}) {
   const published = await getPublishedProjects();
-  const featured = published.filter((p) => p.featured).sort(byRecency);
-  // Se non hai ancora segnato nulla "in evidenza", mostra i più recenti
-  // invece di lasciare la sezione vuota.
-  const source = featured.length > 0 ? featured : [...published].sort(byRecency);
-  const ordered = source.slice(0, HOMEPAGE_LIMIT);
+  // Solo i progetti con "In evidenza" spuntato in /admin: qualsiasi altro
+  // progetto pubblicato resta visibile solo in /progetti, mai qui — nessun
+  // ripiego automatico se non ne hai ancora segnato nessuno.
+  const ordered = published
+    .filter((p) => p.featured)
+    .sort(byRecency)
+    .slice(0, HOMEPAGE_LIMIT);
+
+  if (ordered.length === 0) return null;
 
   return (
     <section id="progetti" style={sectionStyle(backgroundColor)} className="relative">

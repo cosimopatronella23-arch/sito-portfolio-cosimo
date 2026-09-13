@@ -61,6 +61,7 @@ export async function createProject(
   }
 
   revalidatePath("/");
+  revalidatePath("/progetti");
   revalidatePath("/admin/progetti");
   redirect("/admin/progetti");
 }
@@ -86,6 +87,7 @@ export async function updateProject(
   }
 
   revalidatePath("/");
+  revalidatePath("/progetti");
   revalidatePath(`/progetti/${payload.slug}`);
   revalidatePath("/admin/progetti");
   redirect("/admin/progetti");
@@ -129,5 +131,6 @@ export async function deleteProject(formData: FormData) {
   await supabase.from("projects").delete().eq("id", id);
 
   revalidatePath("/");
+  revalidatePath("/progetti");
   revalidatePath("/admin/progetti");
 }
