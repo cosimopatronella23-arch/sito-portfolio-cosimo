@@ -4,17 +4,22 @@
 -- {"url": "...", "layout": "full" | "half"} (jsonb).
 -- Incolla nell'SQL Editor di Supabase Studio ed esegui una volta.
 
+-- Postgres non permette una sottoquery diretta nella conversione di tipo
+-- (ALTER COLUMN ... USING), quindi passiamo da una funzione di appoggio,
+-- che poi viene eliminata.
+create or replace function _gallery_to_jsonb(g text[]) returns jsonb as $$
+  select coalesce(
+    jsonb_agg(jsonb_build_object('url', item, 'layout', 'full')),
+    '[]'::jsonb
+  )
+  from unnest(g) as item;
+$$ language sql immutable;
+
 alter table projects
   alter column gallery type jsonb
-  using (
-    coalesce(
-      (
-        select jsonb_agg(jsonb_build_object('url', g, 'layout', 'full'))
-        from unnest(gallery) as g
-      ),
-      '[]'::jsonb
-    )
-  );
+  using _gallery_to_jsonb(gallery);
 
 alter table projects
   alter column gallery set default '[]'::jsonb;
+
+drop function _gallery_to_jsonb(text[]);
