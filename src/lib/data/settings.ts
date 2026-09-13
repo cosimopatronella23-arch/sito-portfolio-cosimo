@@ -1,4 +1,5 @@
 import { createPublicClient } from "@/lib/supabase/publicClient";
+import { withRetry } from "@/lib/withRetry";
 import type { PageSeo, SiteSettings } from "@/lib/types";
 
 const SITE_SETTINGS_COLUMNS =
@@ -9,27 +10,31 @@ const SITE_SETTINGS_COLUMNS =
 // scrittura invece resta protetta e passa dalle Server Action autenticate.
 
 export async function getSiteSettings(): Promise<SiteSettings> {
-  const supabase = createPublicClient();
-  const { data, error } = await supabase
-    .from("site_settings")
-    .select(SITE_SETTINGS_COLUMNS)
-    .eq("id", "main")
-    .single();
+  return withRetry(async () => {
+    const supabase = createPublicClient();
+    const { data, error } = await supabase
+      .from("site_settings")
+      .select(SITE_SETTINGS_COLUMNS)
+      .eq("id", "main")
+      .single();
 
-  if (error) throw error;
-  return data;
+    if (error) throw error;
+    return data;
+  });
 }
 
 export async function getPageSeo(
   pageKey: PageSeo["page_key"],
 ): Promise<PageSeo | null> {
-  const supabase = createPublicClient();
-  const { data, error } = await supabase
-    .from("page_seo")
-    .select("page_key, seo_title, seo_description, seo_og_image, seo_noindex")
-    .eq("page_key", pageKey)
-    .maybeSingle();
+  return withRetry(async () => {
+    const supabase = createPublicClient();
+    const { data, error } = await supabase
+      .from("page_seo")
+      .select("page_key, seo_title, seo_description, seo_og_image, seo_noindex")
+      .eq("page_key", pageKey)
+      .maybeSingle();
 
-  if (error) throw error;
-  return data;
+    if (error) throw error;
+    return data;
+  });
 }

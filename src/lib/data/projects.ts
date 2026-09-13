@@ -1,29 +1,34 @@
 import { createPublicClient } from "@/lib/supabase/publicClient";
 import { createClient } from "@/lib/supabase/server";
+import { withRetry } from "@/lib/withRetry";
 import type { Project } from "@/lib/types";
 
 export async function getPublishedProjects(): Promise<Project[]> {
-  const supabase = createPublicClient();
-  const { data, error } = await supabase
-    .from("projects")
-    .select("*")
-    .eq("status", "published");
+  return withRetry(async () => {
+    const supabase = createPublicClient();
+    const { data, error } = await supabase
+      .from("projects")
+      .select("*")
+      .eq("status", "published");
 
-  if (error) throw error;
-  return data ?? [];
+    if (error) throw error;
+    return data ?? [];
+  });
 }
 
 export async function getProjectBySlug(slug: string): Promise<Project | null> {
-  const supabase = createPublicClient();
-  const { data, error } = await supabase
-    .from("projects")
-    .select("*")
-    .eq("slug", slug)
-    .eq("status", "published")
-    .maybeSingle();
+  return withRetry(async () => {
+    const supabase = createPublicClient();
+    const { data, error } = await supabase
+      .from("projects")
+      .select("*")
+      .eq("slug", slug)
+      .eq("status", "published")
+      .maybeSingle();
 
-  if (error) throw error;
-  return data;
+    if (error) throw error;
+    return data;
+  });
 }
 
 /** Per /admin: vede anche le bozze, richiede la sessione dell'utente loggato. */
