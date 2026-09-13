@@ -99,7 +99,7 @@ export function Hero({ content }: { content: HomeContent }) {
       </div>
 
       <div className="relative mx-[calc(50%-50vw)] w-screen">
-        <Marquee items={["Web Design", "UI/UX", "SEO Tecnica", "Frontend"]} />
+        <Marquee items={["Web Design", "UI/UX", "SEO", "Frontend"]} />
       </div>
     </section>
   );

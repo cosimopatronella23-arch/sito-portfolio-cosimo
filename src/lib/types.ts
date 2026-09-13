@@ -176,6 +176,7 @@ export interface SiteSettings {
   ga4_measurement_id: string | null;
   google_site_verification_code: string | null;
   contact_email: string;
+  contact_phone: string;
   accent_color: string;
   home_content: HomeContent;
 }

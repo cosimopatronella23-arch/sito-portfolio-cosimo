@@ -78,15 +78,30 @@ export function SiteSettingsForm({ settings }: { settings: SiteSettings }) {
           />
         </label>
 
-        <label className="flex flex-col gap-2">
-          <span className="text-sm font-medium">Email di contatto</span>
-          <input
-            name="contact_email"
-            type="email"
-            defaultValue={settings.contact_email}
-            className={fieldClasses}
-          />
-        </label>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <label className="flex flex-col gap-2">
+            <span className="text-sm font-medium">Email di contatto</span>
+            <input
+              name="contact_email"
+              type="email"
+              defaultValue={settings.contact_email}
+              className={fieldClasses}
+            />
+          </label>
+
+          <label className="flex flex-col gap-2">
+            <span className="text-sm font-medium">
+              Telefono (vuoto = non mostrarlo)
+            </span>
+            <input
+              name="contact_phone"
+              type="tel"
+              placeholder="392 082 4301"
+              defaultValue={settings.contact_phone}
+              className={fieldClasses}
+            />
+          </label>
+        </div>
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           {(["instagram", "linkedin", "dribbble"] as const).map((key) => (

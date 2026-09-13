@@ -2,42 +2,72 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { CoverImage } from "@/components/ui/CoverImage";
 import { ProjectMediaGallery } from "./ProjectMediaGallery";
 import { Button } from "@/components/ui/Button";
 import type { Project } from "@/lib/types";
 
 const EASE_OUT: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
+/**
+ * Pagina progetto: un case study immersivo, non un articolo. A differenza
+ * del blog (colonna stretta, il testo è il protagonista), qui la copertina
+ * apre a quasi tutto schermo e la galleria torna a piena larghezza — sono le
+ * immagini a raccontare il lavoro, il testo le accompagna in una colonna
+ * leggibile in mezzo. Le due pagine devono sembrare due format diversi, non
+ * lo stesso template con contenuti diversi.
+ */
 export function ProjectDetail({ project }: { project: Project }) {
   return (
-    <article className="container-px py-20 sm:py-28">
-      {/* Stessa larghezza per testo e galleria: prima le foto sfondavano a
-          piena larghezza mentre il testo restava stretto, facendo sembrare
-          le immagini più grandi e importanti di tutto il resto. */}
-      <div className="mx-auto flex max-w-4xl flex-col gap-10">
+    <article className="pb-20 sm:pb-28">
+      <div className="relative h-[70svh] w-full overflow-hidden sm:h-[90vh]">
+        <motion.div
+          className="absolute inset-0"
+          initial={{ scale: 1.15 }}
+          animate={{ scale: 1 }}
+          transition={{ duration: 1.4, ease: EASE_OUT }}
+        >
+          <CoverImage
+            src={project.cover_image}
+            alt={project.title}
+            priority
+            className="h-full w-full"
+          />
+        </motion.div>
+
+        <div
+          className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-black/40"
+          aria-hidden="true"
+        />
+
         <Link
           href="/#progetti"
-          className="w-max text-sm text-foreground-muted hover:text-foreground"
+          className="container-px absolute top-6 z-10 w-max text-sm text-white/70 transition-colors hover:text-white sm:top-10"
         >
           ← Torna ai progetti
         </Link>
 
-        <motion.header
+        <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.9, ease: EASE_OUT }}
-          className="flex flex-col gap-5"
+          transition={{ duration: 0.9, ease: EASE_OUT, delay: 0.2 }}
+          className="container-px absolute bottom-10 flex flex-col gap-4 sm:bottom-14"
         >
           <p className="text-xs font-medium tracking-wide text-accent uppercase">
-            {project.category}
+            {project.category} — {project.year}
           </p>
-          <h1 className="font-display text-4xl font-semibold tracking-tight text-balance sm:text-5xl">
+          <h1 className="font-display max-w-3xl text-4xl leading-[1.05] font-semibold text-balance text-white sm:text-6xl md:text-7xl">
             {project.title}
           </h1>
-          <p className="max-w-2xl text-lg text-foreground-muted">
+        </motion.div>
+      </div>
+
+      <div className="container-px flex flex-col gap-16 pt-16 sm:gap-20 sm:pt-20">
+        <div className="mx-auto flex w-full max-w-3xl flex-col gap-8">
+          <p className="text-lg text-foreground-muted">
             {project.short_description}
           </p>
-          <dl className="mt-2 flex flex-wrap gap-x-10 gap-y-3 border-t border-border pt-6 text-sm">
+          <dl className="flex flex-wrap gap-x-10 gap-y-3 border-t border-border pt-6 text-sm">
             <div>
               <dt className="text-foreground-muted">Cliente</dt>
               <dd className="font-medium">{project.client}</dd>
@@ -47,25 +77,15 @@ export function ProjectDetail({ project }: { project: Project }) {
               <dd className="font-medium">{project.year}</dd>
             </div>
           </dl>
-        </motion.header>
+        </div>
 
-        <motion.div
-          initial={{ opacity: 0, scale: 1.06 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 1.1, ease: EASE_OUT, delay: 0.1 }}
-        >
-          <ProjectMediaGallery
-            items={[
-              ...(project.cover_image
-                ? [{ url: project.cover_image, layout: "full" as const }]
-                : []),
-              ...project.gallery,
-            ]}
-            alt={project.title}
-          />
-        </motion.div>
+        {project.gallery.length > 0 ? (
+          <div className="mx-[calc(50%-50vw)] w-screen">
+            <ProjectMediaGallery items={project.gallery} alt={project.title} />
+          </div>
+        ) : null}
 
-        <div className="flex flex-col gap-12">
+        <div className="mx-auto flex w-full max-w-3xl flex-col gap-12">
           {project.content_blocks.map((block) => (
             <motion.section
               key={block.heading}
@@ -83,18 +103,18 @@ export function ProjectDetail({ project }: { project: Project }) {
               </p>
             </motion.section>
           ))}
-        </div>
 
-        {project.external_link ? (
-          <Button
-            href={project.external_link}
-            variant="secondary"
-            size="lg"
-            className="w-max"
-          >
-            Visita il sito →
-          </Button>
-        ) : null}
+          {project.external_link ? (
+            <Button
+              href={project.external_link}
+              variant="secondary"
+              size="lg"
+              className="w-max"
+            >
+              Visita il sito →
+            </Button>
+          ) : null}
+        </div>
       </div>
     </article>
   );

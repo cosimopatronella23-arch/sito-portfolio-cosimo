@@ -120,6 +120,7 @@ export async function updateSiteSettings(
   const payload = {
     site_title: String(formData.get("site_title") || "").trim(),
     contact_email: String(formData.get("contact_email") || "").trim(),
+    contact_phone: String(formData.get("contact_phone") || "").trim(),
     social_links: socialLinks,
     accent_color: accentColor,
     home_content: homeContent,
@@ -131,10 +132,27 @@ export async function updateSiteSettings(
   };
 
   const supabase = await createClient();
-  const { error } = await supabase
+  let { error } = await supabase
     .from("site_settings")
     .update(payload)
     .eq("id", "main");
+
+  // "contact_phone" esiste nel codice da subito, ma sul database compare
+  // solo dopo aver eseguito la migrazione 0005 in Supabase Studio. Nella
+  // finestra di tempo prima che tu la esegua, il salvataggio non deve
+  // rompersi per gli altri campi: se l'errore è proprio "colonna non
+  // trovata", si ritenta senza il numero di telefono.
+  const isMissingPhoneColumn =
+    error &&
+    (error.code === "PGRST204" || error.code === "42703") &&
+    error.message.includes("contact_phone");
+  if (isMissingPhoneColumn) {
+    const { contact_phone: _contactPhone, ...withoutPhone } = payload;
+    ({ error } = await supabase
+      .from("site_settings")
+      .update(withoutPhone)
+      .eq("id", "main"));
+  }
 
   if (error) return { error: error.message };
 

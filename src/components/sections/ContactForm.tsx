@@ -40,8 +40,12 @@ const fieldClasses =
 
 export function ContactForm({
   backgroundColor,
+  contactEmail,
+  contactPhone,
 }: {
   backgroundColor?: string;
+  contactEmail?: string;
+  contactPhone?: string;
 } = {}) {
   const [state, formAction, pending] = useActionState(sendContactMessage, {
     error: null,
@@ -74,7 +78,32 @@ export function ContactForm({
         className="-bottom-40 -left-24 -z-10 h-[24rem] w-[24rem] sm:h-[30rem] sm:w-[30rem]"
       />
       <div className="grid grid-cols-1 gap-14 lg:grid-cols-[0.9fr_1.1fr]">
-        <SectionHeading title="Raccontami cosa stai costruendo." />
+        <div className="flex flex-col gap-8">
+          <SectionHeading title="Raccontami cosa stai costruendo." />
+          {contactEmail || contactPhone ? (
+            <div className="flex flex-col gap-2 border-t border-border pt-6 text-sm">
+              <span className="text-foreground-muted">Oppure, più diretto:</span>
+              {contactEmail ? (
+                <a
+                  href={`mailto:${contactEmail}`}
+                  data-cursor="link"
+                  className="font-medium text-foreground hover:text-accent"
+                >
+                  {contactEmail}
+                </a>
+              ) : null}
+              {contactPhone ? (
+                <a
+                  href={`tel:${contactPhone.replace(/\s+/g, "")}`}
+                  data-cursor="link"
+                  className="font-medium text-foreground hover:text-accent"
+                >
+                  {contactPhone}
+                </a>
+              ) : null}
+            </div>
+          ) : null}
+        </div>
 
         <form action={formAction} className="flex flex-col gap-6">
           <input

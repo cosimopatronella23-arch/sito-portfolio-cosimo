@@ -57,6 +57,8 @@ export default async function HomePage() {
       {settings.home_content.show_contact ?? true ? (
         <ContactForm
           backgroundColor={settings.home_content.section_colors?.contact}
+          contactEmail={settings.contact_email}
+          contactPhone={settings.contact_phone}
         />
       ) : null}
     </>

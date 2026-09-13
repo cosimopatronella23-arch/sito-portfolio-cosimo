@@ -27,6 +27,15 @@ export async function Footer() {
             {siteSettings.home_content.footer_tagline ||
               "Disegno e sviluppo siti su misura, dal primo schizzo al giorno in cui li metti online."}
           </p>
+          {siteSettings.contact_phone ? (
+            <a
+              href={`tel:${siteSettings.contact_phone.replace(/\s+/g, "")}`}
+              data-cursor="link"
+              className="text-sm text-foreground-muted hover:text-foreground"
+            >
+              {siteSettings.contact_phone}
+            </a>
+          ) : null}
         </div>
 
         <div className="flex flex-col gap-4">

@@ -94,6 +94,7 @@ export function personJsonLd(settings: SiteSettings) {
     jobTitle: "Web Designer",
     url: SITE_URL,
     email: settings.contact_email,
+    telephone: settings.contact_phone || undefined,
     sameAs: Object.values(settings.social_links),
   };
 }
