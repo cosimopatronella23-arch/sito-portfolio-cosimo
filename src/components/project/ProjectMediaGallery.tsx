@@ -1,6 +1,12 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { useRef } from "react";
+import {
+  motion,
+  useReducedMotion,
+  useScroll,
+  useTransform,
+} from "framer-motion";
 import { CoverImage } from "@/components/ui/CoverImage";
 import { isVideoUrl } from "@/lib/isVideoUrl";
 import type { GalleryItem } from "@/lib/types";
@@ -30,7 +36,15 @@ function toRows(items: GalleryItem[]): GalleryItem[][] {
   return rows;
 }
 
-function Media({
+/**
+ * Ogni foto/video ha un leggero effetto parallasse: mentre la riga scorre
+ * nel viewport, il contenuto si muove più lentamente dello scroll stesso
+ * (un classico delle gallery "vive" da studio di design) — non è ancorato
+ * come la copertina in cima alla pagina, altrimenti con più immagini di
+ * fila si "incastrerebbero" a vicenda. Lo zoom fisso (scale-110) dà il
+ * margine perché il movimento non scopra mai un bordo vuoto.
+ */
+function GalleryMedia({
   src,
   alt,
   aspect,
@@ -41,22 +55,35 @@ function Media({
   aspect: "16/9" | "square";
   priority?: boolean;
 }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const shouldReduceMotion = useReducedMotion();
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ["start end", "end start"],
+  });
+  const y = useTransform(scrollYProgress, [0, 1], ["-6%", "6%"]);
+
   const aspectClass = aspect === "square" ? "aspect-square" : "aspect-[16/9]";
 
   return (
-    <div className={`${aspectClass} w-full overflow-hidden`}>
-      {isVideoUrl(src) ? (
-        <video
-          src={src}
-          autoPlay
-          muted
-          loop
-          playsInline
-          className="h-full w-full object-cover"
-        />
-      ) : (
-        <CoverImage src={src} alt={alt} priority={priority} className="h-full w-full" />
-      )}
+    <div ref={ref} className={`${aspectClass} w-full overflow-hidden`}>
+      <motion.div
+        style={shouldReduceMotion ? undefined : { y }}
+        className="h-full w-full scale-110"
+      >
+        {isVideoUrl(src) ? (
+          <video
+            src={src}
+            autoPlay
+            muted
+            loop
+            playsInline
+            className="h-full w-full object-cover"
+          />
+        ) : (
+          <CoverImage src={src} alt={alt} priority={priority} className="h-full w-full" />
+        )}
+      </motion.div>
     </div>
   );
 }
@@ -66,7 +93,8 @@ function Media({
  * (intera o affiancata) — niente decisione automatica che rischi di
  * ritagliare a quadrato qualcosa che doveva restare intero. Tutto visibile
  * scorrendo la pagina, niente scorrimento automatico che nasconde
- * contenuti. Ogni riga entra con una micro-animazione allo scroll.
+ * contenuti. Ogni riga entra con una micro-animazione allo scroll, e ogni
+ * immagine si muove poi con un leggero parallasse mentre la si scorre.
  */
 export function ProjectMediaGallery({
   items,
@@ -102,7 +130,7 @@ export function ProjectMediaGallery({
               viewport={{ once: true, margin: "-60px" }}
               transition={{ duration: 0.6, delay: i * 0.1, ease: EASE_OUT }}
             >
-              <Media
+              <GalleryMedia
                 src={item.url}
                 alt={alt}
                 aspect={row.length === 2 ? "square" : "16/9"}
