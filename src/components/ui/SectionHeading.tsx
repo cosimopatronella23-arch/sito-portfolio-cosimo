@@ -9,11 +9,15 @@ export function SectionHeading({
   title,
   description,
   align = "left",
+  size = "default",
   className,
 }: {
   title: string;
   description?: string;
   align?: "left" | "center";
+  /** "poster" è la nuova scala editoriale spinta — "default" resta invariata
+   *  apposta per la sezione Progetti, che non va toccata. */
+  size?: "default" | "poster";
   className?: string;
 }) {
   return (
@@ -32,7 +36,12 @@ export function SectionHeading({
         whileInView={{ clipPath: "inset(0 0 0% 0)", opacity: 1 }}
         viewport={{ once: true, margin: "-80px" }}
         transition={{ duration: 0.7, ease: EASE_OUT }}
-        className="font-display text-3xl font-semibold tracking-tight text-balance sm:text-4xl md:text-5xl"
+        className={clsx(
+          "font-display font-semibold tracking-tight text-balance",
+          size === "poster"
+            ? "text-[clamp(2.5rem,7vw,6rem)] leading-[0.95]"
+            : "text-3xl sm:text-4xl md:text-5xl",
+        )}
       >
         {title}
       </motion.h2>

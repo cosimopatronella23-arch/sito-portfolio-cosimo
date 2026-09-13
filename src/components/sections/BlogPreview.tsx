@@ -22,7 +22,10 @@ export async function BlogPreview({
     >
       <div className="flex flex-col gap-14">
         <div className="flex flex-wrap items-end justify-between gap-6">
-          <SectionHeading title="Cose che scrivo, tra un progetto e l'altro." />
+          <SectionHeading
+            title="Cose che scrivo, tra un progetto e l'altro."
+            size="poster"
+          />
           <Link
             href="/blog"
             data-cursor="link"

@@ -38,7 +38,7 @@ export default async function ProjectsIndexPage() {
   return (
     <div className="relative">
       <div className="container-px pt-20 sm:pt-28">
-        <SectionHeading title="Tutti i progetti." />
+        <SectionHeading title="Tutti i progetti." size="poster" />
       </div>
 
       {ordered.length === 0 ? (

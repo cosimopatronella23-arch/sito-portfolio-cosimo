@@ -12,7 +12,7 @@ export async function Footer() {
           href={`mailto:${siteSettings.contact_email}`}
           data-cursor="link"
           data-cursor-text="Scrivimi"
-          className="font-display block text-4xl font-semibold tracking-tight text-balance underline decoration-border-strong underline-offset-8 transition-colors hover:text-accent hover:decoration-accent sm:text-5xl md:text-6xl"
+          className="font-display block text-[clamp(2.5rem,7vw,6rem)] leading-[0.95] font-semibold tracking-tight text-balance underline decoration-border-strong underline-offset-8 transition-colors hover:text-accent hover:decoration-accent"
         >
           Parliamo del tuo progetto.
         </a>

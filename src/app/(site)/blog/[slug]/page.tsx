@@ -64,7 +64,7 @@ export default async function BlogPostPage(props: PageProps<"/blog/[slug]">) {
           <p className="text-xs font-medium tracking-wide text-accent uppercase">
             {post.category}
           </p>
-          <h1 className="font-display text-4xl leading-[1.1] font-semibold tracking-tight text-balance sm:text-5xl">
+          <h1 className="font-display text-[clamp(2.25rem,6vw,4.5rem)] leading-[1.02] font-semibold tracking-tight text-balance">
             {post.title}
           </h1>
           <time

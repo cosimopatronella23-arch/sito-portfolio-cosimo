@@ -17,7 +17,7 @@ export default async function BlogIndexPage() {
   return (
     <div className="container-px py-20 sm:py-28">
       <div className="flex flex-col gap-14">
-        <SectionHeading title="Tutti gli articoli." />
+        <SectionHeading title="Tutti gli articoli." size="poster" />
 
         <div className="flex flex-col">
           {published.map((post, i) => (

@@ -1,8 +1,8 @@
 "use client";
 
 import { Fragment } from "react";
+import Link from "next/link";
 import { motion, type Variants } from "framer-motion";
-import { Button } from "@/components/ui/Button";
 import { AnimatedBlob } from "@/components/ui/AnimatedBlob";
 import { Marquee } from "@/components/ui/Marquee";
 import { sectionStyle } from "@/lib/contrast";
@@ -29,7 +29,7 @@ export function Hero({ content }: { content: HomeContent }) {
   return (
     <section
       style={style}
-      className="relative overflow-hidden container-px pt-20 pb-0 sm:pt-28"
+      className="relative overflow-hidden container-px pt-28 pb-0 sm:pt-36"
     >
       <AnimatedBlob className="-top-32 -right-24 -z-10 h-[26rem] w-[26rem] sm:h-[34rem] sm:w-[34rem]" />
       <AnimatedBlob
@@ -45,13 +45,13 @@ export function Hero({ content }: { content: HomeContent }) {
         00
       </span>
 
-      <div className="relative flex flex-col gap-8 pb-24 sm:pb-32">
+      <div className="relative flex flex-col gap-14 pb-24 sm:pb-32">
         <motion.h1
           variants={fadeUp}
           initial="hidden"
           animate="visible"
           custom={0}
-          className="font-display text-5xl leading-[1.05] font-semibold tracking-tight text-balance sm:text-6xl md:text-7xl"
+          className="font-display text-[clamp(2.75rem,10vw,9rem)] leading-[0.92] font-semibold tracking-tight text-balance"
         >
           {titleLines.map((line, i) => (
             <Fragment key={i}>
@@ -62,30 +62,43 @@ export function Hero({ content }: { content: HomeContent }) {
           <span className="text-accent"> {content.hero_title_accent}</span>
         </motion.h1>
 
-        <motion.p
-          variants={fadeUp}
-          initial="hidden"
-          animate="visible"
-          custom={1}
-          className="max-w-xl text-lg text-foreground-muted"
-        >
-          {content.hero_subtitle}
-        </motion.p>
+        {/* Sottotitolo e call to action su righe opposte, non impilati al
+            centro: una spaziatura più asimmetrica, da composizione
+            editoriale invece che da landing page centrata. */}
+        <div className="flex flex-col gap-10 sm:flex-row sm:items-end sm:justify-between">
+          <motion.p
+            variants={fadeUp}
+            initial="hidden"
+            animate="visible"
+            custom={1}
+            className="max-w-md text-lg text-foreground-muted"
+          >
+            {content.hero_subtitle}
+          </motion.p>
 
-        <motion.div
-          variants={fadeUp}
-          initial="hidden"
-          animate="visible"
-          custom={2}
-          className="flex flex-wrap items-center gap-5"
-        >
-          <Button href="/#contatti" size="lg">
-            {content.cta_primary}
-          </Button>
-          <Button href="/#progetti" variant="secondary" size="lg">
-            {content.cta_secondary}
-          </Button>
-        </motion.div>
+          <motion.div
+            variants={fadeUp}
+            initial="hidden"
+            animate="visible"
+            custom={2}
+            className="flex flex-col gap-3 sm:items-end"
+          >
+            <Link
+              href="/#contatti"
+              data-cursor="link"
+              className="font-display text-2xl font-semibold underline decoration-border-strong underline-offset-8 transition-colors hover:text-accent hover:decoration-accent sm:text-3xl"
+            >
+              {content.cta_primary} →
+            </Link>
+            <Link
+              href="/#progetti"
+              data-cursor="link"
+              className="text-sm text-foreground-muted underline decoration-border-strong underline-offset-4 hover:text-foreground"
+            >
+              {content.cta_secondary}
+            </Link>
+          </motion.div>
+        </div>
 
         <motion.p
           variants={fadeUp}

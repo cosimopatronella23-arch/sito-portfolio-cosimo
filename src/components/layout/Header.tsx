@@ -22,24 +22,24 @@ export function Header({ navLinks }: { navLinks?: NavLink[] }) {
 
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
-      <div className="container-px flex items-center justify-between py-4">
+      <div className="container-px flex items-center justify-between py-5">
         <Link
           href="/"
           data-cursor="link"
-          className="font-display text-lg font-semibold tracking-tight"
+          className="font-display text-sm font-semibold tracking-[0.08em] uppercase"
           onClick={() => setOpen(false)}
         >
           Cosimo Patronella
         </Link>
 
-        <nav className="hidden items-center gap-8 md:flex">
+        <nav className="hidden items-center gap-10 md:flex">
           {links.map((link) => (
             <Link
               key={link.href}
               href={link.href}
               data-cursor="link"
               className={clsx(
-                "relative text-sm font-medium text-foreground-muted transition-colors after:absolute after:-bottom-1 after:left-0 after:h-px after:w-full after:origin-left after:scale-x-0 after:bg-accent after:transition-transform after:duration-300 hover:text-foreground hover:after:scale-x-100",
+                "relative text-xs font-medium tracking-[0.08em] text-foreground-muted uppercase transition-colors after:absolute after:-bottom-1 after:left-0 after:h-px after:w-full after:origin-left after:scale-x-0 after:bg-accent after:transition-transform after:duration-300 hover:text-foreground hover:after:scale-x-100",
                 pathname === link.href && "text-foreground",
               )}
             >
@@ -49,9 +49,9 @@ export function Header({ navLinks }: { navLinks?: NavLink[] }) {
           <Link
             href="/#contatti"
             data-cursor="link"
-            className="bg-foreground px-5 py-2 text-sm font-medium text-background transition-colors hover:bg-accent"
+            className="text-xs font-medium tracking-[0.08em] text-accent uppercase underline decoration-accent/40 underline-offset-4 transition-colors hover:text-foreground hover:decoration-foreground/40"
           >
-            Iniziamo un progetto
+            Iniziamo un progetto →
           </Link>
         </nav>
 

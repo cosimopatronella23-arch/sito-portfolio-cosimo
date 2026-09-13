@@ -79,7 +79,10 @@ export function ContactForm({
       />
       <div className="grid grid-cols-1 gap-14 lg:grid-cols-[0.9fr_1.1fr]">
         <div className="flex flex-col gap-8">
-          <SectionHeading title="Raccontami cosa stai costruendo." />
+          <SectionHeading
+            title="Raccontami cosa stai costruendo."
+            size="poster"
+          />
           {contactEmail || contactPhone ? (
             <div className="flex flex-col gap-2 border-t border-border pt-6 text-sm">
               <span className="text-foreground-muted">Oppure, più diretto:</span>
