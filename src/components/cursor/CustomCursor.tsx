@@ -96,7 +96,7 @@ export function CustomCursor() {
   return (
     <div
       ref={dotRef}
-      className="pointer-events-none fixed top-0 left-0 z-[9999] hidden h-3.5 w-3.5 rotate-45 -translate-x-1/2 -translate-y-1/2 items-center justify-center bg-accent text-background transition-[width,height,padding,transform] duration-300 ease-out [&[data-expanded='text']]:h-auto [&[data-expanded='text']]:w-auto [&[data-expanded='text']]:rotate-0 [&[data-expanded='text']]:px-4 [&[data-expanded='text']]:py-2 [@media(hover:hover)_and_(pointer:fine)]:flex"
+      className="pointer-events-none fixed top-0 left-0 z-[9999] hidden h-3.5 w-3.5 rotate-45 -translate-x-1/2 -translate-y-1/2 items-center justify-center bg-white text-background mix-blend-difference transition-[width,height,padding,transform] duration-300 ease-out [&[data-expanded='text']]:h-auto [&[data-expanded='text']]:w-auto [&[data-expanded='text']]:rotate-0 [&[data-expanded='text']]:px-4 [&[data-expanded='text']]:py-2 [@media(hover:hover)_and_(pointer:fine)]:flex"
       aria-hidden="true"
     >
       <span

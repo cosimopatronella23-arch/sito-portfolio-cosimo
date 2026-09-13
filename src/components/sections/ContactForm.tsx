@@ -3,6 +3,7 @@
 import { useActionState } from "react";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Button } from "@/components/ui/Button";
+import { AnimatedBlob } from "@/components/ui/AnimatedBlob";
 import { sendContactMessage } from "@/lib/actions/contact";
 import { sectionStyle } from "@/lib/contrast";
 
@@ -63,7 +64,15 @@ export function ContactForm({
   }
 
   return (
-    <section id="contatti" style={style} className="container-px py-24 sm:py-32">
+    <section
+      id="contatti"
+      style={style}
+      className="relative container-px overflow-hidden py-24 sm:py-32"
+    >
+      <AnimatedBlob
+        variant="warm"
+        className="-bottom-40 -left-24 -z-10 h-[24rem] w-[24rem] sm:h-[30rem] sm:w-[30rem]"
+      />
       <div className="grid grid-cols-1 gap-14 lg:grid-cols-[0.9fr_1.1fr]">
         <SectionHeading title="Raccontami cosa stai costruendo." />
 

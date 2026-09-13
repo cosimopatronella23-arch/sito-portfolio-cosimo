@@ -1,5 +1,7 @@
+"use client";
+
 import Link from "next/link";
-import type { ComponentPropsWithoutRef } from "react";
+import { useRef, type ComponentPropsWithoutRef, type MouseEvent } from "react";
 import clsx from "clsx";
 
 type BaseProps = {
@@ -36,6 +38,27 @@ const sizes = {
   lg: "px-7 py-3.5 text-base",
 };
 
+type MagneticEl = HTMLAnchorElement & HTMLButtonElement;
+
+// Effetto magnetico: il bottone segue leggermente il cursore quando è
+// vicino, come se venisse "attratto". Manipola il DOM direttamente (niente
+// useState) per restare fluido a 60fps senza ri-render React ad ogni
+// movimento del mouse; il controllo hover/pointer esclude i touch.
+function magneticMove(el: MagneticEl | null, e: MouseEvent<HTMLElement>) {
+  if (!el || !window.matchMedia("(hover: hover) and (pointer: fine)").matches) {
+    return;
+  }
+  const rect = el.getBoundingClientRect();
+  const x = e.clientX - (rect.left + rect.width / 2);
+  const y = e.clientY - (rect.top + rect.height / 2);
+  el.style.transform = `translate(${x * 0.25}px, ${y * 0.35}px)`;
+}
+
+function magneticReset(el: MagneticEl | null) {
+  if (!el) return;
+  el.style.transform = "translate(0, 0)";
+}
+
 function ButtonContent({
   variant,
   children,
@@ -63,12 +86,27 @@ export function Button({
   children,
   ...props
 }: ButtonProps) {
-  const classes = clsx(base, variants[variant], sizes[size], className);
+  const classes = clsx(
+    base,
+    "transition-[transform,background-color,border-color,color] ease-out",
+    variants[variant],
+    sizes[size],
+    className,
+  );
+  const ref = useRef<MagneticEl>(null);
 
   if ("href" in props && props.href) {
     const { href, ...rest } = props as ButtonAsLink;
     return (
-      <Link href={href} className={classes} data-cursor="link" {...rest}>
+      <Link
+        ref={ref}
+        href={href}
+        className={classes}
+        data-cursor="link"
+        onMouseMove={(e) => magneticMove(ref.current, e)}
+        onMouseLeave={() => magneticReset(ref.current)}
+        {...rest}
+      >
         <ButtonContent variant={variant}>{children}</ButtonContent>
       </Link>
     );
@@ -76,7 +114,14 @@ export function Button({
 
   const rest = props as ButtonAsButton;
   return (
-    <button className={classes} data-cursor="link" {...rest}>
+    <button
+      ref={ref}
+      className={classes}
+      data-cursor="link"
+      onMouseMove={(e) => magneticMove(ref.current, e)}
+      onMouseLeave={() => magneticReset(ref.current)}
+      {...rest}
+    >
       <ButtonContent variant={variant}>{children}</ButtonContent>
     </button>
   );

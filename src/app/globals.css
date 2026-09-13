@@ -127,6 +127,62 @@ body {
   opacity: 1;
 }
 
+/* ---------------------------------------------------------------------- */
+/* Forma organica animata (AnimatedBlob) — nessun asset esterno: solo         */
+/* gradiente + blur + morphing del border-radius, leggero per il browser     */
+/* (anima solo transform/border-radius/filter, mai layout).                  */
+/* ---------------------------------------------------------------------- */
+@keyframes blob-morph {
+  0%,
+  100% {
+    border-radius: 42% 58% 65% 35% / 45% 45% 55% 55%;
+  }
+  25% {
+    border-radius: 58% 42% 35% 65% / 55% 60% 40% 45%;
+  }
+  50% {
+    border-radius: 50% 50% 38% 62% / 62% 38% 62% 38%;
+  }
+  75% {
+    border-radius: 35% 65% 55% 45% / 40% 55% 45% 60%;
+  }
+}
+
+@keyframes blob-spin {
+  from {
+    transform: rotate(0deg) scale(1);
+  }
+  50% {
+    transform: rotate(180deg) scale(1.12);
+  }
+  to {
+    transform: rotate(360deg) scale(1);
+  }
+}
+
+.animated-blob {
+  animation:
+    blob-morph 13s ease-in-out infinite,
+    blob-spin 24s linear infinite;
+  will-change: transform, border-radius;
+}
+
+/* ---------------------------------------------------------------------- */
+/* Marquee — nastro di testo che scorre all'infinito.                       */
+/* ---------------------------------------------------------------------- */
+@keyframes marquee-scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.marquee-track {
+  animation: marquee-scroll 22s linear infinite;
+}
+
 /* Stile per il testo scritto con l'editor di Tiptap (in /admin e sull'articolo pubblicato) */
 .prose-editor p {
   margin-bottom: 1em;
