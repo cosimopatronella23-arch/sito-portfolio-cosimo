@@ -6,8 +6,8 @@
  */
 export async function withRetry<T>(
   fn: () => Promise<T>,
-  attempts = 3,
-  delayMs = 500,
+  attempts = 4,
+  delayMs = 800,
 ): Promise<T> {
   let lastError: unknown;
 
