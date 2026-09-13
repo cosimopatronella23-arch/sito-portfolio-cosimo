@@ -29,7 +29,7 @@ export function Services({
     <section
       id="servizi"
       style={sectionStyle(backgroundColor)}
-      className="py-24 sm:py-32"
+      className="pt-24 pb-4 sm:pt-32 sm:pb-8"
     >
       <div className="container-px">
         <SectionHeading title={title} size="poster" />

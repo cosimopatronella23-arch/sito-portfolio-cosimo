@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { CoverImage } from "@/components/ui/CoverImage";
+import { AnimatedText } from "@/components/ui/AnimatedText";
 import { buildMetadata, blogPostJsonLd } from "@/lib/seo";
 import { getPostBySlug, getPublishedPosts } from "@/lib/data/blog";
 
@@ -65,7 +66,7 @@ export default async function BlogPostPage(props: PageProps<"/blog/[slug]">) {
             {post.category}
           </p>
           <h1 className="font-display text-[clamp(2.25rem,6vw,4.5rem)] leading-[1.02] font-semibold tracking-tight text-balance">
-            {post.title}
+            <AnimatedText text={post.title} />
           </h1>
           <time
             dateTime={post.published_at}

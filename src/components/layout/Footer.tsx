@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { AnimatedText } from "@/components/ui/AnimatedText";
 import { getSiteSettings } from "@/lib/data/settings";
 
 export async function Footer() {
@@ -14,7 +15,7 @@ export async function Footer() {
           data-cursor-text="Scrivimi"
           className="font-display block text-[clamp(2.5rem,7vw,6rem)] leading-[0.95] font-semibold tracking-tight text-balance underline decoration-border-strong underline-offset-8 transition-colors hover:text-accent hover:decoration-accent"
         >
-          Parliamo del tuo progetto.
+          <AnimatedText text="Parliamo del tuo progetto." />
         </a>
       </div>
 

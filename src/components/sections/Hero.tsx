@@ -4,6 +4,7 @@ import { Fragment } from "react";
 import Link from "next/link";
 import { motion, type Variants } from "framer-motion";
 import { AnimatedBlob } from "@/components/ui/AnimatedBlob";
+import { AnimatedText } from "@/components/ui/AnimatedText";
 import { Marquee } from "@/components/ui/Marquee";
 import { sectionStyle } from "@/lib/contrast";
 import type { HomeContent } from "@/lib/types";
@@ -46,21 +47,20 @@ export function Hero({ content }: { content: HomeContent }) {
       </span>
 
       <div className="relative flex flex-col gap-14 pb-24 sm:pb-32">
-        <motion.h1
-          variants={fadeUp}
-          initial="hidden"
-          animate="visible"
-          custom={0}
-          className="font-display text-[clamp(2.75rem,10vw,9rem)] leading-[0.92] font-semibold tracking-tight text-balance"
-        >
+        <h1 className="font-display text-[clamp(2.75rem,10vw,9rem)] leading-[0.92] font-semibold tracking-tight text-balance">
           {titleLines.map((line, i) => (
             <Fragment key={i}>
               {i > 0 ? <br /> : null}
-              {line}
+              <AnimatedText text={line} delay={i * 0.12} />
             </Fragment>
           ))}
-          <span className="text-accent"> {content.hero_title_accent}</span>
-        </motion.h1>
+          <span className="text-accent">
+            <AnimatedText
+              text={content.hero_title_accent}
+              delay={titleLines.length * 0.12}
+            />
+          </span>
+        </h1>
 
         {/* Sottotitolo e call to action su righe opposte, non impilati al
             centro: una spaziatura più asimmetrica, da composizione
