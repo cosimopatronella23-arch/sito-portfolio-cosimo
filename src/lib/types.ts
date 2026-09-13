@@ -50,6 +50,9 @@ export interface BlogPost {
   content: string;
   status: ContentStatus;
   published_at: string;
+  /** Ordine manuale di comparsa (più basso = prima); a parità, vince il più
+   *  recente. Non l'ordine di pubblicazione: quello lo decide questo campo. */
+  sort_order: number;
   seo_title: string | null;
   seo_description: string | null;
   seo_og_image: string | null;

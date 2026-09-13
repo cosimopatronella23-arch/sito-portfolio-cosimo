@@ -22,12 +22,26 @@ function parsePostForm(formData: FormData) {
     content: String(formData.get("content") || ""),
     status: String(formData.get("status") || "draft") as ContentStatus,
     published_at: publishedAt,
+    sort_order: Number(formData.get("sort_order")) || 0,
     seo_title: String(formData.get("seo_title") || "").trim() || null,
     seo_description:
       String(formData.get("seo_description") || "").trim() || null,
     seo_og_image: String(formData.get("seo_og_image") || "").trim() || null,
     seo_noindex: formData.get("seo_noindex") === "on",
   };
+}
+
+// "sort_order" esiste nel codice da subito, ma sul database compare solo
+// dopo aver eseguito la migrazione 0006 in Supabase Studio. Nella finestra
+// di tempo prima che venga eseguita, salvare un articolo non deve rompersi
+// per gli altri campi: se l'errore è proprio "colonna non trovata", si
+// ritenta senza sort_order.
+function isMissingSortOrderColumn(error: { code: string; message: string } | null) {
+  return (
+    !!error &&
+    (error.code === "PGRST204" || error.code === "42703") &&
+    error.message.includes("sort_order")
+  );
 }
 
 export async function createPost(
@@ -40,7 +54,12 @@ export async function createPost(
   }
 
   const supabase = await createClient();
-  const { error } = await supabase.from("blog_posts").insert(payload);
+  let { error } = await supabase.from("blog_posts").insert(payload);
+
+  if (isMissingSortOrderColumn(error)) {
+    const { sort_order: _sortOrder, ...withoutSortOrder } = payload;
+    ({ error } = await supabase.from("blog_posts").insert(withoutSortOrder));
+  }
 
   if (error) {
     return { error: error.message };
@@ -63,10 +82,18 @@ export async function updatePost(
   }
 
   const supabase = await createClient();
-  const { error } = await supabase
+  let { error } = await supabase
     .from("blog_posts")
     .update(payload)
     .eq("id", id);
+
+  if (isMissingSortOrderColumn(error)) {
+    const { sort_order: _sortOrder, ...withoutSortOrder } = payload;
+    ({ error } = await supabase
+      .from("blog_posts")
+      .update(withoutSortOrder)
+      .eq("id", id));
+  }
 
   if (error) {
     return { error: error.message };

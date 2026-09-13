@@ -114,9 +114,9 @@ export function ProjectDetail({ project }: { project: Project }) {
         ) : null}
 
         <div className="mx-auto flex w-full max-w-3xl flex-col gap-12">
-          {project.content_blocks.map((block) => (
+          {project.content_blocks.map((block, i) => (
             <motion.section
-              key={block.heading}
+              key={i}
               initial={{ opacity: 0, y: 24 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-80px" }}
@@ -126,9 +126,10 @@ export function ProjectDetail({ project }: { project: Project }) {
               <h2 className="font-display text-2xl font-semibold">
                 {block.heading}
               </h2>
-              <p className="max-w-2xl text-base leading-relaxed text-foreground-muted">
-                {block.body}
-              </p>
+              <div
+                className="prose-editor max-w-2xl text-base leading-relaxed text-foreground-muted"
+                dangerouslySetInnerHTML={{ __html: block.body }}
+              />
             </motion.section>
           ))}
 

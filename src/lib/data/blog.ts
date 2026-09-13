@@ -13,7 +13,14 @@ export async function getPublishedPosts(): Promise<BlogPost[]> {
       .order("published_at", { ascending: false });
 
     if (error) throw error;
-    return data ?? [];
+
+    // "sort_order" esiste nel codice da subito, ma sul database compare solo
+    // dopo la migrazione 0006 — finché non viene eseguita, va di default a 0
+    // per tutti (equivale a "ordine di pubblicazione", il comportamento di
+    // prima) invece di far fallire la pagina.
+    return (data ?? [])
+      .map((post) => ({ sort_order: 0, ...post }))
+      .sort((a, b) => a.sort_order - b.sort_order);
   });
 }
 
@@ -41,7 +48,7 @@ export async function getAllPostsAdmin(): Promise<BlogPost[]> {
     .order("created_at", { ascending: false });
 
   if (error) throw error;
-  return data ?? [];
+  return (data ?? []).map((post) => ({ sort_order: 0, ...post }));
 }
 
 export async function getPostByIdAdmin(id: string): Promise<BlogPost | null> {
@@ -53,5 +60,5 @@ export async function getPostByIdAdmin(id: string): Promise<BlogPost | null> {
     .maybeSingle();
 
   if (error) throw error;
-  return data;
+  return data ? { sort_order: 0, ...data } : null;
 }

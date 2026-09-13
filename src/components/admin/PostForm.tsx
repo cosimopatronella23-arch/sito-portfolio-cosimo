@@ -70,6 +70,17 @@ export function PostForm({ post }: { post?: BlogPost }) {
               className={fieldClasses}
             />
           </label>
+          <label className="flex flex-col gap-2">
+            <span className="text-sm font-medium">
+              Ordine (i numeri più bassi vengono mostrati prima)
+            </span>
+            <input
+              name="sort_order"
+              type="number"
+              defaultValue={post?.sort_order ?? 0}
+              className={fieldClasses}
+            />
+          </label>
         </div>
 
         <label className="flex flex-col gap-2">

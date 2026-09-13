@@ -1,7 +1,20 @@
 "use client";
 
 import { useState } from "react";
+import { RichTextEditor } from "./RichTextEditor";
 import type { ContentBlock } from "@/lib/types";
+
+// Chiave stabile solo per React, mai salvata: l'editor di testo ricco
+// inizializza il proprio contenuto una sola volta al montaggio (non lo
+// risincronizza da solo se cambiano le props). Usare l'indice dell'array
+// come key avrebbe fatto sì che, rimuovendo una sezione in mezzo, quelle
+// sotto mostrassero temporaneamente il testo sbagliato — riciclando
+// l'istanza dell'editor della sezione rimossa per quella successiva.
+type EditableBlock = ContentBlock & { key: string };
+
+function withKeys(blocks: ContentBlock[]): EditableBlock[] {
+  return blocks.map((b) => ({ ...b, key: crypto.randomUUID() }));
+}
 
 /**
  * Ripetitore per le sezioni "Il problema / La soluzione / Risultati" di un
@@ -15,57 +28,56 @@ export function ContentBlocksEditor({
   name: string;
   defaultValue?: ContentBlock[];
 }) {
-  const [blocks, setBlocks] = useState<ContentBlock[]>(
-    defaultValue.length > 0 ? defaultValue : [{ heading: "", body: "" }],
+  const [blocks, setBlocks] = useState<EditableBlock[]>(() =>
+    withKeys(defaultValue.length > 0 ? defaultValue : [{ heading: "", body: "" }]),
   );
 
-  function updateBlock(
-    index: number,
-    field: keyof ContentBlock,
-    value: string,
-  ) {
+  function updateBlock(key: string, field: keyof ContentBlock, value: string) {
     setBlocks((prev) =>
-      prev.map((b, i) => (i === index ? { ...b, [field]: value } : b)),
+      prev.map((b) => (b.key === key ? { ...b, [field]: value } : b)),
     );
   }
 
   function addBlock() {
-    setBlocks((prev) => [...prev, { heading: "", body: "" }]);
+    setBlocks((prev) => [
+      ...prev,
+      { heading: "", body: "", key: crypto.randomUUID() },
+    ]);
   }
 
-  function removeBlock(index: number) {
-    setBlocks((prev) => prev.filter((_, i) => i !== index));
+  function removeBlock(key: string) {
+    setBlocks((prev) => prev.filter((b) => b.key !== key));
   }
 
   return (
     <div className="flex flex-col gap-4">
-      {blocks.map((block, i) => (
+      {blocks.map((block) => (
         <div
-          key={i}
+          key={block.key}
           className="flex flex-col gap-2 border border-border-strong p-4"
         >
           <div className="flex items-center justify-between gap-3">
             <input
               type="text"
               value={block.heading}
-              onChange={(e) => updateBlock(i, "heading", e.target.value)}
+              onChange={(e) =>
+                updateBlock(block.key, "heading", e.target.value)
+              }
               placeholder="Titolo sezione (es. Il problema)"
               className="w-full border-0 border-b border-border-strong bg-transparent py-1 text-sm font-medium text-foreground placeholder:text-foreground-muted focus-visible:border-accent focus-visible:outline-none"
             />
             <button
               type="button"
-              onClick={() => removeBlock(i)}
+              onClick={() => removeBlock(block.key)}
               className="shrink-0 text-xs text-foreground-muted hover:text-error"
             >
               Rimuovi
             </button>
           </div>
-          <textarea
-            value={block.body}
-            onChange={(e) => updateBlock(i, "body", e.target.value)}
-            rows={3}
-            placeholder="Testo della sezione"
-            className="w-full border-0 border-b border-border-strong bg-transparent py-1 text-sm text-foreground placeholder:text-foreground-muted focus-visible:border-accent focus-visible:outline-none"
+          <RichTextEditor
+            name={`content-block-${block.key}-body`}
+            defaultValue={block.body}
+            onChange={(html) => updateBlock(block.key, "body", html)}
           />
         </div>
       ))}
@@ -78,7 +90,13 @@ export function ContentBlocksEditor({
         + Aggiungi sezione
       </button>
 
-      <input type="hidden" name={name} value={JSON.stringify(blocks)} />
+      <input
+        type="hidden"
+        name={name}
+        value={JSON.stringify(
+          blocks.map(({ heading, body }) => ({ heading, body })),
+        )}
+      />
     </div>
   );
 }
