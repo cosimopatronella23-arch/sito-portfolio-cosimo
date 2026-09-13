@@ -16,12 +16,18 @@ function chunkInPairs(items: Project[]): Project[][] {
 
 export const revalidate = 3600;
 
-export const metadata: Metadata = buildMetadata({
-  title: "Progetti",
-  description:
-    "Tutti i progetti di design e sviluppo firmati Cosimo Patronella.",
-  path: "/progetti",
-});
+export async function generateMetadata(): Promise<Metadata> {
+  const published = await getPublishedProjects();
+  const featuredFirst = published.find((p) => p.featured) ?? published[0];
+
+  return buildMetadata({
+    title: "Progetti",
+    description:
+      "Tutti i progetti di design e sviluppo firmati Cosimo Patronella.",
+    path: "/progetti",
+    ogImage: featuredFirst?.cover_image,
+  });
+}
 
 export default async function ProjectsIndexPage() {
   const published = await getPublishedProjects();
@@ -38,7 +44,7 @@ export default async function ProjectsIndexPage() {
   return (
     <div className="relative">
       <div className="container-px pt-20 sm:pt-28">
-        <SectionHeading title="Tutti i progetti." size="poster" />
+        <SectionHeading title="Tutti i progetti." size="poster" as="h1" />
       </div>
 
       {ordered.length === 0 ? (

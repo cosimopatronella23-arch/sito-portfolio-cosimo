@@ -11,6 +11,7 @@ export function SectionHeading({
   description,
   align = "left",
   size = "default",
+  as = "h2",
   className,
 }: {
   title: string;
@@ -19,6 +20,9 @@ export function SectionHeading({
   /** "poster" è la nuova scala editoriale spinta — "default" resta invariata
    *  apposta per la sezione Progetti, che non va toccata. */
   size?: "default" | "poster";
+  /** /progetti e /blog sono pagine a sé, non sezioni di un'altra pagina con
+   *  già un suo h1: lì va passato "h1", altrimenti resterebbero senza. */
+  as?: "h1" | "h2";
   className?: string;
 }) {
   return (
@@ -32,13 +36,14 @@ export function SectionHeading({
       {size === "poster" ? (
         // Scala poster: il titolo entra parola per parola (stessa maschera
         // usata in Hero/Footer), più scenico della semplice tenda qui sotto.
-        <h2
-          className={clsx(
-            "font-display text-[clamp(2.5rem,7vw,6rem)] leading-[0.95] font-semibold tracking-tight text-balance",
-          )}
-        >
-          <AnimatedText text={title} />
-        </h2>
+        (() => {
+          const Tag = as;
+          return (
+            <Tag className="font-display text-[clamp(2.5rem,7vw,6rem)] leading-[0.95] font-semibold tracking-tight text-balance">
+              <AnimatedText text={title} />
+            </Tag>
+          );
+        })()
       ) : (
         // Sezione Progetti (e chiunque non passi size="poster"): stessa
         // animazione a tenda di sempre, invariata.

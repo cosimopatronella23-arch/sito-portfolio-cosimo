@@ -4,12 +4,17 @@ import { BlogListRow } from "@/components/blog/BlogListRow";
 import { buildMetadata } from "@/lib/seo";
 import { getPublishedPosts } from "@/lib/data/blog";
 
-export const metadata: Metadata = buildMetadata({
-  title: "Blog",
-  description:
-    "Note pratiche su design, sviluppo frontend, performance e SEO tecnica, da progetti reali.",
-  path: "/blog",
-});
+export async function generateMetadata(): Promise<Metadata> {
+  const published = await getPublishedPosts();
+
+  return buildMetadata({
+    title: "Blog",
+    description:
+      "Note pratiche su design, sviluppo frontend, performance e SEO tecnica, da progetti reali.",
+    path: "/blog",
+    ogImage: published[0]?.cover_image,
+  });
+}
 
 export default async function BlogIndexPage() {
   const published = await getPublishedPosts();
@@ -17,7 +22,7 @@ export default async function BlogIndexPage() {
   return (
     <div className="container-px py-20 sm:py-28">
       <div className="flex flex-col gap-14">
-        <SectionHeading title="Tutti gli articoli." size="poster" />
+        <SectionHeading title="Tutti gli articoli." size="poster" as="h1" />
 
         <div className="flex flex-col">
           {published.map((post, i) => (
