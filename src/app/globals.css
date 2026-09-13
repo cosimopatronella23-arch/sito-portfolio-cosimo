@@ -193,6 +193,27 @@ body {
   animation: generative-grid-shift 20s linear infinite;
 }
 
+/* Safari (desktop e iOS — questa query non intercetta Chrome/Edge, nemmeno
+   su Mac) rallenta molto di più di Chrome nel ricomporre ogni frame un
+   livello con blur/mix-blend-mode animato: è la causa degli scatti su
+   scroll e cursore segnalati solo lì. Qui si tiene l'aspetto visivo ma si
+   ferma l'animazione continua di questi livelli — Chrome non è toccato. */
+@supports (-webkit-hyphens: none) {
+  .animated-blob {
+    animation: none;
+    filter: blur(40px);
+  }
+
+  .generative-grid {
+    animation: none;
+  }
+
+  header.sticky {
+    backdrop-filter: none;
+    background-color: var(--background);
+  }
+}
+
 /* ---------------------------------------------------------------------- */
 /* Marquee — nastro di testo che scorre all'infinito.                       */
 /* ---------------------------------------------------------------------- */

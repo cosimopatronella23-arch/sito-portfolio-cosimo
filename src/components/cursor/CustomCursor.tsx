@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import gsap from "gsap";
+import { isSafari } from "@/lib/isSafari";
 
 /**
  * Cursore custom con leggero delay (lerp) via GSAP quickTo.
@@ -28,6 +29,16 @@ export function CustomCursor() {
     const dot = dotRef.current;
     const label = labelRef.current;
     if (!dot || !label) return;
+
+    // Safari ricompone tutto lo strato di blending ad ogni frame quando un
+    // elemento con mix-blend-mode si muove via transform — è la causa dello
+    // scatto del cursore segnalato solo lì. Su Safari si rinuncia
+    // all'inversione di colore e si torna a un pallino pieno, senza blend:
+    // Chrome continua a vedere l'effetto originale.
+    if (isSafari()) {
+      dot.style.mixBlendMode = "normal";
+      dot.style.backgroundColor = "var(--accent)";
+    }
 
     document.documentElement.classList.add("cursor-active-custom");
 
