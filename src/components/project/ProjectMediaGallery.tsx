@@ -3,19 +3,29 @@
 import { motion } from "framer-motion";
 import { CoverImage } from "@/components/ui/CoverImage";
 import { isVideoUrl } from "@/lib/isVideoUrl";
+import type { GalleryItem } from "@/lib/types";
 
 const EASE_OUT: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
-/** Righe da 1 (a tutta larghezza) e 2 (affiancate) alternate: 1, 2, 1, 2... */
-function toRows(items: string[]): string[][] {
-  const rows: string[][] = [];
+/**
+ * Righe in base alla scelta fatta per ogni elemento in admin: "full" è
+ * sempre da sola, "half" si affianca alla successiva SOLO se anche quella è
+ * "half" — un'affiancata rimasta sola (perché seguita da una intera, o
+ * perché è l'ultima) diventa comunque a tutta larghezza, per non lasciare
+ * un vuoto a metà riga.
+ */
+function toRows(items: GalleryItem[]): GalleryItem[][] {
+  const rows: GalleryItem[][] = [];
   let i = 0;
-  let single = true;
   while (i < items.length) {
-    const size = single ? 1 : 2;
-    rows.push(items.slice(i, i + size));
-    i += size;
-    single = !single;
+    const item = items[i];
+    if (item.layout === "half" && items[i + 1]?.layout === "half") {
+      rows.push([item, items[i + 1]]);
+      i += 2;
+    } else {
+      rows.push([item]);
+      i += 1;
+    }
   }
   return rows;
 }
@@ -52,21 +62,20 @@ function Media({
 }
 
 /**
- * Galleria progetto: righe alternate tra "un elemento a tutta larghezza" e
- * "due affiancati" (1, 2, 1, 2...) — tutto visibile scorrendo la pagina,
- * niente scorrimento automatico che nasconde contenuti. Foto e video (MP4/
- * WebM, muti e in loop) si mescolano liberamente. Ogni riga entra con una
- * micro-animazione allo scroll, rispettando prefers-reduced-motion (gestito
- * a livello globale in globals.css).
+ * Galleria progetto: ogni foto/video segue il layout scelto in admin
+ * (intera o affiancata) — niente decisione automatica che rischi di
+ * ritagliare a quadrato qualcosa che doveva restare intero. Tutto visibile
+ * scorrendo la pagina, niente scorrimento automatico che nasconde
+ * contenuti. Ogni riga entra con una micro-animazione allo scroll.
  */
 export function ProjectMediaGallery({
-  images,
+  items,
   alt,
 }: {
-  images: string[];
+  items: GalleryItem[];
   alt: string;
 }) {
-  if (images.length === 0) {
+  if (items.length === 0) {
     return (
       <div className="aspect-[16/9] w-full overflow-hidden">
         <CoverImage src={null} alt={alt} priority className="h-full w-full" />
@@ -74,29 +83,29 @@ export function ProjectMediaGallery({
     );
   }
 
-  const rows = toRows(images);
+  const rows = toRows(items);
 
   return (
     <div className="flex flex-col gap-4">
       {rows.map((row, rowIndex) => (
         <div
-          key={row.join("-")}
+          key={row.map((r) => r.url).join("-")}
           className={
             row.length === 2
               ? "grid grid-cols-1 gap-4 sm:grid-cols-2"
               : undefined
           }
         >
-          {row.map((src, i) => (
+          {row.map((item, i) => (
             <motion.div
-              key={src}
+              key={item.url}
               initial={{ opacity: 0, y: 24 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-60px" }}
               transition={{ duration: 0.6, delay: i * 0.1, ease: EASE_OUT }}
             >
               <Media
-                src={src}
+                src={item.url}
                 alt={alt}
                 aspect={row.length === 2 ? "square" : "16/9"}
                 priority={rowIndex === 0}

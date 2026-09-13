@@ -12,6 +12,12 @@ export interface ContentBlock {
   body: string;
 }
 
+export interface GalleryItem {
+  url: string;
+  // "full" = a tutta larghezza, "half" = affiancata a un'altra "half".
+  layout: "full" | "half";
+}
+
 export interface Project {
   id: string;
   slug: string;
@@ -20,7 +26,7 @@ export interface Project {
   client: string;
   year: number;
   cover_image: string | null;
-  gallery: string[];
+  gallery: GalleryItem[];
   short_description: string;
   content_blocks: ContentBlock[];
   external_link: string | null;

@@ -38,9 +38,12 @@ export function ProjectDetail({ project }: { project: Project }) {
         </header>
 
         <ProjectMediaGallery
-          images={[project.cover_image, ...project.gallery].filter(
-            (src): src is string => Boolean(src),
-          )}
+          items={[
+            ...(project.cover_image
+              ? [{ url: project.cover_image, layout: "full" as const }]
+              : []),
+            ...project.gallery,
+          ]}
           alt={project.title}
         />
 

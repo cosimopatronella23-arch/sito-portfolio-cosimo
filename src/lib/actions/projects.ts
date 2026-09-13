@@ -3,7 +3,7 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
-import type { ContentBlock, ContentStatus } from "@/lib/types";
+import type { ContentBlock, ContentStatus, GalleryItem } from "@/lib/types";
 
 type FormState = { error: string | null };
 
@@ -15,12 +15,13 @@ function parseProjectForm(formData: FormData) {
     contentBlocks = [];
   }
 
-  let gallery: string[] = [];
+  let gallery: GalleryItem[] = [];
   try {
     gallery = JSON.parse(String(formData.get("gallery") || "[]"));
   } catch {
     gallery = [];
   }
+  gallery = gallery.filter((item) => item.url);
 
   return {
     slug: String(formData.get("slug") || "").trim(),
