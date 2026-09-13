@@ -8,7 +8,11 @@ export const metadata: Metadata = {
   title: "Cosimo Patronella — Web Designer",
   description:
     "Portfolio di Cosimo Patronella: siti e prodotti digitali su misura, design premium e sviluppo frontend moderno.",
-  icons: { icon: "/favicon.svg" },
+  // "?v=2" forza i browser a trattarla come una risorsa diversa da quella
+  // già in cache — senza, un cambio favicon può restare invisibile per
+  // giorni finché la cache non scade da sola. Aumenta il numero se in
+  // futuro la cambi di nuovo.
+  icons: { icon: "/favicon.svg?v=2" },
 };
 
 export const viewport: Viewport = {
