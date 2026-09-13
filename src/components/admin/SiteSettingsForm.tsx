@@ -39,9 +39,36 @@ export function SiteSettingsForm({ settings }: { settings: SiteSettings }) {
     contact: "Contatti",
   };
 
+  const SECTIONS = [
+    { id: "sez-generale", label: "Generale" },
+    { id: "sez-colori", label: "Colori del sito" },
+    { id: "sez-homepage-testi", label: "Homepage — testi" },
+    { id: "sez-homepage-visibili", label: "Sezioni visibili" },
+    { id: "sez-colori-sezione", label: "Colori per sezione" },
+    { id: "sez-blocchi", label: "Blocchi extra" },
+    { id: "sez-menu", label: "Menu" },
+    { id: "sez-footer", label: "Footer" },
+    { id: "sez-integrazioni", label: "Integrazioni" },
+  ];
+
   return (
     <form action={formAction} className="flex flex-col gap-4">
-      <SettingsSection title="Generale" defaultOpen>
+      <nav className="flex flex-wrap gap-x-4 gap-y-2 border border-border-strong p-4 text-sm">
+        <span className="w-full text-xs text-foreground-muted sm:w-auto">
+          Vai a:
+        </span>
+        {SECTIONS.map((s) => (
+          <a
+            key={s.id}
+            href={`#${s.id}`}
+            className="text-foreground-muted underline decoration-border-strong underline-offset-4 hover:text-accent"
+          >
+            {s.label}
+          </a>
+        ))}
+      </nav>
+
+      <SettingsSection id="sez-generale" title="Generale" defaultOpen>
         <label className="flex flex-col gap-2">
           <span className="text-sm font-medium">Titolo del sito</span>
           <input
@@ -76,6 +103,7 @@ export function SiteSettingsForm({ settings }: { settings: SiteSettings }) {
       </SettingsSection>
 
       <SettingsSection
+        id="sez-colori"
         title="Colori del sito"
         description="Attenzione a sfondo e testo: un contrasto troppo basso rende il sito difficile da leggere. Il colore accento (bottoni, link) è più sicuro da cambiare da solo."
         defaultOpen
@@ -171,7 +199,7 @@ export function SiteSettingsForm({ settings }: { settings: SiteSettings }) {
         ) : null}
       </SettingsSection>
 
-      <SettingsSection title="Homepage — testi">
+      <SettingsSection id="sez-homepage-testi" title="Homepage — testi">
         <label className="flex flex-col gap-2">
           <span className="text-sm text-foreground-muted">
             Titolo principale (prima parte, non colorata — vai a capo con invio
@@ -264,6 +292,7 @@ export function SiteSettingsForm({ settings }: { settings: SiteSettings }) {
       </SettingsSection>
 
       <SettingsSection
+        id="sez-homepage-visibili"
         title="Homepage — sezioni visibili"
         description="Disattiva temporaneamente una sezione senza perdere i contenuti. La prima sezione (in alto) non è disattivabile."
       >
@@ -289,6 +318,7 @@ export function SiteSettingsForm({ settings }: { settings: SiteSettings }) {
       </SettingsSection>
 
       <SettingsSection
+        id="sez-colori-sezione"
         title="Colori per sezione (homepage)"
         description="Dai a una sezione fissa uno sfondo diverso dal resto del sito (es. per alternare colori come in un moodboard). Il testo di quella sezione si adatta da solo per restare leggibile."
       >
@@ -338,6 +368,7 @@ export function SiteSettingsForm({ settings }: { settings: SiteSettings }) {
       </SettingsSection>
 
       <SettingsSection
+        id="sez-blocchi"
         title="Blocchi extra homepage"
         description="Sezioni aggiuntive mostrate dopo il blog, prima dei Contatti. Se non ne aggiungi, la homepage resta esattamente com'è oggi."
       >
@@ -347,14 +378,14 @@ export function SiteSettingsForm({ settings }: { settings: SiteSettings }) {
         />
       </SettingsSection>
 
-      <SettingsSection title="Menu di navigazione">
+      <SettingsSection id="sez-menu" title="Menu di navigazione">
         <NavLinksEditor
           name="nav_links"
           defaultValue={settings.home_content.nav_links ?? []}
         />
       </SettingsSection>
 
-      <SettingsSection title="Footer">
+      <SettingsSection id="sez-footer" title="Footer">
         <label className="flex flex-col gap-2">
           <span className="text-sm text-foreground-muted">
             Testo sotto il nome, in fondo al sito (vuoto = usa il testo
@@ -369,7 +400,7 @@ export function SiteSettingsForm({ settings }: { settings: SiteSettings }) {
         </label>
       </SettingsSection>
 
-      <SettingsSection title="Integrazioni (Google)">
+      <SettingsSection id="sez-integrazioni" title="Integrazioni (Google)">
         <label className="flex flex-col gap-2">
           <span className="text-sm font-medium">
             Codice di verifica Google Search Console (opzionale)
@@ -399,14 +430,11 @@ export function SiteSettingsForm({ settings }: { settings: SiteSettings }) {
         </label>
       </SettingsSection>
 
-      <div className="flex flex-col gap-3 pt-2">
-        {state.error ? (
-          <p className="text-sm text-error">{state.error}</p>
-        ) : null}
-        {state.success ? (
-          <p className="text-sm text-success">Salvato.</p>
-        ) : null}
+      {/* Spazio extra in fondo così l'ultima sezione non resta nascosta
+          dietro la barra di salvataggio fissa qui sotto. */}
+      <div className="h-16" aria-hidden="true" />
 
+      <div className="sticky bottom-0 flex flex-wrap items-center gap-4 border-t border-border-strong bg-background py-4">
         <button
           type="submit"
           disabled={pending}
@@ -414,6 +442,12 @@ export function SiteSettingsForm({ settings }: { settings: SiteSettings }) {
         >
           {pending ? "Salvo..." : "Salva impostazioni"}
         </button>
+        {state.error ? (
+          <p className="text-sm text-error">{state.error}</p>
+        ) : null}
+        {state.success ? (
+          <p className="text-sm text-success">Salvato.</p>
+        ) : null}
       </div>
     </form>
   );

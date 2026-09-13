@@ -5,11 +5,13 @@
  * Puramente visivo — non cambia nomi/campi dei form che contiene.
  */
 export function SettingsSection({
+  id,
   title,
   description,
   defaultOpen = false,
   children,
 }: {
+  id?: string;
   title: string;
   description?: string;
   defaultOpen?: boolean;
@@ -17,8 +19,9 @@ export function SettingsSection({
 }) {
   return (
     <details
+      id={id}
       open={defaultOpen}
-      className="group border border-border-strong [&::details-content]:overflow-hidden"
+      className="group scroll-mt-6 border border-border-strong [&::details-content]:overflow-hidden"
     >
       <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-4 py-4 text-sm font-medium marker:content-none [&::-webkit-details-marker]:hidden">
         {title}
