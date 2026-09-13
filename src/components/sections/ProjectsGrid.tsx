@@ -2,6 +2,7 @@ import Link from "next/link";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { ProjectScreen } from "@/components/project/ProjectScreen";
 import { getPublishedProjects } from "@/lib/data/projects";
+import { sectionStyle } from "@/lib/contrast";
 
 // Solo i progetti "in evidenza" appaiono in homepage (max 5): l'elenco
 // completo vive nella pagina dedicata /progetti, per non appesantire la
@@ -12,7 +13,11 @@ function byRecency(a: { created_at: string }, b: { created_at: string }) {
   return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
 }
 
-export async function ProjectsGrid() {
+export async function ProjectsGrid({
+  backgroundColor,
+}: {
+  backgroundColor?: string;
+} = {}) {
   const published = await getPublishedProjects();
   const featured = published.filter((p) => p.featured).sort(byRecency);
   // Se non hai ancora segnato nulla "in evidenza", mostra i più recenti
@@ -21,7 +26,7 @@ export async function ProjectsGrid() {
   const ordered = source.slice(0, HOMEPAGE_LIMIT);
 
   return (
-    <section id="progetti" className="relative">
+    <section id="progetti" style={sectionStyle(backgroundColor)} className="relative">
       <div className="container-px flex flex-wrap items-end justify-between gap-6 pt-24 sm:pt-32">
         <SectionHeading title="Qualche progetto di cui vado fiero." />
         {published.length > 0 ? (

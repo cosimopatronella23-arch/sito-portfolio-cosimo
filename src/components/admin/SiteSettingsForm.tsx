@@ -28,6 +28,17 @@ export function SiteSettingsForm({ settings }: { settings: SiteSettings }) {
   );
   const ratio = contrastRatio(backgroundColor, foregroundColor);
 
+  const [sectionColors, setSectionColors] = useState(
+    settings.home_content.section_colors ?? {},
+  );
+  const SECTION_LABELS: Record<string, string> = {
+    hero: "Intestazione (Hero)",
+    services: "Servizi",
+    projects: "Progetti",
+    blog: "Anteprima blog",
+    contact: "Contatti",
+  };
+
   return (
     <form action={formAction} className="flex flex-col gap-4">
       <SettingsSection title="Generale" defaultOpen>
@@ -274,6 +285,55 @@ export function SiteSettingsForm({ settings }: { settings: SiteSettings }) {
               {label}
             </label>
           ))}
+        </div>
+      </SettingsSection>
+
+      <SettingsSection
+        title="Colori per sezione (homepage)"
+        description="Dai a una sezione fissa uno sfondo diverso dal resto del sito (es. per alternare colori come in un moodboard). Il testo di quella sezione si adatta da solo per restare leggibile."
+      >
+        <div className="flex flex-col gap-4">
+          {(["hero", "services", "projects", "blog", "contact"] as const).map(
+            (key) => (
+              <div key={key} className="flex items-center gap-3 text-sm">
+                <span className="w-40 shrink-0 text-foreground-muted">
+                  {SECTION_LABELS[key]}
+                </span>
+                <input
+                  type="color"
+                  value={sectionColors[key] || "#0b0a10"}
+                  onChange={(e) =>
+                    setSectionColors((prev) => ({
+                      ...prev,
+                      [key]: e.target.value,
+                    }))
+                  }
+                  className="h-8 w-8 shrink-0 cursor-pointer border border-border-strong bg-transparent"
+                  aria-label={`Colore sfondo — ${SECTION_LABELS[key]}`}
+                />
+                <input
+                  type="hidden"
+                  name={`section_color_${key}`}
+                  value={sectionColors[key] || ""}
+                />
+                {sectionColors[key] ? (
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setSectionColors((prev) => ({ ...prev, [key]: "" }))
+                    }
+                    className="text-xs text-foreground-muted hover:text-foreground"
+                  >
+                    Usa lo sfondo del sito
+                  </button>
+                ) : (
+                  <span className="text-xs text-foreground-muted">
+                    Sfondo del sito (predefinito)
+                  </span>
+                )}
+              </div>
+            ),
+          )}
         </div>
       </SettingsSection>
 

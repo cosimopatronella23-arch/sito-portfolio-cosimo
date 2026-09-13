@@ -2,15 +2,24 @@ import Link from "next/link";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { BlogListRow } from "@/components/blog/BlogListRow";
 import { getPublishedPosts } from "@/lib/data/blog";
+import { sectionStyle } from "@/lib/contrast";
 
-export async function BlogPreview() {
+export async function BlogPreview({
+  backgroundColor,
+}: {
+  backgroundColor?: string;
+} = {}) {
   const posts = await getPublishedPosts();
   const latest = posts.slice(0, 3);
 
   if (latest.length === 0) return null;
 
   return (
-    <section id="blog" className="container-px py-24 sm:py-32">
+    <section
+      id="blog"
+      style={sectionStyle(backgroundColor)}
+      className="container-px py-24 sm:py-32"
+    >
       <div className="flex flex-col gap-14">
         <div className="flex flex-wrap items-end justify-between gap-6">
           <SectionHeading title="Cose che scrivo, tra un progetto e l'altro." />

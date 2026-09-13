@@ -3,6 +3,7 @@
 import { Fragment } from "react";
 import { motion, type Variants } from "framer-motion";
 import { Button } from "@/components/ui/Button";
+import { sectionStyle } from "@/lib/contrast";
 import type { HomeContent } from "@/lib/types";
 
 const EASE_OUT: [number, number, number, number] = [0.22, 1, 0.36, 1];
@@ -21,9 +22,13 @@ export function Hero({ content }: { content: HomeContent }) {
   // preserva un "a capo" finale intenzionale: serve a spingere il titolo
   // accentato sulla riga successiva invece che in coda all'ultima riga.
   const titleLines = content.hero_title_main.replace(/[ \t]+$/, "").split("\n");
+  const style = sectionStyle(content.section_colors?.hero);
 
   return (
-    <section className="relative overflow-hidden container-px pt-20 pb-24 sm:pt-28 sm:pb-32">
+    <section
+      style={style}
+      className="relative overflow-hidden container-px pt-20 pb-24 sm:pt-28 sm:pb-32"
+    >
       <span
         className="font-display pointer-events-none absolute right-[-0.04em] bottom-[-0.12em] -z-10 text-[40vw] leading-none font-bold text-foreground/[0.12] select-none sm:text-[26vw]"
         aria-hidden="true"

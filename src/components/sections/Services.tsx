@@ -2,17 +2,24 @@
 
 import { motion } from "framer-motion";
 import { SectionHeading } from "@/components/ui/SectionHeading";
+import { sectionStyle } from "@/lib/contrast";
 import type { ServiceItem } from "@/lib/types";
 
 export function Services({
   title,
   services,
+  backgroundColor,
 }: {
   title: string;
   services: ServiceItem[];
+  backgroundColor?: string;
 }) {
   return (
-    <section id="servizi" className="container-px py-24 sm:py-32">
+    <section
+      id="servizi"
+      style={sectionStyle(backgroundColor)}
+      className="container-px py-24 sm:py-32"
+    >
       <div className="flex flex-col gap-14">
         <SectionHeading title={title} />
 

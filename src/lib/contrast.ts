@@ -31,6 +31,60 @@ export function pickTextColors(backgroundHex?: string | null) {
   };
 }
 
+/**
+ * Come pickTextColors, ma per intere sezioni: torna i valori da assegnare
+ * alle variabili CSS del sito (--foreground, --border, ecc.) così che TUTTI
+ * gli elementi già esistenti in quella sezione (testo, bordi, numeri) si
+ * adattino da soli, senza dover toccare ogni componente uno per uno.
+ */
+export function pickSectionTheme(backgroundHex?: string | null) {
+  if (!backgroundHex) return null;
+  const luminance = relativeLuminance(backgroundHex);
+  if (luminance === null) return null;
+
+  const isLight = luminance > 0.4;
+  return isLight
+    ? {
+        background: backgroundHex,
+        foreground: "#0b0a10",
+        foregroundMuted: "rgba(11,10,16,0.65)",
+        border: "rgba(11,10,16,0.12)",
+        borderStrong: "rgba(11,10,16,0.22)",
+      }
+    : {
+        background: backgroundHex,
+        foreground: "#f6f2ea",
+        foregroundMuted: "rgba(246,242,234,0.65)",
+        border: "rgba(246,242,234,0.1)",
+        borderStrong: "rgba(246,242,234,0.18)",
+      };
+}
+
+/**
+ * Oggetto di style pronto da passare a un elemento React: imposta lo sfondo
+ * e ridefinisce le variabili CSS del tema solo dentro quell'elemento. Torna
+ * undefined se non c'è un colore personalizzato (= nessuna modifica).
+ */
+export function sectionStyle(
+  backgroundHex?: string | null,
+): Record<string, string> | undefined {
+  const theme = pickSectionTheme(backgroundHex);
+  if (!theme) return undefined;
+
+  return {
+    backgroundColor: theme.background,
+    // "color" va impostato esplicitamente (non solo la variabile CSS): il
+    // <body> imposta già "color: var(--foreground)" una volta sola, quindi
+    // i titoli che ereditano il colore senza una classe esplicita non
+    // "vedrebbero" la variabile ridefinita solo qui dentro.
+    color: theme.foreground,
+    "--foreground": theme.foreground,
+    "--foreground-muted": theme.foregroundMuted,
+    "--border": theme.border,
+    "--border-strong": theme.borderStrong,
+  };
+}
+
 function relativeLuminance(hex: string): number | null {
   const match = /^#([0-9a-fA-F]{6})$/.exec(hex);
   if (!match) return null;

@@ -104,6 +104,19 @@ export async function updateSiteSettings(
   }
   homeContent.blocks = blocks.filter((b) => b.id && b.type);
 
+  const sectionColors: Record<string, string> = {};
+  for (const section of [
+    "hero",
+    "services",
+    "projects",
+    "blog",
+    "contact",
+  ] as const) {
+    const value = String(formData.get(`section_color_${section}`) || "").trim();
+    if (value) sectionColors[section] = value;
+  }
+  homeContent.section_colors = sectionColors;
+
   const payload = {
     site_title: String(formData.get("site_title") || "").trim(),
     contact_email: String(formData.get("contact_email") || "").trim(),

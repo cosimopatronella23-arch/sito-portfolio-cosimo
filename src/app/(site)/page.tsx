@@ -40,14 +40,25 @@ export default async function HomePage() {
         <Services
           title={settings.home_content.services_title}
           services={settings.home_content.services}
+          backgroundColor={settings.home_content.section_colors?.services}
         />
       ) : null}
-      {settings.home_content.show_projects ?? true ? <ProjectsGrid /> : null}
+      {settings.home_content.show_projects ?? true ? (
+        <ProjectsGrid
+          backgroundColor={settings.home_content.section_colors?.projects}
+        />
+      ) : null}
       {settings.home_content.show_blog_preview ?? true ? (
-        <BlogPreview />
+        <BlogPreview
+          backgroundColor={settings.home_content.section_colors?.blog}
+        />
       ) : null}
       <BlockRenderer blocks={settings.home_content.blocks} />
-      {settings.home_content.show_contact ?? true ? <ContactForm /> : null}
+      {settings.home_content.show_contact ?? true ? (
+        <ContactForm
+          backgroundColor={settings.home_content.section_colors?.contact}
+        />
+      ) : null}
     </>
   );
 }

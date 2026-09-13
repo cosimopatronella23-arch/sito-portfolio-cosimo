@@ -151,6 +151,16 @@ export interface HomeContent {
   // homepage (prima dei Contatti). Se assente/vuoto, la homepage resta
   // esattamente come oggi — le sezioni fisse non sono ancora convertite.
   blocks?: HomepageBlock[];
+  // Colore di sfondo per ognuna delle sezioni fisse della homepage. Vuoto/
+  // assente = sfondo del sito come sempre (nessuna sezione era mai stata
+  // colorata singolarmente prima di questa funzione).
+  section_colors?: {
+    hero?: string;
+    services?: string;
+    projects?: string;
+    blog?: string;
+    contact?: string;
+  };
 }
 
 export interface SiteSettings {

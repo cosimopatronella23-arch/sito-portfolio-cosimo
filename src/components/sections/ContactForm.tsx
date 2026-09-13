@@ -4,6 +4,7 @@ import { useActionState } from "react";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Button } from "@/components/ui/Button";
 import { sendContactMessage } from "@/lib/actions/contact";
+import { sectionStyle } from "@/lib/contrast";
 
 const FIELDS: Array<{
   name: string;
@@ -36,14 +37,19 @@ const FIELDS: Array<{
 const fieldClasses =
   "w-full border-0 border-b border-border-strong bg-transparent px-0 py-3 text-lg text-foreground placeholder:text-foreground-muted focus-visible:border-accent focus-visible:outline-none";
 
-export function ContactForm() {
+export function ContactForm({
+  backgroundColor,
+}: {
+  backgroundColor?: string;
+} = {}) {
   const [state, formAction, pending] = useActionState(sendContactMessage, {
     error: null,
   });
+  const style = sectionStyle(backgroundColor);
 
   if (state.success) {
     return (
-      <section id="contatti" className="container-px py-24 sm:py-32">
+      <section id="contatti" style={style} className="container-px py-24 sm:py-32">
         <div className="mx-auto max-w-2xl border border-border p-10 text-center">
           <h2 className="font-display text-2xl font-semibold">
             Ricevuto, grazie!
@@ -57,7 +63,7 @@ export function ContactForm() {
   }
 
   return (
-    <section id="contatti" className="container-px py-24 sm:py-32">
+    <section id="contatti" style={style} className="container-px py-24 sm:py-32">
       <div className="grid grid-cols-1 gap-14 lg:grid-cols-[0.9fr_1.1fr]">
         <SectionHeading title="Raccontami cosa stai costruendo." />
 
