@@ -97,12 +97,19 @@ export function Button({
 
   if ("href" in props && props.href) {
     const { href, ...rest } = props as ButtonAsLink;
+    // Un link con protocollo (http/https) porta sempre fuori dal sito: si
+    // apre in una scheda nuova, così non si perde il portfolio per andare
+    // a vedere il sito di un progetto. I link interni (/progetti, /#...)
+    // restano nella stessa scheda come sempre.
+    const isExternal = /^https?:\/\//i.test(href);
     return (
       <Link
         ref={ref}
         href={href}
         className={classes}
         data-cursor="link"
+        target={isExternal ? "_blank" : undefined}
+        rel={isExternal ? "noopener noreferrer" : undefined}
         onMouseMove={(e) => magneticMove(ref.current, e)}
         onMouseLeave={() => magneticReset(ref.current)}
         {...rest}

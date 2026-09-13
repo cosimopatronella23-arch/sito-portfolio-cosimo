@@ -38,7 +38,7 @@ export function ProjectScreen({
           alt={project.title}
           index={index}
           priority={index === 0}
-          className="h-full w-full transition-[filter] duration-500 ease-out group-hover:brightness-110"
+          className="h-full w-full grayscale contrast-125 brightness-90 transition-[filter] duration-500 ease-out group-hover:grayscale-0 group-hover:contrast-100 group-hover:brightness-110"
         />
       </motion.div>
 

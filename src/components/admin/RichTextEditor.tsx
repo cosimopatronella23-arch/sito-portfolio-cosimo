@@ -52,7 +52,12 @@ export function RichTextEditor({
   const editor = useEditor({
     immediatelyRender: false,
     extensions: [
-      StarterKit.configure({ link: { openOnClick: false } }),
+      StarterKit.configure({
+        link: {
+          openOnClick: false,
+          HTMLAttributes: { target: "_blank", rel: "noopener noreferrer" },
+        },
+      }),
       TiptapImage,
     ],
     content: defaultValue,

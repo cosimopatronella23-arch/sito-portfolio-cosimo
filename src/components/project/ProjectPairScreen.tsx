@@ -53,7 +53,7 @@ export function ProjectPairScreen({
             <CoverImage
               src={project.cover_image}
               alt={project.title}
-              className="h-full w-full transition-[filter] duration-500 ease-out group-hover:brightness-110"
+              className="h-full w-full grayscale contrast-125 brightness-90 transition-[filter] duration-500 ease-out group-hover:grayscale-0 group-hover:contrast-100 group-hover:brightness-110"
             />
           </motion.div>
 
