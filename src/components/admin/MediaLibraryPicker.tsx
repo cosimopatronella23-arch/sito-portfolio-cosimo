@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
+import { isVideoUrl } from "@/lib/isVideoUrl";
 
 /**
  * Pannello che elenca le immagini già caricate sul bucket "media", per
@@ -86,13 +87,23 @@ export function MediaLibraryPicker({
                 onClick={() => onSelect(img.url)}
                 className="relative aspect-square overflow-hidden border border-border-strong transition-colors hover:border-accent"
               >
-                <Image
-                  src={img.url}
-                  alt=""
-                  fill
-                  sizes="150px"
-                  className="object-cover"
-                />
+                {isVideoUrl(img.url) ? (
+                  <video
+                    src={img.url}
+                    muted
+                    playsInline
+                    preload="metadata"
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  <Image
+                    src={img.url}
+                    alt=""
+                    fill
+                    sizes="150px"
+                    className="object-cover"
+                  />
+                )}
               </button>
             ))}
           </div>

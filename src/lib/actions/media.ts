@@ -49,10 +49,11 @@ export async function checkMediaUsage(url: string): Promise<string[]> {
   ]);
 
   for (const p of projectsRes.data ?? []) {
+    const gallery = (p.gallery ?? []) as { url?: string }[];
     if (
       p.cover_image === url ||
       p.seo_og_image === url ||
-      (p.gallery ?? []).includes(url)
+      gallery.some((item) => item?.url === url)
     ) {
       usages.push(`Progetto: "${p.title}"`);
     }

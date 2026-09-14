@@ -7,6 +7,7 @@ import {
   deleteMediaFile,
   type MediaFile,
 } from "@/lib/actions/media";
+import { isVideoUrl } from "@/lib/isVideoUrl";
 
 function formatSize(bytes: number) {
   if (bytes < 1024) return `${bytes} B`;
@@ -65,13 +66,23 @@ export function MediaManager({ files: initialFiles }: { files: MediaFile[] }) {
         return (
           <div key={file.name} className="flex flex-col gap-2">
             <div className="relative aspect-square overflow-hidden border border-border-strong bg-surface">
-              <Image
-                src={file.url}
-                alt=""
-                fill
-                sizes="200px"
-                className="object-cover"
-              />
+              {isVideoUrl(file.url) ? (
+                <video
+                  src={file.url}
+                  muted
+                  playsInline
+                  preload="metadata"
+                  className="h-full w-full object-cover"
+                />
+              ) : (
+                <Image
+                  src={file.url}
+                  alt=""
+                  fill
+                  sizes="200px"
+                  className="object-cover"
+                />
+              )}
             </div>
             <span className="truncate text-xs text-foreground-muted">
               {formatSize(file.size)}
