@@ -59,13 +59,27 @@ export async function Footer() {
           </p>
         </div>
       </div>
-      <div className="container-px pb-8">
+      <div className="container-px flex flex-wrap items-center justify-between gap-4 pb-8">
         <Link
           href="#top"
           className="text-xs text-foreground-muted hover:text-foreground"
         >
           Torna su ↑
         </Link>
+        <div className="flex gap-5">
+          <Link
+            href="/privacy-policy"
+            className="text-xs text-foreground-muted hover:text-foreground"
+          >
+            Privacy Policy
+          </Link>
+          <Link
+            href="/cookie-policy"
+            className="text-xs text-foreground-muted hover:text-foreground"
+          >
+            Cookie Policy
+          </Link>
+        </div>
       </div>
     </footer>
   );
