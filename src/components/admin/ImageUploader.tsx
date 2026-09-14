@@ -82,7 +82,7 @@ export function ImageUploader({
 
   return (
     <div className="flex flex-col gap-2">
-      <span className="text-sm font-medium">{label}</span>
+      {label ? <span className="text-sm font-medium">{label}</span> : null}
       {url ? (
         <div className="relative aspect-video w-full max-w-xs overflow-hidden border border-border-strong">
           {isVideoUrl(url) ? (

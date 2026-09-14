@@ -50,6 +50,17 @@ export function ProjectGalleryEditor({
     setItems((prev) => prev.filter((item) => item.key !== key));
   }
 
+  function move(key: string, direction: -1 | 1) {
+    setItems((prev) => {
+      const index = prev.findIndex((item) => item.key === key);
+      const target = index + direction;
+      if (index === -1 || target < 0 || target >= prev.length) return prev;
+      const next = [...prev];
+      [next[index], next[target]] = [next[target], next[index]];
+      return next;
+    });
+  }
+
   return (
     <div className="flex flex-col gap-3">
       <p className="text-sm text-foreground-muted">
@@ -63,9 +74,34 @@ export function ProjectGalleryEditor({
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         {items.map((item, i) => (
           <div key={item.key} className="flex flex-col gap-2">
+            <div className="flex items-center gap-3">
+              <span className="text-sm font-medium">Immagine o video {i + 1}</span>
+              <div className="flex items-center gap-1">
+                <button
+                  type="button"
+                  onClick={() => move(item.key, -1)}
+                  disabled={i === 0}
+                  aria-label="Sposta su"
+                  title="Sposta su"
+                  className="border border-border-strong px-2 py-0.5 text-xs text-foreground-muted transition-colors hover:border-accent hover:text-accent disabled:pointer-events-none disabled:opacity-30"
+                >
+                  ↑
+                </button>
+                <button
+                  type="button"
+                  onClick={() => move(item.key, 1)}
+                  disabled={i === items.length - 1}
+                  aria-label="Sposta giù"
+                  title="Sposta giù"
+                  className="border border-border-strong px-2 py-0.5 text-xs text-foreground-muted transition-colors hover:border-accent hover:text-accent disabled:pointer-events-none disabled:opacity-30"
+                >
+                  ↓
+                </button>
+              </div>
+            </div>
             <ImageUploader
               name={`project-gallery-${item.key}`}
-              label={`Immagine o video ${i + 1}`}
+              label=""
               defaultValue={item.url}
               onChange={(url) => update(item.key, { url })}
               accept="image/*,video/mp4,video/webm"
