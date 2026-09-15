@@ -37,22 +37,20 @@ function toRows(items: GalleryItem[]): GalleryItem[][] {
 }
 
 /**
- * Ogni foto/video ha un leggero effetto parallasse: mentre la riga scorre
- * nel viewport, il contenuto si muove più lentamente dello scroll stesso
- * (un classico delle gallery "vive" da studio di design) — non è ancorato
- * come la copertina in cima alla pagina, altrimenti con più immagini di
- * fila si "incastrerebbero" a vicenda. Lo zoom fisso (scale-110) dà il
- * margine perché il movimento non scopra mai un bordo vuoto.
+ * Elemento "affiancato" (due per riga): resta in un riquadro quadrato con
+ * ritaglio, altrimenti due immagini di proporzioni diverse non si
+ * allineerebbero in riga. Ha un leggero effetto parallasse: mentre la riga
+ * scorre nel viewport, il contenuto si muove più lentamente dello scroll
+ * stesso — lo zoom fisso (scale-110) dà il margine perché il movimento non
+ * scopra mai un bordo vuoto.
  */
-function GalleryMedia({
+function CroppedGalleryMedia({
   src,
   alt,
-  aspect,
   priority,
 }: {
   src: string;
   alt: string;
-  aspect: "16/9" | "square";
   priority?: boolean;
 }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -63,10 +61,8 @@ function GalleryMedia({
   });
   const y = useTransform(scrollYProgress, [0, 1], ["-6%", "6%"]);
 
-  const aspectClass = aspect === "square" ? "aspect-square" : "aspect-[16/9]";
-
   return (
-    <div ref={ref} className={`${aspectClass} w-full overflow-hidden`}>
+    <div ref={ref} className="aspect-square w-full overflow-hidden">
       <motion.div
         style={shouldReduceMotion ? undefined : { y }}
         className="h-full w-full scale-110"
@@ -85,6 +81,32 @@ function GalleryMedia({
         )}
       </motion.div>
     </div>
+  );
+}
+
+/**
+ * Elemento a tutta larghezza: nessun ritaglio. Larghezza sempre al 100%,
+ * altezza libera in base alle proporzioni reali del file — così una foto
+ * verticale e una orizzontale nella stessa galleria hanno semplicemente
+ * altezze diverse, invece di essere forzate nello stesso rettangolo.
+ */
+function FullGalleryMedia({ src, alt }: { src: string; alt: string }) {
+  if (isVideoUrl(src)) {
+    return (
+      <video
+        src={src}
+        autoPlay
+        muted
+        loop
+        playsInline
+        className="h-auto w-full"
+      />
+    );
+  }
+
+  return (
+    // eslint-disable-next-line @next/next/no-img-element -- larghezza nota, altezza no: qui serve l'altezza naturale dell'immagine, non quella forzata dal fill di next/image.
+    <img src={src} alt={alt} className="h-auto w-full" />
   );
 }
 
@@ -130,12 +152,15 @@ export function ProjectMediaGallery({
               viewport={{ once: true, margin: "-60px" }}
               transition={{ duration: 0.6, delay: i * 0.1, ease: EASE_OUT }}
             >
-              <GalleryMedia
-                src={item.url}
-                alt={alt}
-                aspect={row.length === 2 ? "square" : "16/9"}
-                priority={rowIndex === 0}
-              />
+              {row.length === 2 ? (
+                <CroppedGalleryMedia
+                  src={item.url}
+                  alt={alt}
+                  priority={rowIndex === 0}
+                />
+              ) : (
+                <FullGalleryMedia src={item.url} alt={alt} />
+              )}
             </motion.div>
           ))}
         </div>
