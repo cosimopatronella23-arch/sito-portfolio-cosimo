@@ -10,6 +10,11 @@ import type { ContentBlock } from "@/lib/types";
 // come key avrebbe fatto sì che, rimuovendo una sezione in mezzo, quelle
 // sotto mostrassero temporaneamente il testo sbagliato — riciclando
 // l'istanza dell'editor della sezione rimossa per quella successiva.
+// Non deve però mai finire in un attributo reso nel DOM (es. "name" di un
+// input): essendo rigenerata a ogni render — anche lato server e poi di
+// nuovo all'hydration sul client — produrrebbe un HTML diverso tra i due,
+// facendo fallire l'hydration di React. Per gli attributi "name" si usa
+// l'indice della riga.
 type EditableBlock = ContentBlock & { key: string };
 
 function withKeys(blocks: ContentBlock[]): EditableBlock[] {
@@ -51,7 +56,7 @@ export function ContentBlocksEditor({
 
   return (
     <div className="flex flex-col gap-4">
-      {blocks.map((block) => (
+      {blocks.map((block, i) => (
         <div
           key={block.key}
           className="flex flex-col gap-2 border border-border-strong p-4"
@@ -75,7 +80,7 @@ export function ContentBlocksEditor({
             </button>
           </div>
           <RichTextEditor
-            name={`content-block-${block.key}-body`}
+            name={`content-block-${i}-body`}
             defaultValue={block.body}
             onChange={(html) => updateBlock(block.key, "body", html)}
           />

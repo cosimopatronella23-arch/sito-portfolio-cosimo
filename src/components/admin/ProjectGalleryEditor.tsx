@@ -10,6 +10,11 @@ import type { GalleryItem } from "@/lib/types";
 // key avrebbe fatto sì che, rimuovendo un elemento in mezzo, quelli dopo
 // riciclassero l'istanza dell'uploader dell'elemento rimosso — mostrando (e
 // salvando) l'url sbagliato invece del proprio.
+// Il valore di `key` non deve mai finire in un attributo reso nel DOM (es.
+// "name" di un input): essendo generato di nuovo a ogni render — anche
+// durante il render lato server e poi di nuovo all'hydration sul client —
+// produrrebbe un HTML diverso tra i due, facendo fallire l'hydration di
+// React. Per gli attributi "name" si usa invece l'indice della riga.
 type EditableItem = GalleryItem & { key: string };
 
 function withKeys(items: GalleryItem[]): EditableItem[] {
@@ -100,7 +105,7 @@ export function ProjectGalleryEditor({
               </div>
             </div>
             <ImageUploader
-              name={`project-gallery-${item.key}`}
+              name={`project-gallery-${i}`}
               label=""
               defaultValue={item.url}
               onChange={(url) => update(item.key, { url })}
@@ -112,7 +117,7 @@ export function ProjectGalleryEditor({
                 <label key={layout} className="flex items-center gap-1.5">
                   <input
                     type="radio"
-                    name={`gallery-layout-${item.key}`}
+                    name={`gallery-layout-${i}`}
                     checked={item.layout === layout}
                     onChange={() => update(item.key, { layout })}
                   />
