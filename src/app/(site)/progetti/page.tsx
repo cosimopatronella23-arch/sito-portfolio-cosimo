@@ -59,6 +59,7 @@ export default async function ProjectsIndexPage() {
                 project={project}
                 index={i}
                 total={ordered.length}
+                headingLevel="h2"
               />
             ))}
           </div>
@@ -71,6 +72,7 @@ export default async function ProjectsIndexPage() {
                 projects={pair}
                 index={i}
                 total={pairs.length}
+                headingLevel="h2"
               />
             ))}
           </div>

@@ -2,7 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/server";
 import type { ContentBlock, ContentStatus, GalleryItem } from "@/lib/types";
 
 type FormState = { error: string | null };
@@ -67,7 +67,7 @@ export async function createProject(
     return { error: "Slug e titolo sono obbligatori." };
   }
 
-  const supabase = await createClient();
+  const supabase = await createAdminClient();
   let { error } = await supabase.from("projects").insert(payload);
 
   if (isMissingSortOrderColumn(error)) {
@@ -95,7 +95,7 @@ export async function updateProject(
     return { error: "Slug e titolo sono obbligatori." };
   }
 
-  const supabase = await createClient();
+  const supabase = await createAdminClient();
   let { error } = await supabase
     .from("projects")
     .update(payload)
@@ -124,7 +124,7 @@ export async function duplicateProject(formData: FormData) {
   const id = String(formData.get("id") || "");
   if (!id) return;
 
-  const supabase = await createClient();
+  const supabase = await createAdminClient();
   const { data: original, error: fetchError } = await supabase
     .from("projects")
     .select("*")
@@ -154,7 +154,7 @@ export async function deleteProject(formData: FormData) {
   const id = String(formData.get("id") || "");
   if (!id) return;
 
-  const supabase = await createClient();
+  const supabase = await createAdminClient();
   await supabase.from("projects").delete().eq("id", id);
 
   revalidatePath("/");

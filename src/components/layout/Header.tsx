@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { usePathname } from "next/navigation";
 import clsx from "clsx";
@@ -17,6 +17,15 @@ const DEFAULT_NAV_LINKS: NavLink[] = [
 export function Header({ navLinks }: { navLinks?: NavLink[] }) {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
+
+  useEffect(() => {
+    if (!open) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpen(false);
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [open]);
   const links =
     navLinks && navLinks.length > 0 ? navLinks : DEFAULT_NAV_LINKS;
 

@@ -2,7 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/server";
 import type { ContentStatus } from "@/lib/types";
 
 type FormState = { error: string | null };
@@ -53,7 +53,7 @@ export async function createPost(
     return { error: "Slug e titolo sono obbligatori." };
   }
 
-  const supabase = await createClient();
+  const supabase = await createAdminClient();
   let { error } = await supabase.from("blog_posts").insert(payload);
 
   if (isMissingSortOrderColumn(error)) {
@@ -81,7 +81,7 @@ export async function updatePost(
     return { error: "Slug e titolo sono obbligatori." };
   }
 
-  const supabase = await createClient();
+  const supabase = await createAdminClient();
   let { error } = await supabase
     .from("blog_posts")
     .update(payload)
@@ -110,7 +110,7 @@ export async function duplicatePost(formData: FormData) {
   const id = String(formData.get("id") || "");
   if (!id) return;
 
-  const supabase = await createClient();
+  const supabase = await createAdminClient();
   const { data: original, error: fetchError } = await supabase
     .from("blog_posts")
     .select("*")
@@ -140,7 +140,7 @@ export async function deletePost(formData: FormData) {
   const id = String(formData.get("id") || "");
   if (!id) return;
 
-  const supabase = await createClient();
+  const supabase = await createAdminClient();
   await supabase.from("blog_posts").delete().eq("id", id);
 
   revalidatePath("/");

@@ -7,6 +7,7 @@ import {
   useScroll,
   useTransform,
 } from "framer-motion";
+import Image from "next/image";
 import { CoverImage } from "@/components/ui/CoverImage";
 import { isVideoUrl } from "@/lib/isVideoUrl";
 import type { GalleryItem } from "@/lib/types";
@@ -90,7 +91,15 @@ function CroppedGalleryMedia({
  * verticale e una orizzontale nella stessa galleria hanno semplicemente
  * altezze diverse, invece di essere forzate nello stesso rettangolo.
  */
-function FullGalleryMedia({ src, alt }: { src: string; alt: string }) {
+function FullGalleryMedia({
+  src,
+  alt,
+  priority,
+}: {
+  src: string;
+  alt: string;
+  priority?: boolean;
+}) {
   if (isVideoUrl(src)) {
     return (
       <video
@@ -104,9 +113,19 @@ function FullGalleryMedia({ src, alt }: { src: string; alt: string }) {
     );
   }
 
+  // width/height a 0 + sizes: next/image serve comunque la versione
+  // ottimizzata (AVIF/WebP, ridimensionata sullo schermo) senza conoscere
+  // in anticipo le dimensioni, e l'altezza segue le proporzioni del file.
   return (
-    // eslint-disable-next-line @next/next/no-img-element -- larghezza nota, altezza no: qui serve l'altezza naturale dell'immagine, non quella forzata dal fill di next/image.
-    <img src={src} alt={alt} className="h-auto w-full" />
+    <Image
+      src={src}
+      alt={alt}
+      width={0}
+      height={0}
+      sizes="100vw"
+      priority={priority}
+      className="h-auto w-full"
+    />
   );
 }
 
@@ -159,7 +178,11 @@ export function ProjectMediaGallery({
                   priority={rowIndex === 0}
                 />
               ) : (
-                <FullGalleryMedia src={item.url} alt={alt} />
+                <FullGalleryMedia
+                  src={item.url}
+                  alt={alt}
+                  priority={rowIndex === 0}
+                />
               )}
             </motion.div>
           ))}

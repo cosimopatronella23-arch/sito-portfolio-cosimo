@@ -30,7 +30,7 @@ export async function generateMetadata(
     title: post.seo_title ?? post.title,
     description: post.seo_description ?? post.excerpt,
     path: `/blog/${post.slug}`,
-    ogImage: post.seo_og_image,
+    ogImage: post.seo_og_image ?? post.cover_image,
     noindex: post.seo_noindex,
   });
 }

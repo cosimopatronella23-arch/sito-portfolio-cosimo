@@ -1,6 +1,6 @@
 "use server";
 
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/server";
 
 /**
  * Esporta tutti i contenuti gestiti da /admin in un unico oggetto JSON.
@@ -9,7 +9,7 @@ import { createClient } from "@/lib/supabase/server";
  * garantisce backup automatici.
  */
 export async function exportSiteData(): Promise<string> {
-  const supabase = await createClient();
+  const supabase = await createAdminClient();
 
   const [projects, blogPosts, siteSettings, pageSeo] = await Promise.all([
     supabase.from("projects").select("*").order("created_at"),

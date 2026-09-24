@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/server";
 
 export interface MediaFile {
   name: string;
@@ -12,7 +12,7 @@ export interface MediaFile {
 
 /** Elenca tutti i file nel bucket "media" di Supabase Storage. */
 export async function listMediaFiles(): Promise<MediaFile[]> {
-  const supabase = await createClient();
+  const supabase = await createAdminClient();
   const { data, error } = await supabase.storage
     .from("media")
     .list("", { limit: 1000, sortBy: { column: "created_at", order: "desc" } });
@@ -38,7 +38,7 @@ export async function listMediaFiles(): Promise<MediaFile[]> {
  * (homepage/blocchi/favicon) e SEO della homepage.
  */
 export async function checkMediaUsage(url: string): Promise<string[]> {
-  const supabase = await createClient();
+  const supabase = await createAdminClient();
   const usages: string[] = [];
 
   const [projectsRes, postsRes, settingsRes, pageSeoRes] = await Promise.all([
@@ -88,7 +88,7 @@ export async function checkMediaUsage(url: string): Promise<string[]> {
 export async function deleteMediaFile(
   name: string,
 ): Promise<{ error: string | null }> {
-  const supabase = await createClient();
+  const supabase = await createAdminClient();
   const { error } = await supabase.storage.from("media").remove([name]);
 
   if (error) return { error: error.message };

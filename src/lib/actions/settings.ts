@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/server";
 import type {
   HomeContent,
   HomepageBlock,
@@ -131,7 +131,7 @@ export async function updateSiteSettings(
       null,
   };
 
-  const supabase = await createClient();
+  const supabase = await createAdminClient();
   let { error } = await supabase
     .from("site_settings")
     .update(payload)
@@ -173,7 +173,7 @@ export async function updatePageSeo(
     seo_noindex: formData.get("seo_noindex") === "on",
   };
 
-  const supabase = await createClient();
+  const supabase = await createAdminClient();
   const { error } = await supabase
     .from("page_seo")
     .upsert({ page_key: pageKey, ...payload });

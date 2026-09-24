@@ -56,7 +56,7 @@ export function Services({
             />
             <div className="container-px relative flex flex-col gap-3 py-10 sm:flex-row sm:items-baseline sm:justify-between sm:gap-10 sm:py-14">
               <div className="flex items-baseline gap-6">
-                <span className="font-display text-xl text-foreground/30 sm:text-2xl">
+                <span aria-hidden="true" className="font-display text-xl text-foreground-muted sm:text-2xl">
                   {String(i + 1).padStart(2, "0")}
                 </span>
                 <h3 className="font-display text-4xl font-semibold tracking-tight sm:text-6xl">

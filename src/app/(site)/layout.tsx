@@ -10,10 +10,15 @@ import { getSiteSettings } from "@/lib/data/settings";
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getSiteSettings();
 
+  // Nelle pagine interne solo il nome ("Cosimo Patronella"), non l'intero
+  // titolo del sito: Google taglia intorno ai 60 caratteri, e il suffisso
+  // lungo finiva per nascondere la parte importante del titolo.
+  const brand = settings.site_title.split(" — ")[0];
+
   return {
     title: {
       default: settings.site_title,
-      template: `%s | ${settings.site_title}`,
+      template: `%s | ${brand}`,
     },
     verification: settings.google_site_verification_code
       ? { google: settings.google_site_verification_code }

@@ -20,10 +20,12 @@ export function ProjectPairScreen({
   projects,
   index = 0,
   total = 1,
+  headingLevel: Heading = "h3",
 }: {
   projects: Project[];
   index?: number;
   total?: number;
+  headingLevel?: "h2" | "h3";
 }) {
   return (
     <div
@@ -72,9 +74,9 @@ export function ProjectPairScreen({
             <span className="text-sm text-white/70">
               {project.category} — {project.year}
             </span>
-            <h3 className="font-display text-3xl leading-[1.05] font-semibold text-balance text-white sm:text-4xl">
+            <Heading className="font-display text-3xl leading-[1.05] font-semibold text-balance text-white sm:text-4xl">
               {project.title}
-            </h3>
+            </Heading>
             <span className="inline-flex w-max items-center gap-2 border border-white/40 px-4 py-2 text-sm font-medium text-white transition-colors duration-300 group-hover:border-white group-hover:bg-white group-hover:text-background">
               Vedi progetto →
             </span>

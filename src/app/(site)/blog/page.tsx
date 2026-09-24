@@ -26,7 +26,7 @@ export default async function BlogIndexPage() {
 
         <div className="flex flex-col">
           {published.map((post, i) => (
-            <BlogListRow key={post.id} post={post} index={i} />
+            <BlogListRow key={post.id} post={post} index={i} headingLevel="h2" />
           ))}
         </div>
       </div>

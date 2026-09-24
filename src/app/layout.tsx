@@ -5,9 +5,9 @@ import { SITE_URL } from "@/lib/seo";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
-  title: "Cosimo Patronella — Web Designer",
+  title: "Cosimo Patronella — Graphic & Web Designer",
   description:
-    "Portfolio di Cosimo Patronella: siti e prodotti digitali su misura, design premium e sviluppo frontend moderno.",
+    "Graphic designer e web designer: identità visive, siti web e comunicazione su misura.",
   // "?v=2" forza i browser a trattarla come una risorsa diversa da quella
   // già in cache — senza, un cambio favicon può restare invisibile per
   // giorni finché la cache non scade da sola. Aumenta il numero se in

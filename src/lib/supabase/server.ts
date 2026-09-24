@@ -1,5 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 
 /**
  * Client Supabase per Server Component / Server Action. Legge la sessione
@@ -30,4 +31,20 @@ export async function createClient() {
       },
     },
   );
+}
+
+/**
+ * Come createClient(), ma solo per chi è loggato: ogni Server Action
+ * dell'admin passa da qui. Il proxy protegge le pagine /admin, ma una
+ * Server Action è richiamabile direttamente da chiunque ne conosca l'ID —
+ * senza questo controllo, azioni come "svuota cache" o "esporta backup"
+ * sarebbero state eseguibili anche da visitatori anonimi.
+ */
+export async function createAdminClient() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) redirect("/admin/login");
+  return supabase;
 }

@@ -14,10 +14,12 @@ export function ProjectScreen({
   project,
   index = 0,
   total = 1,
+  headingLevel: Heading = "h3",
 }: {
   project: Project;
   index?: number;
   total?: number;
+  headingLevel?: "h2" | "h3";
 }) {
   return (
     <Link
@@ -62,9 +64,9 @@ export function ProjectScreen({
           <span className="text-sm text-white/70">
             {project.category} — {project.year}
           </span>
-          <h3 className="font-display text-4xl leading-[1.05] font-semibold text-balance text-white sm:text-6xl md:text-7xl">
+          <Heading className="font-display text-4xl leading-[1.05] font-semibold text-balance text-white sm:text-6xl md:text-7xl">
             {project.title}
-          </h3>
+          </Heading>
         </div>
         <span className="inline-flex w-max items-center gap-2 border border-white/40 px-5 py-2.5 text-sm font-medium text-white transition-colors duration-300 group-hover:border-white group-hover:bg-white group-hover:text-background">
           Vedi progetto →

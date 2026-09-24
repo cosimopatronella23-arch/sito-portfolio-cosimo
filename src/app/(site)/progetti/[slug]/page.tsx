@@ -22,7 +22,7 @@ export async function generateMetadata(
     title: project.seo_title ?? project.title,
     description: project.seo_description ?? project.short_description,
     path: `/progetti/${project.slug}`,
-    ogImage: project.seo_og_image,
+    ogImage: project.seo_og_image ?? project.cover_image,
     noindex: project.seo_noindex,
   });
 }

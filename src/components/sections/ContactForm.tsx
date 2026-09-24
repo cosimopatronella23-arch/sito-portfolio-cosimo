@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
+import Link from "next/link";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Button } from "@/components/ui/Button";
 import { AnimatedBlob } from "@/components/ui/AnimatedBlob";
@@ -12,6 +13,7 @@ const FIELDS: Array<{
   type: string;
   placeholder: string;
   autoComplete: string;
+  maxLength: number;
   isTextarea?: boolean;
 }> = [
   {
@@ -19,18 +21,21 @@ const FIELDS: Array<{
     type: "text",
     placeholder: "Come ti chiami?",
     autoComplete: "name",
+    maxLength: 100,
   },
   {
     name: "email",
     type: "email",
     placeholder: "La tua email",
     autoComplete: "email",
+    maxLength: 254,
   },
   {
     name: "message",
     type: "text",
     placeholder: "Raccontami del progetto",
     autoComplete: "off",
+    maxLength: 5000,
     isTextarea: true,
   },
 ];
@@ -130,6 +135,7 @@ export function ContactForm({
                   rows={2}
                   required
                   minLength={10}
+                  maxLength={field.maxLength}
                   className={fieldClasses}
                   placeholder={field.placeholder}
                 />
@@ -140,6 +146,7 @@ export function ContactForm({
                   type={field.type}
                   autoComplete={field.autoComplete}
                   required
+                  maxLength={field.maxLength}
                   className={fieldClasses}
                   placeholder={field.placeholder}
                 />
@@ -147,9 +154,21 @@ export function ContactForm({
             </div>
           ))}
 
-          {state.error ? (
-            <p className="text-sm text-error">{state.error}</p>
-          ) : null}
+          <p role="alert" className="text-sm text-error empty:hidden">
+            {state.error}
+          </p>
+
+          <p className="text-xs text-foreground-muted">
+            Usi questi dati solo per risponderti. Dettagli nella{" "}
+            <Link
+              href="/privacy-policy"
+              data-cursor="link"
+              className="underline underline-offset-2 hover:text-foreground"
+            >
+              Privacy Policy
+            </Link>
+            .
+          </p>
 
           <div className="mt-2 flex flex-wrap items-center gap-5">
             <Button type="submit" size="lg" disabled={pending}>

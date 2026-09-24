@@ -67,7 +67,9 @@ export function ImageUploader({
 
     const { error: uploadError } = await supabase.storage
       .from("media")
-      .upload(path, file, { cacheControl: "3600" });
+      // Nome file casuale e mai riusato: il contenuto a quell'URL non cambia,
+      // quindi i browser possono tenerlo in cache per un anno.
+      .upload(path, file, { cacheControl: "31536000" });
 
     if (uploadError) {
       setError("Upload non riuscito. Riprova.");
