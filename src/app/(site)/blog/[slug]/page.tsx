@@ -5,6 +5,7 @@ import { CoverImage } from "@/components/ui/CoverImage";
 import { AnimatedText } from "@/components/ui/AnimatedText";
 import { buildMetadata, blogPostJsonLd } from "@/lib/seo";
 import { getPostBySlug, getPublishedPosts } from "@/lib/data/blog";
+import { demoteH1 } from "@/lib/html";
 
 export const revalidate = 3600;
 
@@ -89,7 +90,7 @@ export default async function BlogPostPage(props: PageProps<"/blog/[slug]">) {
 
         <div
           className="prose-editor text-base leading-relaxed text-foreground-muted"
-          dangerouslySetInnerHTML={{ __html: post.content }}
+          dangerouslySetInnerHTML={{ __html: demoteH1(post.content) }}
         />
       </div>
     </article>

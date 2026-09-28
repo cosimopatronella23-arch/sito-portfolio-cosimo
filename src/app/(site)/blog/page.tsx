@@ -8,7 +8,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const published = await getPublishedPosts();
 
   return buildMetadata({
-    title: "Blog",
+    title: "Blog su web design, SEO e siti web",
     description:
       "Note pratiche su design, sviluppo frontend, performance e SEO tecnica, da progetti reali.",
     path: "/blog",

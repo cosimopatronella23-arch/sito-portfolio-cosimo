@@ -53,6 +53,9 @@ export function RichTextEditor({
     immediatelyRender: false,
     extensions: [
       StarterKit.configure({
+        // L'h1 è già il titolo della pagina: un h1 incollato da un testo
+        // esterno diventa un paragrafo invece di un secondo h1.
+        heading: { levels: [2, 3] },
         link: {
           openOnClick: false,
           HTMLAttributes: { target: "_blank", rel: "noopener noreferrer" },

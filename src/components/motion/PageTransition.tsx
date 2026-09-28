@@ -32,7 +32,11 @@ export function PageTransition({ children }: { children: React.ReactNode }) {
 
   return (
     <>
-      <AnimatePresence mode="wait">
+      {/* initial={false}: al primo caricamento la pagina è subito visibile.
+          Partire da opacità 0 teneva nascosto tutto il contenuto (già
+          arrivato dal server) finché non si caricava il JavaScript,
+          ritardando di ~2s il Largest Contentful Paint. */}
+      <AnimatePresence mode="wait" initial={false}>
         <motion.div
           key={pathname}
           initial={{ opacity: 0, y: 16 }}

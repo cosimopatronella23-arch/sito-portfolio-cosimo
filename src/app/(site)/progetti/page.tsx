@@ -21,9 +21,9 @@ export async function generateMetadata(): Promise<Metadata> {
   const featuredFirst = published.find((p) => p.featured) ?? published[0];
 
   return buildMetadata({
-    title: "Progetti",
+    title: "Progetti di web design e grafica",
     description:
-      "Tutti i progetti di design e sviluppo firmati Cosimo Patronella.",
+      "Siti web, identità visive e web app progettati e sviluppati da Cosimo Patronella: casi reali per associazioni culturali, artisti e studi creativi.",
     path: "/progetti",
     ogImage: featuredFirst?.cover_image,
   });
