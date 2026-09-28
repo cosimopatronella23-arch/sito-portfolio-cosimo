@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { AnimatedText } from "@/components/ui/AnimatedText";
 import { getSiteSettings } from "@/lib/data/settings";
+import { formatPhone, phoneHref } from "@/lib/phone";
 
 export async function Footer() {
   const siteSettings = await getSiteSettings();
@@ -30,11 +31,11 @@ export async function Footer() {
           </p>
           {siteSettings.contact_phone ? (
             <a
-              href={`tel:${siteSettings.contact_phone.replace(/\s+/g, "")}`}
+              href={phoneHref(siteSettings.contact_phone)}
               data-cursor="link"
               className="text-sm text-foreground-muted hover:text-foreground"
             >
-              {siteSettings.contact_phone}
+              {formatPhone(siteSettings.contact_phone)}
             </a>
           ) : null}
         </div>

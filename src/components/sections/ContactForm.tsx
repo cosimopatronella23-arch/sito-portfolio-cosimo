@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/Button";
 import { AnimatedBlob } from "@/components/ui/AnimatedBlob";
 import { sendContactMessage } from "@/lib/actions/contact";
 import { sectionStyle } from "@/lib/contrast";
+import { formatPhone, phoneHref } from "@/lib/phone";
 
 const FIELDS: Array<{
   name: string;
@@ -102,11 +103,11 @@ export function ContactForm({
               ) : null}
               {contactPhone ? (
                 <a
-                  href={`tel:${contactPhone.replace(/\s+/g, "")}`}
+                  href={phoneHref(contactPhone)}
                   data-cursor="link"
                   className="font-medium text-foreground hover:text-accent"
                 >
-                  {contactPhone}
+                  {formatPhone(contactPhone)}
                 </a>
               ) : null}
             </div>

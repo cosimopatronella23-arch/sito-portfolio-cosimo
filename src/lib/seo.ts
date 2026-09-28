@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import type { BlogPost, Project, SiteSettings } from "./types";
+import { formatPhone } from "./phone";
 
 /**
  * URL base del sito. Aggiornalo qui quando colleghi un dominio tuo al posto
@@ -96,7 +97,9 @@ export function personJsonLd(settings: SiteSettings) {
     jobTitle: "Web Designer",
     url: SITE_URL,
     email: settings.contact_email,
-    telephone: settings.contact_phone || undefined,
+    telephone: settings.contact_phone
+      ? formatPhone(settings.contact_phone)
+      : undefined,
     sameAs: Object.values(settings.social_links),
   };
 }
