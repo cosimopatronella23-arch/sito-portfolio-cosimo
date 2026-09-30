@@ -1,6 +1,11 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
-import { FALLBACK_HOST, PRIMARY_URL, isPrimaryHealthy } from "@/lib/domain";
+import {
+  FALLBACK_HOST,
+  PRIMARY_HOST,
+  PRIMARY_URL,
+  isPrimaryHealthy,
+} from "@/lib/domain";
 
 // Esito del controllo sul dominio principale, riusato per qualche minuto
 // invece di rifarlo a ogni visita. Se è in salute si ricontrolla dopo 10
@@ -20,6 +25,8 @@ async function primaryIsHealthy() {
 }
 
 /**
+ * 0) www.cosimopatronella.it → cosimopatronella.it (un solo indirizzo per
+ *    Google).
  * 1) Sull'indirizzo *.vercel.app di produzione reindirizza (308,
  *    permanente) alla stessa pagina sul dominio principale — ma solo se il
  *    dominio principale risponde davvero con questo sito. Altrimenti mostra
@@ -28,7 +35,14 @@ async function primaryIsHealthy() {
  *    rimandato a /admin/login, e rinfresca il cookie di sessione Supabase.
  */
 export async function proxy(request: NextRequest) {
-  if (request.headers.get("host") === FALLBACK_HOST && (await primaryIsHealthy())) {
+  const host = request.headers.get("host");
+
+  if (host === `www.${PRIMARY_HOST}`) {
+    const { pathname, search } = request.nextUrl;
+    return NextResponse.redirect(`${PRIMARY_URL}${pathname}${search}`, 308);
+  }
+
+  if (host === FALLBACK_HOST && (await primaryIsHealthy())) {
     const { pathname, search } = request.nextUrl;
     return NextResponse.redirect(`${PRIMARY_URL}${pathname}${search}`, 308);
   }
