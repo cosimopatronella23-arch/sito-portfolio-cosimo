@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useEffect } from "react";
 import Link from "next/link";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Button } from "@/components/ui/Button";
@@ -8,6 +8,7 @@ import { AnimatedBlob } from "@/components/ui/AnimatedBlob";
 import { sendContactMessage } from "@/lib/actions/contact";
 import { sectionStyle } from "@/lib/contrast";
 import { formatPhone, phoneHref } from "@/lib/phone";
+import { trackLead } from "@/lib/analytics";
 
 const FIELDS: Array<{
   name: string;
@@ -57,6 +58,10 @@ export function ContactForm({
     error: null,
   });
   const style = sectionStyle(backgroundColor);
+
+  useEffect(() => {
+    if (state.success) trackLead("form");
+  }, [state.success]);
 
   if (state.success) {
     return (

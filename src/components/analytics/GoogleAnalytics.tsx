@@ -1,7 +1,8 @@
 "use client";
 
-import { useSyncExternalStore } from "react";
+import { useEffect, useSyncExternalStore } from "react";
 import Script from "next/script";
+import { trackLead } from "@/lib/analytics";
 
 type Consent = "unknown" | "accepted" | "rejected";
 
@@ -54,6 +55,21 @@ export function GoogleAnalytics({
     getSnapshot,
     getServerSnapshot,
   );
+
+  // Click su email o telefono (footer, sezione contatti, articoli): sono
+  // contatti tanto quanto l'invio del form.
+  useEffect(() => {
+    if (consent !== "accepted") return;
+    const onClick = (e: MouseEvent) => {
+      const link = (e.target as Element | null)?.closest?.("a[href]");
+      const href = link?.getAttribute("href") ?? "";
+      if (href.startsWith("mailto:")) trackLead("email");
+      else if (href.startsWith("tel:")) trackLead("phone");
+    };
+    document.addEventListener("click", onClick);
+    return () => document.removeEventListener("click", onClick);
+  }, [consent]);
+
   if (!measurementId || !MEASUREMENT_ID_REGEX.test(measurementId)) {
     return null;
   }
