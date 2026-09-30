@@ -5,7 +5,7 @@ import { ProjectsGrid } from "@/components/sections/ProjectsGrid";
 import { BlogPreview } from "@/components/sections/BlogPreview";
 import { ContactForm } from "@/components/sections/ContactForm";
 import { BlockRenderer } from "@/components/blocks/BlockRenderer";
-import { buildMetadata, personJsonLd } from "@/lib/seo";
+import { buildMetadata, personJsonLd, websiteJsonLd } from "@/lib/seo";
 import { getPageSeo, getSiteSettings } from "@/lib/data/settings";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -20,7 +20,6 @@ export async function generateMetadata(): Promise<Metadata> {
     path: "/",
     ogImage: home?.seo_og_image,
     noindex: home?.seo_noindex,
-    siteName: settings.site_title,
   });
 }
 
@@ -34,6 +33,10 @@ export default async function HomePage() {
         dangerouslySetInnerHTML={{
           __html: JSON.stringify(personJsonLd(settings)),
         }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd()) }}
       />
       <Hero content={settings.home_content} />
       {settings.home_content.show_projects ?? true ? (

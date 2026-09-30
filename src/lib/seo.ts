@@ -89,6 +89,22 @@ export function blogPostJsonLd(post: BlogPost) {
   };
 }
 
+/**
+ * Nome del sito per Google (quello mostrato sopra il link nei risultati).
+ * Senza, Google poteva ricavarlo dal dominio *.vercel.app e mostrare
+ * "Vercel".
+ */
+export function websiteJsonLd() {
+  return {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: "Cosimo Patronella",
+    alternateName: "cosimopatronella.it",
+    url: `${SITE_URL}/`,
+    publisher: { "@id": PERSON_ID },
+  };
+}
+
 export function personJsonLd(settings: SiteSettings) {
   return {
     "@context": "https://schema.org",
