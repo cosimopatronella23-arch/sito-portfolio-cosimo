@@ -81,6 +81,7 @@ export async function createProject(
 
   revalidatePath("/");
   revalidatePath("/progetti");
+  revalidatePath("/sitemap.xml");
   revalidatePath("/admin/progetti");
   redirect("/admin/progetti");
 }
@@ -115,6 +116,7 @@ export async function updateProject(
 
   revalidatePath("/");
   revalidatePath("/progetti");
+  revalidatePath("/sitemap.xml");
   revalidatePath(`/progetti/${payload.slug}`);
   revalidatePath("/admin/progetti");
   redirect("/admin/progetti");
@@ -159,5 +161,6 @@ export async function deleteProject(formData: FormData) {
 
   revalidatePath("/");
   revalidatePath("/progetti");
+  revalidatePath("/sitemap.xml");
   revalidatePath("/admin/progetti");
 }

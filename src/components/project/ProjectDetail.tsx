@@ -12,7 +12,7 @@ import { CoverImage } from "@/components/ui/CoverImage";
 import { ProjectMediaGallery } from "./ProjectMediaGallery";
 import { Button } from "@/components/ui/Button";
 import type { Project } from "@/lib/types";
-import { demoteH1 } from "@/lib/html";
+import { normalizeHeadings } from "@/lib/html";
 
 const EASE_OUT: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
@@ -129,7 +129,7 @@ export function ProjectDetail({ project }: { project: Project }) {
               </h2>
               <div
                 className="prose-editor max-w-2xl text-base leading-relaxed text-foreground-muted"
-                dangerouslySetInnerHTML={{ __html: demoteH1(block.body) }}
+                dangerouslySetInnerHTML={{ __html: normalizeHeadings(block.body) }}
               />
             </motion.section>
           ))}

@@ -106,12 +106,20 @@ export function GoogleAnalytics({
               <p className="text-foreground-muted">
                 Solo statistiche di Google Analytics su quali pagine vengono
                 viste, senza sapere chi sei: mi aiutano a capire cosa
-                funziona. Se rifiuti, il sito funziona esattamente uguale.{" "}
+                funziona. Se rifiuti, il sito funziona esattamente uguale.
+              </p>
+              <p className="flex flex-wrap gap-x-4 gap-y-1 text-foreground-muted">
+                <Link
+                  href="/blog/banner-cookie-cosa-accetti-davvero"
+                  className="underline underline-offset-2 hover:text-foreground"
+                >
+                  Perché te lo chiedo
+                </Link>
                 <Link
                   href="/cookie-policy"
                   className="underline underline-offset-2 hover:text-foreground"
                 >
-                  Dettagli
+                  Cookie policy
                 </Link>
               </p>
             </div>

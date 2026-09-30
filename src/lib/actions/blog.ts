@@ -67,6 +67,7 @@ export async function createPost(
 
   revalidatePath("/");
   revalidatePath("/blog");
+  revalidatePath("/sitemap.xml");
   revalidatePath("/admin/blog");
   redirect("/admin/blog");
 }
@@ -101,6 +102,7 @@ export async function updatePost(
 
   revalidatePath("/");
   revalidatePath("/blog");
+  revalidatePath("/sitemap.xml");
   revalidatePath(`/blog/${payload.slug}`);
   revalidatePath("/admin/blog");
   redirect("/admin/blog");
@@ -145,5 +147,6 @@ export async function deletePost(formData: FormData) {
 
   revalidatePath("/");
   revalidatePath("/blog");
+  revalidatePath("/sitemap.xml");
   revalidatePath("/admin/blog");
 }
