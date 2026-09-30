@@ -1,3 +1,5 @@
+import { SITE_URL } from "@/lib/seo";
+
 /**
  * Anteprima di come titolo e descrizione appariranno nei risultati di
  * ricerca di Google. Puramente visiva, nessun collegamento al salvataggio:
@@ -17,7 +19,7 @@ export function SerpPreview({
       <span className="text-xs text-foreground-muted">Anteprima Google</span>
       <div className="flex flex-col gap-0.5 font-sans">
         <span className="truncate text-sm text-success/80">
-          {url || "https://cosimopatronella.vercel.app"}
+          {url || SITE_URL}
         </span>
         <span className="truncate text-lg text-[#8ab4f8]">
           {title || "Titolo della pagina"}

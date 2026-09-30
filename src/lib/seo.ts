@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
 import type { BlogPost, Project, SiteSettings } from "./types";
 import { formatPhone } from "./phone";
+import { PRIMARY_URL } from "./domain";
 
 /**
- * URL base del sito. Aggiornalo qui quando colleghi un dominio tuo al posto
- * dell'indirizzo *.vercel.app.
+ * URL base del sito (canonical, sitemap, robots, dati strutturati). Se il
+ * dominio .it venisse abbandonato, qui va messo FALLBACK_URL.
  */
-export const SITE_URL = "https://cosimopatronella.vercel.app";
+export const SITE_URL = PRIMARY_URL;
 
 export function buildMetadata(input: {
   title: string;
