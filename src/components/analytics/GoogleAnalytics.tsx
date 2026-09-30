@@ -2,6 +2,7 @@
 
 import { useEffect, useSyncExternalStore } from "react";
 import Script from "next/script";
+import Link from "next/link";
 import { trackLead } from "@/lib/analytics";
 
 type Consent = "unknown" | "accepted" | "rejected";
@@ -98,25 +99,36 @@ export function GoogleAnalytics({
           className="container-px fixed inset-x-0 bottom-0 z-[100] border-t border-border-strong bg-background/95 py-5 backdrop-blur-md"
         >
           <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <p className="max-w-2xl text-sm text-foreground-muted">
-              Uso cookie di analisi anonimi (Google Analytics) solo se
-              acconsenti, per capire come viene usato il sito. Puoi cambiare
-              idea quando vuoi.
-            </p>
+            <div className="flex max-w-2xl flex-col gap-1.5 text-sm">
+              <p className="font-medium text-foreground">
+                Un cookie? Tranquillo, non entro nel tuo conto in banca.
+              </p>
+              <p className="text-foreground-muted">
+                Solo statistiche di Google Analytics su quali pagine vengono
+                viste, senza sapere chi sei: mi aiutano a capire cosa
+                funziona. Se rifiuti, il sito funziona esattamente uguale.{" "}
+                <Link
+                  href="/cookie-policy"
+                  className="underline underline-offset-2 hover:text-foreground"
+                >
+                  Dettagli
+                </Link>
+              </p>
+            </div>
             <div className="flex shrink-0 gap-3">
               <button
                 type="button"
                 onClick={() => setConsent("rejected")}
-                className="border border-border-strong px-4 py-2 text-sm text-foreground-muted transition-colors hover:text-foreground"
+                className="border border-border-strong px-4 py-2 text-sm text-foreground transition-colors hover:border-foreground"
               >
-                Rifiuta
+                No, grazie
               </button>
               <button
                 type="button"
                 onClick={() => setConsent("accepted")}
                 className="bg-foreground px-4 py-2 text-sm font-medium text-background transition-colors hover:bg-accent"
               >
-                Accetta
+                Accetta, dai
               </button>
             </div>
           </div>
