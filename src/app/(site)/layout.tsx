@@ -64,10 +64,18 @@ export default async function SiteLayout({
     <>
       {/* Colori personalizzabili da /admin/impostazioni. */}
       {customColors ? <style>{`:root { ${customColors} }`}</style> : null}
+      {/* Invisibile finché non si preme Tab: permette a chi usa tastiera o
+          screen reader di saltare il menu e andare subito ai contenuti. */}
+      <a
+        href="#contenuto"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[1000] focus:bg-foreground focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-background"
+      >
+        Salta al contenuto
+      </a>
       <SmoothScrollProvider />
       <CustomCursor />
       <Header navLinks={settings.home_content.nav_links} />
-      <main className="flex-1">
+      <main id="contenuto" tabIndex={-1} className="flex-1 focus:outline-none">
         <PageTransition>{children}</PageTransition>
       </main>
       <Footer />

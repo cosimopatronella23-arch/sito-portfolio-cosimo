@@ -12,7 +12,15 @@ export const metadata: Metadata = {
   // già in cache — senza, un cambio favicon può restare invisibile per
   // giorni finché la cache non scade da sola. Aumenta il numero se in
   // futuro la cambi di nuovo.
-  icons: { icon: "/favicon.svg?v=2" },
+  // SVG per i browser moderni, .ico per quelli vecchi (e per chi lo
+  // richiede d'ufficio), PNG 180px per la schermata Home di iPhone/iPad.
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "48x48" },
+      { url: "/favicon.svg?v=2", type: "image/svg+xml" },
+    ],
+    apple: "/apple-touch-icon.png",
+  },
 };
 
 export const viewport: Viewport = {
