@@ -1,10 +1,14 @@
 import Link from "next/link";
 import { AnimatedText } from "@/components/ui/AnimatedText";
 import { getSiteSettings } from "@/lib/data/settings";
+import { getPublishedServices } from "@/lib/data/services";
 import { formatPhone, phoneHref } from "@/lib/phone";
 
 export async function Footer() {
-  const siteSettings = await getSiteSettings();
+  const [siteSettings, services] = await Promise.all([
+    getSiteSettings(),
+    getPublishedServices(),
+  ]);
   const year = new Date().getFullYear();
 
   return (
@@ -39,6 +43,29 @@ export async function Footer() {
             </a>
           ) : null}
         </div>
+
+        {services.length ? (
+          <nav aria-label="Servizi" className="flex flex-col gap-3">
+            <Link
+              href="/servizi"
+              className="text-xs font-medium tracking-[0.08em] text-foreground uppercase hover:text-accent"
+            >
+              Servizi
+            </Link>
+            <ul className="flex flex-col gap-2">
+              {services.map((service) => (
+                <li key={service.slug}>
+                  <Link
+                    href={`/servizi/${service.slug}`}
+                    className="text-sm text-foreground-muted hover:text-foreground"
+                  >
+                    {service.title}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        ) : null}
 
         <div className="flex flex-col gap-4">
           <div className="flex gap-5">

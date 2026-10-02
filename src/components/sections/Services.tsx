@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { TitleArrow } from "@/components/ui/TitleArrow";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { sectionStyle } from "@/lib/contrast";
 import type { ServiceItem } from "@/lib/types";
@@ -80,15 +81,11 @@ export function Services({
                   {String(i + 1).padStart(2, "0")}
                 </span>
                 <h3 className="font-display text-4xl font-semibold tracking-tight sm:text-6xl">
-                  {service.title}
                   {service.href ? (
-                    <span
-                      aria-hidden="true"
-                      className="ml-3 inline-block text-accent transition-transform duration-300 group-hover:translate-x-1"
-                    >
-                      →
-                    </span>
-                  ) : null}
+                    <TitleArrow text={service.title} />
+                  ) : (
+                    service.title
+                  )}
                 </h3>
               </div>
               <p className="max-w-sm text-foreground-muted sm:text-right">

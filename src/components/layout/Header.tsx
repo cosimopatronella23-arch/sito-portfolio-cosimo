@@ -9,10 +9,17 @@ import type { NavLink } from "@/lib/types";
 
 const DEFAULT_NAV_LINKS: NavLink[] = [
   { label: "Progetti", href: "/progetti" },
-  { label: "Servizi", href: "/#servizi" },
+  { label: "Servizi", href: "/servizi" },
   { label: "Blog", href: "/blog" },
   { label: "Contatti", href: "/#contatti" },
 ];
+
+// Attivo anche nelle sottopagine: "Servizi" resta evidenziato su
+// /servizi/seo, "Progetti" su /progetti/gymbo. Le ancore (/#...) mai.
+function isActive(pathname: string, href: string) {
+  if (href.includes("#")) return false;
+  return pathname === href || (href !== "/" && pathname.startsWith(`${href}/`));
+}
 
 export function Header({ navLinks }: { navLinks?: NavLink[] }) {
   const [open, setOpen] = useState(false);
@@ -47,9 +54,10 @@ export function Header({ navLinks }: { navLinks?: NavLink[] }) {
               key={link.href}
               href={link.href}
               data-cursor="link"
+              aria-current={isActive(pathname, link.href) ? "page" : undefined}
               className={clsx(
                 "relative text-xs font-medium tracking-[0.08em] text-foreground-muted uppercase transition-colors after:absolute after:-bottom-1 after:left-0 after:h-px after:w-full after:origin-left after:scale-x-0 after:bg-accent after:transition-transform after:duration-300 hover:text-foreground hover:after:scale-x-100",
-                pathname === link.href && "text-foreground",
+                isActive(pathname, link.href) && "text-foreground",
               )}
             >
               {link.label}
@@ -102,6 +110,7 @@ export function Header({ navLinks }: { navLinks?: NavLink[] }) {
                 <Link
                   key={link.href}
                   href={link.href}
+                  aria-current={isActive(pathname, link.href) ? "page" : undefined}
                   className="px-3 py-3 text-base font-medium text-foreground-muted hover:bg-surface hover:text-foreground"
                   onClick={() => setOpen(false)}
                 >

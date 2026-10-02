@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { SectionHeading } from "@/components/ui/SectionHeading";
+import { TitleArrow } from "@/components/ui/TitleArrow";
 import { Button } from "@/components/ui/Button";
 import { buildMetadata } from "@/lib/seo";
 import { getPublishedServices } from "@/lib/data/services";
@@ -63,13 +64,7 @@ export default async function ServicesIndexPage() {
                   {String(i + 1).padStart(2, "0")}
                 </span>
                 <h2 className="font-display text-3xl font-semibold tracking-tight sm:text-5xl">
-                  {service.title}
-                  <span
-                    aria-hidden="true"
-                    className="ml-3 inline-block text-accent transition-transform duration-300 group-hover:translate-x-1"
-                  >
-                    →
-                  </span>
+                  <TitleArrow text={service.title} />
                 </h2>
               </div>
               <p className="max-w-sm text-foreground-muted sm:text-right">

@@ -38,12 +38,12 @@ function parseServiceForm(formData: FormData) {
   };
 }
 
-// Le pagine dei progetti mostrano i "servizi correlati": vanno aggiornate
-// anche loro quando cambia un servizio.
+// Il footer di ogni pagina elenca i servizi e le pagine dei progetti
+// mostrano quelli correlati: si aggiorna tutto il sito, non solo /servizi.
 function revalidateServicePages(slug?: string) {
+  revalidatePath("/", "layout");
   revalidatePath("/servizi");
   if (slug) revalidatePath(`/servizi/${slug}`);
-  revalidatePath("/progetti", "layout");
   revalidatePath("/sitemap.xml");
   revalidatePath("/admin/servizi");
 }
