@@ -1,6 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import { fetchWithClockSkewRetry } from "./retryFetch";
 
 /**
  * Client Supabase per Server Component / Server Action. Legge la sessione
@@ -14,6 +15,7 @@ export async function createClient() {
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
+      global: { fetch: fetchWithClockSkewRetry },
       cookies: {
         getAll() {
           return cookieStore.getAll();
