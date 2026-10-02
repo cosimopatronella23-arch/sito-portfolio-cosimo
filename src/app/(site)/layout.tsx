@@ -6,6 +6,7 @@ import { SmoothScrollProvider } from "@/components/motion/SmoothScrollProvider";
 import { PageTransition } from "@/components/motion/PageTransition";
 import { GoogleAnalytics } from "@/components/analytics/GoogleAnalytics";
 import { getSiteSettings } from "@/lib/data/settings";
+import { customColorsCss } from "@/lib/siteColors";
 
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getSiteSettings();
@@ -26,8 +27,6 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-const HEX_COLOR_REGEX = /^#[0-9a-fA-F]{6}$/;
-
 // Le pagine pubbliche possono essere rigenerate ogni ora invece che ad ogni
 // visita: le modifiche da /admin restano istantanee comunque, grazie a
 // revalidatePath() già richiamato dalle Server Action.
@@ -39,26 +38,7 @@ export default async function SiteLayout({
   children: React.ReactNode;
 }) {
   const settings = await getSiteSettings();
-  const accent = HEX_COLOR_REGEX.test(settings.accent_color)
-    ? settings.accent_color
-    : null;
-  const background = HEX_COLOR_REGEX.test(
-    settings.home_content.background_color ?? "",
-  )
-    ? settings.home_content.background_color
-    : null;
-  const foreground = HEX_COLOR_REGEX.test(
-    settings.home_content.foreground_color ?? "",
-  )
-    ? settings.home_content.foreground_color
-    : null;
-  const customColors = [
-    accent ? `--accent: ${accent}; --accent-strong: ${accent};` : "",
-    background ? `--background: ${background};` : "",
-    foreground ? `--foreground: ${foreground};` : "",
-  ]
-    .filter(Boolean)
-    .join(" ");
+  const customColors = customColorsCss(settings);
 
   return (
     <>

@@ -24,7 +24,14 @@ const EASE_OUT: [number, number, number, number] = [0.22, 1, 0.36, 1];
  * leggibile in mezzo. Le due pagine devono sembrare due format diversi, non
  * lo stesso template con contenuti diversi.
  */
-export function ProjectDetail({ project }: { project: Project }) {
+export function ProjectDetail({
+  project,
+  services = [],
+}: {
+  project: Project;
+  /** Servizi pubblicati che citano questo progetto come esempio. */
+  services?: { slug: string; title: string }[];
+}) {
   // La copertina resta "agganciata" in cima mentre si scorre, restringendosi
   // leggermente (scroll-linked, non scroll-jacking: lo scroll nativo non
   // viene mai intercettato, si legge solo quanto si è avanzati per pilotare
@@ -133,6 +140,27 @@ export function ProjectDetail({ project }: { project: Project }) {
               />
             </motion.section>
           ))}
+
+          {services.length ? (
+            <nav
+              aria-label="Servizi usati in questo progetto"
+              className="flex flex-col gap-3 border-t border-border pt-6 text-sm"
+            >
+              <p className="text-foreground-muted">Servizi per questo progetto</p>
+              <ul className="flex flex-wrap gap-x-6 gap-y-2">
+                {services.map((service) => (
+                  <li key={service.slug}>
+                    <Link
+                      href={`/servizi/${service.slug}`}
+                      className="font-medium underline decoration-border-strong underline-offset-4 transition-colors hover:text-accent hover:decoration-accent"
+                    >
+                      {service.title}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+          ) : null}
 
           {project.external_link ? (
             <Button

@@ -44,7 +44,7 @@ export function ProjectForm({ project }: { project?: Project }) {
               defaultValue={project?.slug}
               onChange={(e) => setSlug(e.target.value)}
               required
-              pattern="[a-z0-9-]+"
+              pattern="[a-z0-9\-]+"
               title="Solo minuscole, numeri e trattini"
               className={fieldClasses}
             />

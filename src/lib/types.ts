@@ -67,6 +67,38 @@ export interface BlogPost {
 export interface ServiceItem {
   title: string;
   description: string;
+  /** Pagina del servizio a cui porta la riga in homepage (es.
+   *  /servizi/realizzazione-siti-web). Vuoto = riga non cliccabile. */
+  href?: string;
+}
+
+export interface ServiceFaq {
+  question: string;
+  answer: string;
+}
+
+/** Pagina di un servizio (/servizi/[slug]), modificabile da /admin. */
+export interface ServicePage {
+  id: string;
+  slug: string;
+  title: string;
+  /** Una o due frasi: card in /servizi e meta description di riserva. */
+  excerpt: string;
+  /** Paragrafo d'apertura sotto il titolo. */
+  intro: string;
+  content_blocks: ContentBlock[];
+  faqs: ServiceFaq[];
+  related_project_slugs: string[];
+  /** Zone servite, separate da virgola (es. "Roma, Grottaglie, Taranto"). */
+  area_served: string;
+  sort_order: number;
+  status: ContentStatus;
+  seo_title: string | null;
+  seo_description: string | null;
+  seo_og_image: string | null;
+  seo_noindex: boolean;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface NavLink {
@@ -142,6 +174,8 @@ export interface HomeContent {
   cta_secondary: string;
   services_title: string;
   services: ServiceItem[];
+  /** Testo d'apertura della pagina /servizi (il titolo è services_title). */
+  services_intro?: string;
   // Vive qui per lo stesso motivo di nav_links: evitare una migrazione al
   // database. Se assente/vuoto, il footer usa il testo di default nel codice.
   footer_tagline?: string;

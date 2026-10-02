@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { motion } from "framer-motion";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { sectionStyle } from "@/lib/contrast";
@@ -15,6 +16,25 @@ const ROW_GRADIENTS = [
   "linear-gradient(100deg, var(--accent-blue), var(--accent-pink))",
   "linear-gradient(100deg, var(--accent-strong), var(--accent))",
 ];
+
+const ROW_CLASSES =
+  "container-px relative flex flex-col gap-3 py-10 sm:flex-row sm:items-baseline sm:justify-between sm:gap-10 sm:py-14";
+
+// Se il servizio ha una sua pagina, l'intera riga diventa il link.
+function RowContent({
+  href,
+  children,
+}: {
+  href?: string;
+  children: React.ReactNode;
+}) {
+  if (!href) return <div className={ROW_CLASSES}>{children}</div>;
+  return (
+    <Link href={href} data-cursor="link" className={ROW_CLASSES}>
+      {children}
+    </Link>
+  );
+}
 
 export function Services({
   title,
@@ -54,19 +74,27 @@ export function Services({
               className="absolute inset-0 origin-left scale-x-0 opacity-40 transition-transform duration-500 ease-out group-hover:scale-x-100"
               style={{ background: ROW_GRADIENTS[i % ROW_GRADIENTS.length] }}
             />
-            <div className="container-px relative flex flex-col gap-3 py-10 sm:flex-row sm:items-baseline sm:justify-between sm:gap-10 sm:py-14">
+            <RowContent href={service.href}>
               <div className="flex items-baseline gap-6">
                 <span aria-hidden="true" className="font-display text-xl text-foreground-muted sm:text-2xl">
                   {String(i + 1).padStart(2, "0")}
                 </span>
                 <h3 className="font-display text-4xl font-semibold tracking-tight sm:text-6xl">
                   {service.title}
+                  {service.href ? (
+                    <span
+                      aria-hidden="true"
+                      className="ml-3 inline-block text-accent transition-transform duration-300 group-hover:translate-x-1"
+                    >
+                      →
+                    </span>
+                  ) : null}
                 </h3>
               </div>
               <p className="max-w-sm text-foreground-muted sm:text-right">
                 {service.description}
               </p>
-            </div>
+            </RowContent>
           </motion.div>
         ))}
       </div>

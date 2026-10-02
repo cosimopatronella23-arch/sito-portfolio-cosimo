@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { ProjectDetail } from "@/components/project/ProjectDetail";
 import { buildMetadata, projectJsonLd } from "@/lib/seo";
 import { getProjectBySlug, getPublishedProjects } from "@/lib/data/projects";
+import { getServicesForProject } from "@/lib/data/services";
 
 export const revalidate = 3600;
 
@@ -31,7 +32,10 @@ export default async function ProjectPage(
   props: PageProps<"/progetti/[slug]">,
 ) {
   const { slug } = await props.params;
-  const project = await getProjectBySlug(slug);
+  const [project, services] = await Promise.all([
+    getProjectBySlug(slug),
+    getServicesForProject(slug),
+  ]);
   if (!project) notFound();
 
   return (
@@ -42,7 +46,10 @@ export default async function ProjectPage(
           __html: JSON.stringify(projectJsonLd(project)),
         }}
       />
-      <ProjectDetail project={project} />
+      <ProjectDetail
+        project={project}
+        services={services.map(({ slug, title }) => ({ slug, title }))}
+      />
     </>
   );
 }

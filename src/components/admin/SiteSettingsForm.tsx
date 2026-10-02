@@ -295,6 +295,18 @@ export function SiteSettingsForm({ settings }: { settings: SiteSettings }) {
           />
         </label>
 
+        <label className="flex flex-col gap-2">
+          <span className="text-sm text-foreground-muted">
+            Introduzione della pagina /servizi (sotto il titolo)
+          </span>
+          <textarea
+            name="services_intro"
+            defaultValue={settings.home_content.services_intro ?? ""}
+            rows={3}
+            className={fieldClasses}
+          />
+        </label>
+
         <div className="flex flex-col gap-2">
           <span className="text-sm text-foreground-muted">
             Lista servizi (i numeri si aggiornano da soli)

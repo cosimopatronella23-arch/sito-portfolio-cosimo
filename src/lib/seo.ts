@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import type { BlogPost, Project, SiteSettings } from "./types";
+import type { BlogPost, Project, ServicePage, SiteSettings } from "./types";
 import { formatPhone } from "./phone";
 import { PRIMARY_URL } from "./domain";
 
@@ -119,4 +119,57 @@ export function personJsonLd(settings: SiteSettings) {
       : undefined,
     sameAs: Object.values(settings.social_links),
   };
+}
+
+/**
+ * Dati strutturati di una pagina servizio: il servizio (chi lo offre e
+ * dove), il percorso Home > Servizi > pagina e, se presenti, le domande
+ * frequenti. Tutto ricavato dai contenuti reali della pagina.
+ */
+export function serviceJsonLd(service: ServicePage) {
+  const url = `${SITE_URL}/servizi/${service.slug}`;
+  const areas = service.area_served
+    .split(",")
+    .map((a) => a.trim())
+    .filter(Boolean);
+
+  const graph: Record<string, unknown>[] = [
+    {
+      "@type": "Service",
+      "@id": `${url}#service`,
+      name: service.title,
+      description: service.excerpt || service.intro,
+      url,
+      provider: { "@id": PERSON_ID },
+      ...(areas.length
+        ? { areaServed: areas.map((name) => ({ "@type": "Place", name })) }
+        : {}),
+    },
+    {
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        { "@type": "ListItem", position: 1, name: "Home", item: `${SITE_URL}/` },
+        {
+          "@type": "ListItem",
+          position: 2,
+          name: "Servizi",
+          item: `${SITE_URL}/servizi`,
+        },
+        { "@type": "ListItem", position: 3, name: service.title, item: url },
+      ],
+    },
+  ];
+
+  if (service.faqs.length) {
+    graph.push({
+      "@type": "FAQPage",
+      mainEntity: service.faqs.map((f) => ({
+        "@type": "Question",
+        name: f.question,
+        acceptedAnswer: { "@type": "Answer", text: f.answer },
+      })),
+    });
+  }
+
+  return { "@context": "https://schema.org", "@graph": graph };
 }

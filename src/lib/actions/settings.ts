@@ -32,6 +32,7 @@ const HOME_CONTENT_TEXT_FIELDS: Array<
   "cta_primary",
   "cta_secondary",
   "services_title",
+  "services_intro",
   "footer_tagline",
   "background_color",
   "foreground_color",
@@ -80,7 +81,13 @@ export async function updateSiteSettings(
   } catch {
     services = [];
   }
-  homeContent.services = services.filter((s) => s.title.trim());
+  homeContent.services = services
+    .filter((s) => s.title.trim())
+    .map(({ title, description, href }) => ({
+      title,
+      description,
+      ...(href?.trim() ? { href: href.trim() } : {}),
+    }));
   homeContent.show_services = formData.get("show_services") === "on";
   homeContent.show_projects = formData.get("show_projects") === "on";
   homeContent.show_blog_preview = formData.get("show_blog_preview") === "on";

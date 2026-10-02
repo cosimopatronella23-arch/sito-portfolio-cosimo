@@ -98,6 +98,13 @@ export function ServicesEditor({
             placeholder="Descrizione breve"
             className="w-full border-0 border-b border-border-strong bg-transparent py-1 text-sm text-foreground placeholder:text-foreground-muted focus-visible:border-accent focus-visible:outline-none"
           />
+          <input
+            type="text"
+            value={service.href ?? ""}
+            onChange={(e) => updateService(i, "href", e.target.value)}
+            placeholder="Link alla pagina del servizio, opzionale (es. /servizi/seo)"
+            className="w-full border-0 border-b border-border-strong bg-transparent py-1 text-sm text-foreground placeholder:text-foreground-muted focus-visible:border-accent focus-visible:outline-none"
+          />
         </div>
       ))}
 
