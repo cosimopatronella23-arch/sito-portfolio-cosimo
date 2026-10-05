@@ -28,6 +28,11 @@ export function SmoothScrollProvider() {
       duration: 1.1,
       easing: (t) => 1 - Math.pow(1 - t, 3),
       smoothWheel: true,
+      // Calcola il fondo pagina in tempo reale. Di default Lenis lo misura
+      // osservando <html>, che qui è alto quanto la finestra (h-full): il
+      // valore restava quello della prima pagina aperta e, cambiando pagina
+      // o caricando immagini, lo scroll si bloccava a metà fino al reload.
+      naiveDimensions: true,
     });
     lenisRef.current = lenis;
 
@@ -51,12 +56,33 @@ export function SmoothScrollProvider() {
   // pagina precedente, invece di tornare in cima. "immediate" evita che il
   // reset stesso venga visto come uno scroll animato. Quando Lenis non è
   // attivo (Safari, o prefers-reduced-motion) si usa lo scroll nativo.
+  //
+  // Se l'indirizzo ha un'ancora (es. "Contatti" → /#contatti da un'altra
+  // pagina) si va alla sezione invece che in cima. La sezione compare solo
+  // dopo la transizione tra pagine, quindi la si attende per qualche istante.
   useEffect(() => {
-    if (lenisRef.current) {
-      lenisRef.current.scrollTo(0, { immediate: true });
-    } else {
-      window.scrollTo(0, 0);
-    }
+    const scrollTo = (target: number | HTMLElement) => {
+      if (lenisRef.current) {
+        lenisRef.current.scrollTo(target, { immediate: true });
+      } else if (typeof target === "number") {
+        window.scrollTo(0, target);
+      } else {
+        target.scrollIntoView();
+      }
+    };
+
+    scrollTo(0);
+
+    const id = decodeURIComponent(window.location.hash.slice(1));
+    if (!id) return;
+
+    let attempts = 0;
+    const timer = window.setInterval(() => {
+      const section = document.getElementById(id);
+      if (section || ++attempts > 20) window.clearInterval(timer);
+      if (section) scrollTo(section);
+    }, 100);
+    return () => window.clearInterval(timer);
   }, [pathname]);
 
   return null;
