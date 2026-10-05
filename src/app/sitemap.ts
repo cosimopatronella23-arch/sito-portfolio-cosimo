@@ -4,7 +4,10 @@ import { getPublishedPosts } from "@/lib/data/blog";
 import { getPublishedServices } from "@/lib/data/services";
 import { SITE_URL } from "@/lib/seo";
 
-export const revalidate = 3600;
+// Generata a ogni richiesta: con la cache oraria su Vercel la sitemap non
+// si rigenerava più (né a tempo né con revalidatePath), e i contenuti nuovi
+// restavano fuori. Google la legge di rado, quindi il costo è trascurabile.
+export const dynamic = "force-dynamic";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const [projects, blogPosts, services] = await Promise.all([
