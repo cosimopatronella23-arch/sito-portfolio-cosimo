@@ -221,6 +221,7 @@ try {
 
   const indicizzate = [];
   const nonIndicizzate = [];
+  const nonVerificate = [];
   for (const url of urls) {
     try {
       const r = await sc.urlInspection.index.inspect({
@@ -231,10 +232,18 @@ try {
       if (i.verdict === "PASS") indicizzate.push(path);
       else nonIndicizzate.push(`${path} (${i.coverageState})`);
       if (i.verdict === "FAIL") add(problemi, `Google segnala un errore su ${path}: ${i.coverageState}`);
-    } catch { /* quota o errore temporaneo: si riprova domani */ }
+    } catch {
+      // Quota o errore temporaneo di Google: la pagina non è stata
+      // controllata oggi, il che NON significa che sia stata tolta.
+      nonVerificate.push(url.replace(BASE, "") || "/");
+    }
   }
   metriche.indicizzate = indicizzate;
   metriche.non_indicizzate = nonIndicizzate;
+  if (nonVerificate.length) {
+    metriche.non_verificate_oggi = nonVerificate;
+    add(avvisi, `Google non ha risposto per ${nonVerificate.length} pagine: verranno ricontrollate domani`);
+  }
 
   // Ricerca: ultimi 7 giorni disponibili (i dati arrivano con 2-3 giorni di ritardo)
   for (const [label, prop] of [["dominio", site], ["vecchio_vercel", "https://cosimopatronella.vercel.app/"]]) {
@@ -306,7 +315,15 @@ const novita = [];
 if (previous) {
   const prevIdx = new Set(previous.metriche?.indicizzate ?? []);
   const nuove = (metriche.indicizzate ?? []).filter((p) => !prevIdx.has(p));
-  const perse = [...prevIdx].filter((p) => !(metriche.indicizzate ?? []).includes(p));
+  // "Persa" solo se oggi Google ha risposto e la pagina risulta non
+  // indicizzata; le pagine non verificate oggi restano nell'elenco.
+  const nonVerificateOggi = new Set(metriche.non_verificate_oggi ?? []);
+  const perse = [...prevIdx].filter(
+    (p) => !(metriche.indicizzate ?? []).includes(p) && !nonVerificateOggi.has(p),
+  );
+  for (const p of prevIdx) {
+    if (nonVerificateOggi.has(p)) metriche.indicizzate?.push(p);
+  }
   if (nuove.length) novita.push(`Nuove pagine indicizzate: ${nuove.join(", ")}`);
   if (perse.length) add(problemi, `Pagine non più indicizzate: ${perse.join(", ")}`);
   const prevProblemi = new Set(previous.problemi ?? []);
