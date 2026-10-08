@@ -21,7 +21,11 @@ function parseProjectForm(formData: FormData) {
   } catch {
     gallery = [];
   }
-  gallery = gallery.filter((item) => item.url);
+  gallery = gallery
+    .filter((item) => item.url)
+    .map(({ url, layout, alt }) =>
+      alt?.trim() ? { url, layout, alt: alt.trim() } : { url, layout },
+    );
 
   return {
     slug: String(formData.get("slug") || "").trim(),

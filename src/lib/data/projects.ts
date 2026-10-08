@@ -22,7 +22,8 @@ function normalizeGallery(raw: unknown): GalleryItem[] {
         if (!url) return null;
         const layout =
           (item as { layout?: unknown }).layout === "half" ? "half" : "full";
-        return { url, layout };
+        const alt = String((item as { alt?: unknown }).alt ?? "").trim();
+        return alt ? { url, layout, alt } : { url, layout };
       }
       return null;
     })

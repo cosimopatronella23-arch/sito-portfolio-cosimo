@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { ImageUploader } from "./ImageUploader";
+import { isVideoUrl } from "@/lib/isVideoUrl";
 import type { GalleryItem } from "@/lib/types";
 
 // Chiave stabile solo per React, mai salvata: ImageUploader inizializza il
@@ -111,6 +112,22 @@ export function ProjectGalleryEditor({
               onChange={(url) => update(item.key, { url })}
               accept="image/*,video/mp4,video/webm"
             />
+            {item.url && !isVideoUrl(item.url) ? (
+              <label className="flex flex-col gap-1 text-sm">
+                <span className="text-foreground-muted">
+                  Descrizione dell&apos;immagine (per Google e per chi usa
+                  lettori di schermo, es. &quot;Schermata del timer di
+                  recupero&quot;)
+                </span>
+                <input
+                  type="text"
+                  value={item.alt ?? ""}
+                  onChange={(e) => update(item.key, { alt: e.target.value })}
+                  placeholder="Vuoto = usa il titolo del progetto"
+                  className="w-full border-0 border-b border-border-strong bg-transparent py-1 text-sm text-foreground placeholder:text-foreground-muted focus-visible:border-accent focus-visible:outline-none"
+                />
+              </label>
+            ) : null}
             <div className="flex items-center gap-4 text-sm">
               <span className="text-foreground-muted">Layout:</span>
               {(["full", "half"] as const).map((layout) => (
@@ -145,7 +162,11 @@ export function ProjectGalleryEditor({
       <input
         type="hidden"
         name={name}
-        value={JSON.stringify(items.map(({ url, layout }) => ({ url, layout })))}
+        value={JSON.stringify(
+          items.map(({ url, layout, alt }) =>
+            alt?.trim() ? { url, layout, alt: alt.trim() } : { url, layout },
+          ),
+        )}
       />
     </div>
   );

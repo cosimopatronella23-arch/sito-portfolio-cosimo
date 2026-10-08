@@ -16,6 +16,9 @@ export interface GalleryItem {
   url: string;
   // "full" = a tutta larghezza, "half" = affiancata a un'altra "half".
   layout: "full" | "half";
+  // Testo alternativo (descrizione per Google e lettori di schermo). Se
+  // manca si usa il titolo del progetto. Ignorato per i video.
+  alt?: string;
 }
 
 export interface Project {

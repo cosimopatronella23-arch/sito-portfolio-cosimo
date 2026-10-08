@@ -174,13 +174,13 @@ export function ProjectMediaGallery({
               {row.length === 2 ? (
                 <CroppedGalleryMedia
                   src={item.url}
-                  alt={alt}
+                  alt={item.alt || alt}
                   priority={rowIndex === 0}
                 />
               ) : (
                 <FullGalleryMedia
                   src={item.url}
-                  alt={alt}
+                  alt={item.alt || alt}
                   priority={rowIndex === 0}
                 />
               )}
