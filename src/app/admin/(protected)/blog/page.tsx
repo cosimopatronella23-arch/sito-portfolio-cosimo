@@ -38,6 +38,12 @@ export default async function AdminBlogPage() {
           id: p.id,
           title: p.title,
           status: p.status,
+          badges:
+            p.status === "published" &&
+            p.published_at &&
+            new Date(p.published_at) > new Date()
+              ? ["Programmato"]
+              : [],
           thumbnail: p.cover_image,
           subtitle: [
             p.category,

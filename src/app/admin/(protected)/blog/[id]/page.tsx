@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { getRevisionsAdmin } from "@/lib/data/history";
 import { getPostByIdAdmin } from "@/lib/data/blog";
 import { PostForm } from "@/components/admin/PostForm";
 
@@ -10,6 +11,7 @@ export default async function EditPostPage(
   const { salvato } = await props.searchParams;
   const post = await getPostByIdAdmin(id);
   if (!post) notFound();
+  const revisions = await getRevisionsAdmin("blog_posts", post.id);
 
   return (
     <div className="flex flex-col gap-6">
@@ -22,7 +24,8 @@ export default async function EditPostPage(
       <h1 className="font-display text-3xl font-semibold tracking-tight text-balance">
         {post.title}
       </h1>
-      <PostForm post={post} created={salvato === "1"} />
+      <PostForm post={post} created={salvato === "1"}
+        revisions={revisions} />
     </div>
   );
 }

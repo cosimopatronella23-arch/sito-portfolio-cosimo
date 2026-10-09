@@ -10,6 +10,8 @@ import { SettingsSection } from "./SettingsSection";
 import { EditorForm } from "./EditorForm";
 import { SeoChecklist } from "./SeoChecklist";
 import { AdminIcon } from "./AdminIcons";
+import { RevisionsPanel } from "./RevisionsPanel";
+import type { RevisionItem } from "@/lib/data/history";
 import { SITE_URL } from "@/lib/seo";
 import type { Project } from "@/lib/types";
 
@@ -19,9 +21,12 @@ const fieldClasses =
 export function ProjectForm({
   project,
   created = false,
+  revisions,
 }: {
   project?: Project;
   created?: boolean;
+  /** Solo in modifica: versioni precedenti salvate. */
+  revisions?: RevisionItem[];
 }) {
   const action = project ? updateProject.bind(null, project.id) : createProject;
   const [slug, setSlug] = useState(project?.slug ?? "");
@@ -96,6 +101,7 @@ export function ProjectForm({
               ) : null}
             </div>
           ) : null}
+          {revisions ? <RevisionsPanel revisions={revisions} /> : null}
           <SeoChecklist
             titleFields={["seo_title", "title"]}
             descriptionFields={["seo_description", "short_description"]}

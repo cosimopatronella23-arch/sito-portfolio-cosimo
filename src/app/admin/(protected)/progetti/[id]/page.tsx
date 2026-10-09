@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { getRevisionsAdmin } from "@/lib/data/history";
 import { getProjectByIdAdmin } from "@/lib/data/projects";
 import { ProjectForm } from "@/components/admin/ProjectForm";
 
@@ -10,6 +11,7 @@ export default async function EditProjectPage(
   const { salvato } = await props.searchParams;
   const project = await getProjectByIdAdmin(id);
   if (!project) notFound();
+  const revisions = await getRevisionsAdmin("projects", project.id);
 
   return (
     <div className="flex flex-col gap-6">
@@ -22,7 +24,8 @@ export default async function EditProjectPage(
       <h1 className="font-display text-3xl font-semibold tracking-tight text-balance">
         {project.title}
       </h1>
-      <ProjectForm project={project} created={salvato === "1"} />
+      <ProjectForm project={project} created={salvato === "1"}
+        revisions={revisions} />
     </div>
   );
 }

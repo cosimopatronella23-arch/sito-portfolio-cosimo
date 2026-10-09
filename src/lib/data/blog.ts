@@ -10,6 +10,9 @@ export async function getPublishedPosts(): Promise<BlogPost[]> {
       .from("blog_posts")
       .select("*")
       .eq("status", "published")
+      // Articoli programmati: con data futura restano nascosti fino a quel
+      // giorno, poi escono da soli.
+      .lte("published_at", new Date().toISOString())
       .order("published_at", { ascending: false });
 
     if (error) throw error;
@@ -32,6 +35,7 @@ export async function getPostBySlug(slug: string): Promise<BlogPost | null> {
       .select("*")
       .eq("slug", slug)
       .eq("status", "published")
+      .lte("published_at", new Date().toISOString())
       .maybeSingle();
 
     if (error) throw error;

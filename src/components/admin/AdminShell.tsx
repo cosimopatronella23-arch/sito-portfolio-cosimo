@@ -25,6 +25,7 @@ const GROUPS: { title: string; items: NavItem[] }[] = [
     items: [
       { label: "Analytics", href: "/admin/analytics", icon: "analytics" },
       { label: "Impostazioni", href: "/admin/impostazioni", icon: "settings" },
+      { label: "Cestino", href: "/admin/cestino", icon: "trash" },
     ],
   },
 ];

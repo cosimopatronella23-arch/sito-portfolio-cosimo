@@ -10,6 +10,8 @@ import { SettingsSection } from "./SettingsSection";
 import { EditorForm } from "./EditorForm";
 import { SeoChecklist } from "./SeoChecklist";
 import { AdminIcon } from "./AdminIcons";
+import { RevisionsPanel } from "./RevisionsPanel";
+import type { RevisionItem } from "@/lib/data/history";
 import { SITE_URL } from "@/lib/seo";
 import type { ServicePage } from "@/lib/types";
 
@@ -20,10 +22,13 @@ export function ServiceForm({
   service,
   projects,
   created = false,
+  revisions,
 }: {
   service?: ServicePage;
   projects: { slug: string; title: string }[];
   created?: boolean;
+  /** Solo in modifica: versioni precedenti salvate. */
+  revisions?: RevisionItem[];
 }) {
   const action = service ? updateService.bind(null, service.id) : createService;
   const [slug, setSlug] = useState(service?.slug ?? "");
@@ -91,6 +96,7 @@ export function ServiceForm({
               ) : null}
             </div>
           ) : null}
+          {revisions ? <RevisionsPanel revisions={revisions} /> : null}
           <SeoChecklist
             titleFields={["seo_title", "title"]}
             descriptionFields={["seo_description", "excerpt"]}

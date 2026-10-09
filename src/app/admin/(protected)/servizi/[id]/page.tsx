@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { getRevisionsAdmin } from "@/lib/data/history";
 import { getServiceByIdAdmin } from "@/lib/data/services";
 import { getPublishedProjects } from "@/lib/data/projects";
 import { ServiceForm } from "@/components/admin/ServiceForm";
@@ -14,6 +15,7 @@ export default async function EditServicePage(
     getPublishedProjects(),
   ]);
   if (!service) notFound();
+  const revisions = await getRevisionsAdmin("service_pages", service.id);
 
   return (
     <div className="flex flex-col gap-6">
@@ -29,6 +31,7 @@ export default async function EditServicePage(
       <ServiceForm
         service={service}
         created={salvato === "1"}
+        revisions={revisions}
         projects={projects.map((p) => ({ slug: p.slug, title: p.title }))}
       />
     </div>

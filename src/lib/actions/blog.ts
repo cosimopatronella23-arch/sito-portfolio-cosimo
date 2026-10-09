@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/server";
+import { moveToTrash, purgeOldTrash, snapshotRevision } from "@/lib/history";
 import type { ContentStatus } from "@/lib/types";
 
 type FormState = { error: string | null; success?: boolean };
@@ -95,6 +96,8 @@ export async function updatePost(
   }
 
   const supabase = await createAdminClient();
+  // Copia della versione attuale nella cronologia, prima di sovrascriverla.
+  await snapshotRevision(supabase, "blog_posts", id);
   let { error } = await supabase
     .from("blog_posts")
     .update(payload)
@@ -155,7 +158,9 @@ export async function deletePost(formData: FormData) {
   if (!id) return;
 
   const supabase = await createAdminClient();
-  await supabase.from("blog_posts").delete().eq("id", id);
+  // Nel cestino per 30 giorni invece di sparire subito.
+  await moveToTrash(supabase, "blog_posts", id);
+  await purgeOldTrash(supabase);
 
   revalidatePath("/");
   revalidatePath("/blog");

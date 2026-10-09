@@ -1,13 +1,17 @@
 "use client";
 
-export function DeleteButton({ label = "Elimina" }: { label?: string }) {
+export function DeleteButton({
+  label = "Elimina",
+  confirmText = "Spostare nel cestino? Potrai recuperarlo dal Cestino per 30 giorni.",
+}: {
+  label?: string;
+  confirmText?: string;
+}) {
   return (
     <button
       type="submit"
       onClick={(e) => {
-        if (
-          !window.confirm("Eliminare definitivamente? Non si può annullare.")
-        ) {
+        if (!window.confirm(confirmText)) {
           e.preventDefault();
         }
       }}

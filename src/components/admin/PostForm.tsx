@@ -9,6 +9,8 @@ import { SettingsSection } from "./SettingsSection";
 import { EditorForm } from "./EditorForm";
 import { SeoChecklist } from "./SeoChecklist";
 import { AdminIcon } from "./AdminIcons";
+import { RevisionsPanel } from "./RevisionsPanel";
+import type { RevisionItem } from "@/lib/data/history";
 import { SITE_URL } from "@/lib/seo";
 import type { BlogPost } from "@/lib/types";
 
@@ -23,9 +25,12 @@ function toDateInputValue(iso?: string) {
 export function PostForm({
   post,
   created = false,
+  revisions,
 }: {
   post?: BlogPost;
   created?: boolean;
+  /** Solo in modifica: versioni precedenti salvate. */
+  revisions?: RevisionItem[];
 }) {
   const action = post ? updatePost.bind(null, post.id) : createPost;
   const [slug, setSlug] = useState(post?.slug ?? "");
@@ -54,6 +59,10 @@ export function PostForm({
           </label>
           <label className="flex flex-col gap-2 text-sm">
             Data pubblicazione
+            <span className="text-xs text-foreground-muted">
+              Con una data futura e stato &quot;Pubblicato&quot;, l&apos;articolo
+              esce da solo quel giorno.
+            </span>
             <input
               name="published_at"
               type="date"
@@ -101,6 +110,7 @@ export function PostForm({
               ) : null}
             </div>
           ) : null}
+          {revisions ? <RevisionsPanel revisions={revisions} /> : null}
           <SeoChecklist
             titleFields={["seo_title", "title"]}
             descriptionFields={["seo_description", "excerpt"]}
