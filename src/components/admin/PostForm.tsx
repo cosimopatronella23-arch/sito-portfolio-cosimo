@@ -1,11 +1,14 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useState } from "react";
 import { createPost, updatePost } from "@/lib/actions/blog";
 import { ImageUploader } from "./ImageUploader";
 import { RichTextEditor } from "./RichTextEditor";
 import { SerpPreview } from "./SerpPreview";
 import { SettingsSection } from "./SettingsSection";
+import { EditorForm } from "./EditorForm";
+import { SeoChecklist } from "./SeoChecklist";
+import { AdminIcon } from "./AdminIcons";
 import { SITE_URL } from "@/lib/seo";
 import type { BlogPost } from "@/lib/types";
 
@@ -17,11 +20,14 @@ function toDateInputValue(iso?: string) {
   return new Date(iso).toISOString().slice(0, 10);
 }
 
-export function PostForm({ post }: { post?: BlogPost }) {
+export function PostForm({
+  post,
+  created = false,
+}: {
+  post?: BlogPost;
+  created?: boolean;
+}) {
   const action = post ? updatePost.bind(null, post.id) : createPost;
-  const [state, formAction, pending] = useActionState(action, {
-    error: null,
-  });
   const [slug, setSlug] = useState(post?.slug ?? "");
   const [seoTitle, setSeoTitle] = useState(post?.seo_title ?? "");
   const [seoDescription, setSeoDescription] = useState(
@@ -29,7 +35,81 @@ export function PostForm({ post }: { post?: BlogPost }) {
   );
 
   return (
-    <form action={formAction} className="flex flex-col gap-6">
+    <EditorForm
+      action={action}
+      submitLabel={post ? "Salva articolo" : "Crea articolo"}
+      created={created}
+      sidebar={
+        <>
+          <label className="flex flex-col gap-2 text-sm">
+            Stato
+            <select
+              name="status"
+              defaultValue={post?.status ?? "draft"}
+              className="min-h-11 border border-border-strong bg-background px-3"
+            >
+              <option value="draft">Bozza (non visibile)</option>
+              <option value="published">Pubblicato</option>
+            </select>
+          </label>
+          <label className="flex flex-col gap-2 text-sm">
+            Data pubblicazione
+            <input
+              name="published_at"
+              type="date"
+              defaultValue={toDateInputValue(post?.published_at)}
+              className={fieldClasses}
+            />
+          </label>
+          <label className="flex flex-col gap-2 text-sm">
+            Ordine
+            <span className="text-xs text-foreground-muted">
+              I numeri più bassi vengono mostrati prima.
+            </span>
+            <input
+              name="sort_order"
+              type="number"
+              defaultValue={post?.sort_order ?? 0}
+              className={fieldClasses}
+            />
+          </label>
+        </>
+      }
+      sidebarFooter={
+        <>
+          {post ? (
+            <div className="flex flex-col gap-2 text-sm">
+              <a
+                href={`/admin/anteprima/blog/${post.id}`}
+                target="_blank"
+                rel="noopener"
+                className="flex items-center gap-2 text-foreground-muted hover:text-foreground"
+              >
+                <AdminIcon name="eye" className="h-4 w-4" />
+                Anteprima (ultima versione salvata)
+              </a>
+              {post.status === "published" ? (
+                <a
+                  href={`/blog/${post.slug}`}
+                  target="_blank"
+                  rel="noopener"
+                  className="flex items-center gap-2 text-foreground-muted hover:text-foreground"
+                >
+                  <AdminIcon name="external" className="h-4 w-4" />
+                  Vedi online
+                </a>
+              ) : null}
+            </div>
+          ) : null}
+          <SeoChecklist
+            titleFields={["seo_title", "title"]}
+            descriptionFields={["seo_description", "excerpt"]}
+            imageFields={["seo_og_image", "cover_image"]}
+            contentField="content"
+          />
+        </>
+      }
+    >
       <SettingsSection id="sez-dati-base" title="Dati base" defaultOpen>
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
           <label className="flex flex-col gap-2">
@@ -61,26 +141,6 @@ export function PostForm({ post }: { post?: BlogPost }) {
               className={fieldClasses}
             />
           </label>
-          <label className="flex flex-col gap-2">
-            <span className="text-sm font-medium">Data pubblicazione</span>
-            <input
-              name="published_at"
-              type="date"
-              defaultValue={toDateInputValue(post?.published_at)}
-              className={fieldClasses}
-            />
-          </label>
-          <label className="flex flex-col gap-2">
-            <span className="text-sm font-medium">
-              Ordine (i numeri più bassi vengono mostrati prima)
-            </span>
-            <input
-              name="sort_order"
-              type="number"
-              defaultValue={post?.sort_order ?? 0}
-              className={fieldClasses}
-            />
-          </label>
         </div>
 
         <label className="flex flex-col gap-2">
@@ -93,18 +153,6 @@ export function PostForm({ post }: { post?: BlogPost }) {
             rows={2}
             className={fieldClasses}
           />
-        </label>
-
-        <label className="flex flex-col gap-2 text-sm">
-          Stato
-          <select
-            name="status"
-            defaultValue={post?.status ?? "draft"}
-            className="w-max border border-border-strong bg-transparent px-3 py-2"
-          >
-            <option value="draft">Bozza</option>
-            <option value="published">Pubblicato</option>
-          </select>
         </label>
       </SettingsSection>
 
@@ -164,18 +212,6 @@ export function PostForm({ post }: { post?: BlogPost }) {
           description={seoDescription || post?.excerpt || ""}
         />
       </SettingsSection>
-
-      {state.error ? <p className="text-sm text-error">{state.error}</p> : null}
-
-      <div className="sticky bottom-0 flex flex-wrap items-center gap-4 border-t border-border-strong bg-background py-4">
-        <button
-          type="submit"
-          disabled={pending}
-          className="w-max bg-foreground px-6 py-3 text-sm font-medium text-background transition-colors hover:bg-accent disabled:opacity-50"
-        >
-          {pending ? "Salvo..." : "Salva articolo"}
-        </button>
-      </div>
-    </form>
+    </EditorForm>
   );
 }

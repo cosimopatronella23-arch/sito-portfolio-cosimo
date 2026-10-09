@@ -1,74 +1,55 @@
 import Link from "next/link";
 import { getAllPostsAdmin } from "@/lib/data/blog";
 import { deletePost, duplicatePost } from "@/lib/actions/blog";
-import { DeleteButton } from "@/components/admin/DeleteButton";
+import { ContentList } from "@/components/admin/ContentList";
+import { AdminIcon } from "@/components/admin/AdminIcons";
+
+const dateFormat = new Intl.DateTimeFormat("it-IT", {
+  day: "numeric",
+  month: "short",
+  year: "numeric",
+});
 
 export default async function AdminBlogPage() {
-  const posts = await getAllPostsAdmin();
+  const posts = (await getAllPostsAdmin()).sort((a, b) =>
+    (b.published_at ?? "").localeCompare(a.published_at ?? ""),
+  );
 
   return (
     <div className="flex flex-col gap-8">
-      <div className="flex items-center justify-between gap-4">
+      <div className="flex flex-wrap items-end justify-between gap-4">
         <h1 className="font-display text-3xl font-semibold tracking-tight">
           Blog
         </h1>
         <Link
           href="/admin/blog/nuovo"
-          className="bg-foreground px-5 py-2.5 text-sm font-medium text-background transition-colors hover:bg-accent"
+          className="inline-flex min-h-11 items-center gap-2 bg-foreground px-4 text-sm font-medium text-background transition-colors hover:bg-accent"
         >
-          + Nuovo articolo
+          <AdminIcon name="plus" className="h-4 w-4" />
+          Nuovo articolo
         </Link>
       </div>
 
-      <div className="flex flex-col">
-        {posts.length === 0 ? (
-          <p className="py-10 text-foreground-muted">
-            Nessun articolo ancora. Scrivine uno.
-          </p>
-        ) : null}
-        {posts.map((post) => (
-          <div
-            key={post.id}
-            className="flex flex-wrap items-center justify-between gap-4 border-b border-border py-5 first:border-t"
-          >
-            <div className="flex items-center gap-4">
-              <span
-                className={
-                  post.status === "published"
-                    ? "text-xs text-success"
-                    : "text-xs text-warning"
-                }
-              >
-                {post.status === "published" ? "Pubblicato" : "Bozza"}
-              </span>
-              <span className="font-display text-lg font-semibold">
-                {post.title}
-              </span>
-            </div>
-            <div className="flex items-center gap-5">
-              <Link
-                href={`/admin/blog/${post.id}`}
-                className="text-sm text-foreground-muted hover:text-foreground"
-              >
-                Modifica
-              </Link>
-              <form action={duplicatePost}>
-                <input type="hidden" name="id" value={post.id} />
-                <button
-                  type="submit"
-                  className="text-sm text-foreground-muted hover:text-foreground"
-                >
-                  Duplica
-                </button>
-              </form>
-              <form action={deletePost}>
-                <input type="hidden" name="id" value={post.id} />
-                <DeleteButton />
-              </form>
-            </div>
-          </div>
-        ))}
-      </div>
+      <ContentList
+        duplicateAction={duplicatePost}
+        deleteAction={deletePost}
+        emptyText="Nessun articolo ancora. Scrivine uno."
+        items={posts.map((p) => ({
+          id: p.id,
+          title: p.title,
+          status: p.status,
+          thumbnail: p.cover_image,
+          subtitle: [
+            p.category,
+            p.published_at ? dateFormat.format(new Date(p.published_at)) : "",
+          ]
+            .filter(Boolean)
+            .join(" · "),
+          editHref: `/admin/blog/${p.id}`,
+          previewHref: `/admin/anteprima/blog/${p.id}`,
+          publicHref: `/blog/${p.slug}`,
+        }))}
+      />
     </div>
   );
 }

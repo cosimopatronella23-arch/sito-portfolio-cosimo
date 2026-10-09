@@ -1,11 +1,13 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { startTransition, useActionState, useRef, useState } from "react";
 import { updateSiteSettings } from "@/lib/actions/settings";
 import { ServicesEditor } from "./ServicesEditor";
 import { NavLinksEditor } from "./NavLinksEditor";
 import { HomepageBlocksEditor } from "./HomepageBlocksEditor";
 import { SettingsSection } from "./SettingsSection";
+import { SettingsTabPanel, useSettingsTab } from "./SettingsTabs";
+import { useUnsavedChanges } from "./useUnsavedChanges";
 import { contrastRatio } from "@/lib/contrast";
 import type { SiteSettings } from "@/lib/types";
 
@@ -19,6 +21,32 @@ export function SiteSettingsForm({ settings }: { settings: SiteSettings }) {
   const [state, formAction, pending] = useActionState(updateSiteSettings, {
     error: null,
   });
+  const formRef = useRef<HTMLFormElement>(null);
+  const [dirty, setDirty] = useUnsavedChanges(formRef);
+  const [lastState, setLastState] = useState(state);
+  if (state !== lastState) {
+    setLastState(state);
+    if (state.success) setDirty(false);
+  }
+  const tabs = useSettingsTab();
+
+  // Invio senza <form action>: React altrimenti riporterebbe i campi ai
+  // valori iniziali dopo il salvataggio.
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    startTransition(() => formAction(formData));
+  }
+
+  // Un campo non valido in una scheda nascosta bloccherebbe il salvataggio
+  // senza mostrare dove: si apre la sua scheda.
+  function handleInvalid(e: React.FormEvent<HTMLFormElement>) {
+    const panel = (e.target as HTMLElement).closest<HTMLElement>(
+      "[data-settings-tab]",
+    );
+    const tab = panel?.dataset.settingsTab;
+    if (tab && tabs && tabs.active !== tab) tabs.setActive(tab);
+  }
   const [accentColor, setAccentColor] = useState(settings.accent_color);
   const [backgroundColor, setBackgroundColor] = useState(
     settings.home_content.background_color || DEFAULT_BACKGROUND,
@@ -39,429 +67,429 @@ export function SiteSettingsForm({ settings }: { settings: SiteSettings }) {
     contact: "Contatti",
   };
 
-  const SECTIONS = [
-    { id: "sez-generale", label: "Generale" },
-    { id: "sez-colori", label: "Colori del sito" },
-    { id: "sez-homepage-testi", label: "Homepage — testi" },
-    { id: "sez-homepage-visibili", label: "Sezioni visibili" },
-    { id: "sez-colori-sezione", label: "Colori per sezione" },
-    { id: "sez-blocchi", label: "Blocchi extra" },
-    { id: "sez-menu", label: "Menu" },
-    { id: "sez-footer", label: "Footer" },
-    { id: "sez-integrazioni", label: "Integrazioni" },
-  ];
-
   return (
-    <form action={formAction} className="flex flex-col gap-4">
-      <nav className="flex flex-wrap gap-x-4 gap-y-2 border border-border-strong p-4 text-sm">
-        <span className="w-full text-xs text-foreground-muted sm:w-auto">
-          Vai a:
-        </span>
-        {SECTIONS.map((s) => (
-          <a
-            key={s.id}
-            href={`#${s.id}`}
-            className="text-foreground-muted underline decoration-border-strong underline-offset-4 hover:text-accent"
-          >
-            {s.label}
-          </a>
-        ))}
-      </nav>
-
-      <SettingsSection id="sez-generale" title="Generale" defaultOpen>
-        <label className="flex flex-col gap-2">
-          <span className="text-sm font-medium">Titolo del sito</span>
-          <input
-            name="site_title"
-            defaultValue={settings.site_title}
-            className={fieldClasses}
-          />
-        </label>
-
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+    <form
+      ref={formRef}
+      onSubmit={handleSubmit}
+      onInvalidCapture={handleInvalid}
+      className="flex flex-col gap-4"
+    >
+      <SettingsTabPanel tab="generale">
+        <SettingsSection id="sez-generale" title="Generale" defaultOpen>
           <label className="flex flex-col gap-2">
-            <span className="text-sm font-medium">Email di contatto</span>
+            <span className="text-sm font-medium">Titolo del sito</span>
             <input
-              name="contact_email"
-              type="email"
-              defaultValue={settings.contact_email}
+              name="site_title"
+              defaultValue={settings.site_title}
+              className={fieldClasses}
+            />
+          </label>
+
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <label className="flex flex-col gap-2">
+              <span className="text-sm font-medium">Email di contatto</span>
+              <input
+                name="contact_email"
+                type="email"
+                defaultValue={settings.contact_email}
+                className={fieldClasses}
+              />
+            </label>
+
+            <label className="flex flex-col gap-2">
+              <span className="text-sm font-medium">
+                Telefono (vuoto = non mostrarlo)
+              </span>
+              <input
+                name="contact_phone"
+                type="tel"
+                placeholder="392 082 4301"
+                defaultValue={settings.contact_phone}
+                className={fieldClasses}
+              />
+            </label>
+          </div>
+
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+            {(["instagram", "linkedin", "dribbble"] as const).map((key) => (
+              <label key={key} className="flex flex-col gap-2">
+                <span className="text-sm font-medium capitalize">{key}</span>
+                <input
+                  name={`social_${key}`}
+                  defaultValue={settings.social_links[key] ?? ""}
+                  className={fieldClasses}
+                />
+              </label>
+            ))}
+          </div>
+        </SettingsSection>
+
+        <SettingsSection
+          id="sez-colori"
+          title="Colori del sito"
+          description="Attenzione a sfondo e testo: un contrasto troppo basso rende il sito difficile da leggere. Il colore accento (bottoni, link) è più sicuro da cambiare da solo."
+          defaultOpen
+        >
+          <label className="flex flex-col gap-2">
+            <span className="text-sm font-medium">Colore accento</span>
+            <div className="flex items-center gap-4">
+              <input
+                type="color"
+                value={accentColor}
+                onChange={(e) => setAccentColor(e.target.value)}
+                className="h-11 w-11 shrink-0 cursor-pointer border border-border-strong bg-transparent"
+                aria-label="Colore accento"
+              />
+              <input
+                name="accent_color"
+                value={accentColor}
+                onChange={(e) => setAccentColor(e.target.value)}
+                pattern="#[0-9a-fA-F]{6}"
+                title="Formato esadecimale, es. #a78bfa"
+                className={fieldClasses}
+              />
+            </div>
+          </label>
+
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <label className="flex flex-col gap-2">
+              <span className="text-sm font-medium">Colore sfondo</span>
+              <div className="flex items-center gap-4">
+                <input
+                  type="color"
+                  value={backgroundColor}
+                  onChange={(e) => setBackgroundColor(e.target.value)}
+                  className="h-11 w-11 shrink-0 cursor-pointer border border-border-strong bg-transparent"
+                  aria-label="Colore sfondo"
+                />
+                <input
+                  name="background_color"
+                  value={backgroundColor}
+                  onChange={(e) => setBackgroundColor(e.target.value)}
+                  pattern="#[0-9a-fA-F]{6}"
+                  className={fieldClasses}
+                />
+              </div>
+            </label>
+
+            <label className="flex flex-col gap-2">
+              <span className="text-sm font-medium">Colore testo</span>
+              <div className="flex items-center gap-4">
+                <input
+                  type="color"
+                  value={foregroundColor}
+                  onChange={(e) => setForegroundColor(e.target.value)}
+                  className="h-11 w-11 shrink-0 cursor-pointer border border-border-strong bg-transparent"
+                  aria-label="Colore testo"
+                />
+                <input
+                  name="foreground_color"
+                  value={foregroundColor}
+                  onChange={(e) => setForegroundColor(e.target.value)}
+                  pattern="#[0-9a-fA-F]{6}"
+                  className={fieldClasses}
+                />
+              </div>
+            </label>
+          </div>
+
+          <div
+            className="flex flex-col gap-2 border border-border-strong p-6"
+            style={{ backgroundColor, color: foregroundColor }}
+          >
+            <span className="text-xs opacity-70">Anteprima sfondo/testo</span>
+            <span className="font-display text-xl font-semibold">
+              Siti fatti bene, non sfornati in serie.
+            </span>
+            <span style={{ color: accentColor }} className="text-sm">
+              Un dettaglio con il colore accento.
+            </span>
+          </div>
+
+          {ratio !== null ? (
+            ratio < 4.5 ? (
+              <p className="text-sm text-warning">
+                Contrasto {ratio.toFixed(1)}:1 — sotto la soglia consigliata
+                (4.5:1) per il testo normale. Il sito resterà leggibile ma sotto
+                lo standard di accessibilità.
+              </p>
+            ) : (
+              <p className="text-sm text-success">
+                Contrasto {ratio.toFixed(1)}:1 — buono.
+              </p>
+            )
+          ) : null}
+        </SettingsSection>
+      </SettingsTabPanel>
+
+      <SettingsTabPanel tab="homepage">
+        <SettingsSection
+          id="sez-homepage-testi"
+          title="Homepage — testi"
+          defaultOpen
+        >
+          <label className="flex flex-col gap-2">
+            <span className="text-sm text-foreground-muted">
+              Titolo principale (prima parte, non colorata — vai a capo con
+              invio dove vuoi la riga 2)
+            </span>
+            <textarea
+              name="hero_title_main"
+              defaultValue={settings.home_content.hero_title_main}
+              rows={2}
+              className={fieldClasses}
+            />
+          </label>
+
+          <label className="flex flex-col gap-2">
+            <span className="text-sm text-foreground-muted">
+              Titolo principale (parte finale, colorata con l&apos;accento)
+            </span>
+            <input
+              name="hero_title_accent"
+              defaultValue={settings.home_content.hero_title_accent}
+              className={fieldClasses}
+            />
+          </label>
+
+          <label className="flex flex-col gap-2">
+            <span className="text-sm text-foreground-muted">Sottotitolo</span>
+            <textarea
+              name="hero_subtitle"
+              defaultValue={settings.home_content.hero_subtitle}
+              rows={2}
+              className={fieldClasses}
+            />
+          </label>
+
+          <label className="flex flex-col gap-2">
+            <span className="text-sm text-foreground-muted">
+              Citazione (il testo corsivo ruotato)
+            </span>
+            <textarea
+              name="hero_quote"
+              defaultValue={settings.home_content.hero_quote}
+              rows={2}
+              className={fieldClasses}
+            />
+          </label>
+
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <label className="flex flex-col gap-2">
+              <span className="text-sm text-foreground-muted">
+                Bottone principale
+              </span>
+              <input
+                name="cta_primary"
+                defaultValue={settings.home_content.cta_primary}
+                className={fieldClasses}
+              />
+            </label>
+            <label className="flex flex-col gap-2">
+              <span className="text-sm text-foreground-muted">
+                Bottone secondario
+              </span>
+              <input
+                name="cta_secondary"
+                defaultValue={settings.home_content.cta_secondary}
+                className={fieldClasses}
+              />
+            </label>
+          </div>
+
+          <label className="flex flex-col gap-2">
+            <span className="text-sm text-foreground-muted">
+              Titolo sezione &quot;Servizi&quot;
+            </span>
+            <input
+              name="services_title"
+              defaultValue={settings.home_content.services_title}
+              className={fieldClasses}
+            />
+          </label>
+
+          <label className="flex flex-col gap-2">
+            <span className="text-sm text-foreground-muted">
+              Introduzione della pagina /servizi (sotto il titolo)
+            </span>
+            <textarea
+              name="services_intro"
+              defaultValue={settings.home_content.services_intro ?? ""}
+              rows={3}
+              className={fieldClasses}
+            />
+          </label>
+
+          <div className="flex flex-col gap-2">
+            <span className="text-sm text-foreground-muted">
+              Lista servizi (i numeri si aggiornano da soli)
+            </span>
+            <ServicesEditor
+              name="services"
+              defaultValue={settings.home_content.services}
+            />
+          </div>
+        </SettingsSection>
+
+        <SettingsSection
+          id="sez-homepage-visibili"
+          title="Homepage — sezioni visibili"
+          description="Disattiva temporaneamente una sezione senza perdere i contenuti. La prima sezione (in alto) non è disattivabile."
+          defaultOpen
+        >
+          <div className="flex flex-col gap-3">
+            {(
+              [
+                { name: "show_services", label: "Servizi" },
+                { name: "show_projects", label: "Progetti" },
+                { name: "show_blog_preview", label: "Anteprima blog" },
+                { name: "show_contact", label: "Contatti" },
+              ] as const
+            ).map(({ name, label }) => (
+              <label key={name} className="flex items-center gap-2 text-sm">
+                <input
+                  type="checkbox"
+                  name={name}
+                  defaultChecked={settings.home_content[name] ?? true}
+                />
+                {label}
+              </label>
+            ))}
+          </div>
+        </SettingsSection>
+
+        <SettingsSection
+          id="sez-colori-sezione"
+          title="Colori per sezione (homepage)"
+          description="Dai a una sezione fissa uno sfondo diverso dal resto del sito (es. per alternare colori come in un moodboard). Il testo di quella sezione si adatta da solo per restare leggibile."
+          defaultOpen
+        >
+          <div className="flex flex-col gap-4">
+            {(["hero", "services", "projects", "blog", "contact"] as const).map(
+              (key) => (
+                <div key={key} className="flex items-center gap-3 text-sm">
+                  <span className="w-40 shrink-0 text-foreground-muted">
+                    {SECTION_LABELS[key]}
+                  </span>
+                  <input
+                    type="color"
+                    value={sectionColors[key] || "#0b0a10"}
+                    onChange={(e) =>
+                      setSectionColors((prev) => ({
+                        ...prev,
+                        [key]: e.target.value,
+                      }))
+                    }
+                    className="h-8 w-8 shrink-0 cursor-pointer border border-border-strong bg-transparent"
+                    aria-label={`Colore sfondo — ${SECTION_LABELS[key]}`}
+                  />
+                  <input
+                    type="hidden"
+                    name={`section_color_${key}`}
+                    value={sectionColors[key] || ""}
+                  />
+                  {sectionColors[key] ? (
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setSectionColors((prev) => ({ ...prev, [key]: "" }))
+                      }
+                      className="text-xs text-foreground-muted hover:text-foreground"
+                    >
+                      Usa lo sfondo del sito
+                    </button>
+                  ) : (
+                    <span className="text-xs text-foreground-muted">
+                      Sfondo del sito (predefinito)
+                    </span>
+                  )}
+                </div>
+              ),
+            )}
+          </div>
+        </SettingsSection>
+
+        <SettingsSection
+          id="sez-blocchi"
+          title="Blocchi extra homepage"
+          description="Sezioni aggiuntive mostrate dopo il blog, prima dei Contatti. Se non ne aggiungi, la homepage resta esattamente com'è oggi."
+          defaultOpen
+        >
+          <HomepageBlocksEditor
+            name="blocks"
+            defaultValue={settings.home_content.blocks ?? []}
+          />
+        </SettingsSection>
+      </SettingsTabPanel>
+
+      <SettingsTabPanel tab="menu">
+        <SettingsSection id="sez-menu" title="Menu di navigazione" defaultOpen>
+          <NavLinksEditor
+            name="nav_links"
+            defaultValue={settings.home_content.nav_links ?? []}
+          />
+        </SettingsSection>
+
+        <SettingsSection id="sez-footer" title="Footer" defaultOpen>
+          <label className="flex flex-col gap-2">
+            <span className="text-sm text-foreground-muted">
+              Testo sotto il nome, in fondo al sito (vuoto = usa il testo
+              attuale)
+            </span>
+            <textarea
+              name="footer_tagline"
+              defaultValue={settings.home_content.footer_tagline ?? ""}
+              rows={2}
+              className={fieldClasses}
+            />
+          </label>
+        </SettingsSection>
+      </SettingsTabPanel>
+
+      <SettingsTabPanel tab="google">
+        <SettingsSection
+          id="sez-integrazioni"
+          title="Integrazioni (Google)"
+          defaultOpen
+        >
+          <label className="flex flex-col gap-2">
+            <span className="text-sm font-medium">
+              Codice di verifica Google Search Console (opzionale)
+            </span>
+            <input
+              name="google_site_verification_code"
+              defaultValue={settings.google_site_verification_code ?? ""}
               className={fieldClasses}
             />
           </label>
 
           <label className="flex flex-col gap-2">
             <span className="text-sm font-medium">
-              Telefono (vuoto = non mostrarlo)
+              GA4 Measurement ID (es. G-XXXXXXXXXX)
             </span>
             <input
-              name="contact_phone"
-              type="tel"
-              placeholder="392 082 4301"
-              defaultValue={settings.contact_phone}
+              name="ga4_measurement_id"
+              defaultValue={settings.ga4_measurement_id ?? ""}
+              placeholder="G-XXXXXXXXXX"
+              pattern="G-[A-Z0-9]+"
+              title="Formato: G- seguito da lettere maiuscole e numeri"
               className={fieldClasses}
             />
-          </label>
-        </div>
-
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-          {(["instagram", "linkedin", "dribbble"] as const).map((key) => (
-            <label key={key} className="flex flex-col gap-2">
-              <span className="text-sm font-medium capitalize">{key}</span>
-              <input
-                name={`social_${key}`}
-                defaultValue={settings.social_links[key] ?? ""}
-                className={fieldClasses}
-              />
-            </label>
-          ))}
-        </div>
-      </SettingsSection>
-
-      <SettingsSection
-        id="sez-colori"
-        title="Colori del sito"
-        description="Attenzione a sfondo e testo: un contrasto troppo basso rende il sito difficile da leggere. Il colore accento (bottoni, link) è più sicuro da cambiare da solo."
-        defaultOpen
-      >
-        <label className="flex flex-col gap-2">
-          <span className="text-sm font-medium">Colore accento</span>
-          <div className="flex items-center gap-4">
-            <input
-              type="color"
-              value={accentColor}
-              onChange={(e) => setAccentColor(e.target.value)}
-              className="h-11 w-11 shrink-0 cursor-pointer border border-border-strong bg-transparent"
-              aria-label="Colore accento"
-            />
-            <input
-              name="accent_color"
-              value={accentColor}
-              onChange={(e) => setAccentColor(e.target.value)}
-              pattern="#[0-9a-fA-F]{6}"
-              title="Formato esadecimale, es. #a78bfa"
-              className={fieldClasses}
-            />
-          </div>
-        </label>
-
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <label className="flex flex-col gap-2">
-            <span className="text-sm font-medium">Colore sfondo</span>
-            <div className="flex items-center gap-4">
-              <input
-                type="color"
-                value={backgroundColor}
-                onChange={(e) => setBackgroundColor(e.target.value)}
-                className="h-11 w-11 shrink-0 cursor-pointer border border-border-strong bg-transparent"
-                aria-label="Colore sfondo"
-              />
-              <input
-                name="background_color"
-                value={backgroundColor}
-                onChange={(e) => setBackgroundColor(e.target.value)}
-                pattern="#[0-9a-fA-F]{6}"
-                className={fieldClasses}
-              />
-            </div>
-          </label>
-
-          <label className="flex flex-col gap-2">
-            <span className="text-sm font-medium">Colore testo</span>
-            <div className="flex items-center gap-4">
-              <input
-                type="color"
-                value={foregroundColor}
-                onChange={(e) => setForegroundColor(e.target.value)}
-                className="h-11 w-11 shrink-0 cursor-pointer border border-border-strong bg-transparent"
-                aria-label="Colore testo"
-              />
-              <input
-                name="foreground_color"
-                value={foregroundColor}
-                onChange={(e) => setForegroundColor(e.target.value)}
-                pattern="#[0-9a-fA-F]{6}"
-                className={fieldClasses}
-              />
-            </div>
-          </label>
-        </div>
-
-        <div
-          className="flex flex-col gap-2 border border-border-strong p-6"
-          style={{ backgroundColor, color: foregroundColor }}
-        >
-          <span className="text-xs opacity-70">Anteprima sfondo/testo</span>
-          <span className="font-display text-xl font-semibold">
-            Siti fatti bene, non sfornati in serie.
-          </span>
-          <span style={{ color: accentColor }} className="text-sm">
-            Un dettaglio con il colore accento.
-          </span>
-        </div>
-
-        {ratio !== null ? (
-          ratio < 4.5 ? (
-            <p className="text-sm text-warning">
-              Contrasto {ratio.toFixed(1)}:1 — sotto la soglia consigliata
-              (4.5:1) per il testo normale. Il sito resterà leggibile ma sotto
-              lo standard di accessibilità.
-            </p>
-          ) : (
-            <p className="text-sm text-success">
-              Contrasto {ratio.toFixed(1)}:1 — buono.
-            </p>
-          )
-        ) : null}
-      </SettingsSection>
-
-      <SettingsSection id="sez-homepage-testi" title="Homepage — testi">
-        <label className="flex flex-col gap-2">
-          <span className="text-sm text-foreground-muted">
-            Titolo principale (prima parte, non colorata — vai a capo con invio
-            dove vuoi la riga 2)
-          </span>
-          <textarea
-            name="hero_title_main"
-            defaultValue={settings.home_content.hero_title_main}
-            rows={2}
-            className={fieldClasses}
-          />
-        </label>
-
-        <label className="flex flex-col gap-2">
-          <span className="text-sm text-foreground-muted">
-            Titolo principale (parte finale, colorata con l&apos;accento)
-          </span>
-          <input
-            name="hero_title_accent"
-            defaultValue={settings.home_content.hero_title_accent}
-            className={fieldClasses}
-          />
-        </label>
-
-        <label className="flex flex-col gap-2">
-          <span className="text-sm text-foreground-muted">Sottotitolo</span>
-          <textarea
-            name="hero_subtitle"
-            defaultValue={settings.home_content.hero_subtitle}
-            rows={2}
-            className={fieldClasses}
-          />
-        </label>
-
-        <label className="flex flex-col gap-2">
-          <span className="text-sm text-foreground-muted">
-            Citazione (il testo corsivo ruotato)
-          </span>
-          <textarea
-            name="hero_quote"
-            defaultValue={settings.home_content.hero_quote}
-            rows={2}
-            className={fieldClasses}
-          />
-        </label>
-
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <label className="flex flex-col gap-2">
-            <span className="text-sm text-foreground-muted">
-              Bottone principale
+            <span className="text-xs text-foreground-muted">
+              Vuoto = analytics disattivato, nessun banner cookie mostrato.
             </span>
-            <input
-              name="cta_primary"
-              defaultValue={settings.home_content.cta_primary}
-              className={fieldClasses}
-            />
           </label>
-          <label className="flex flex-col gap-2">
-            <span className="text-sm text-foreground-muted">
-              Bottone secondario
-            </span>
-            <input
-              name="cta_secondary"
-              defaultValue={settings.home_content.cta_secondary}
-              className={fieldClasses}
-            />
-          </label>
-        </div>
-
-        <label className="flex flex-col gap-2">
-          <span className="text-sm text-foreground-muted">
-            Titolo sezione &quot;Servizi&quot;
-          </span>
-          <input
-            name="services_title"
-            defaultValue={settings.home_content.services_title}
-            className={fieldClasses}
-          />
-        </label>
-
-        <label className="flex flex-col gap-2">
-          <span className="text-sm text-foreground-muted">
-            Introduzione della pagina /servizi (sotto il titolo)
-          </span>
-          <textarea
-            name="services_intro"
-            defaultValue={settings.home_content.services_intro ?? ""}
-            rows={3}
-            className={fieldClasses}
-          />
-        </label>
-
-        <div className="flex flex-col gap-2">
-          <span className="text-sm text-foreground-muted">
-            Lista servizi (i numeri si aggiornano da soli)
-          </span>
-          <ServicesEditor
-            name="services"
-            defaultValue={settings.home_content.services}
-          />
-        </div>
-      </SettingsSection>
-
-      <SettingsSection
-        id="sez-homepage-visibili"
-        title="Homepage — sezioni visibili"
-        description="Disattiva temporaneamente una sezione senza perdere i contenuti. La prima sezione (in alto) non è disattivabile."
-      >
-        <div className="flex flex-col gap-3">
-          {(
-            [
-              { name: "show_services", label: "Servizi" },
-              { name: "show_projects", label: "Progetti" },
-              { name: "show_blog_preview", label: "Anteprima blog" },
-              { name: "show_contact", label: "Contatti" },
-            ] as const
-          ).map(({ name, label }) => (
-            <label key={name} className="flex items-center gap-2 text-sm">
-              <input
-                type="checkbox"
-                name={name}
-                defaultChecked={settings.home_content[name] ?? true}
-              />
-              {label}
-            </label>
-          ))}
-        </div>
-      </SettingsSection>
-
-      <SettingsSection
-        id="sez-colori-sezione"
-        title="Colori per sezione (homepage)"
-        description="Dai a una sezione fissa uno sfondo diverso dal resto del sito (es. per alternare colori come in un moodboard). Il testo di quella sezione si adatta da solo per restare leggibile."
-      >
-        <div className="flex flex-col gap-4">
-          {(["hero", "services", "projects", "blog", "contact"] as const).map(
-            (key) => (
-              <div key={key} className="flex items-center gap-3 text-sm">
-                <span className="w-40 shrink-0 text-foreground-muted">
-                  {SECTION_LABELS[key]}
-                </span>
-                <input
-                  type="color"
-                  value={sectionColors[key] || "#0b0a10"}
-                  onChange={(e) =>
-                    setSectionColors((prev) => ({
-                      ...prev,
-                      [key]: e.target.value,
-                    }))
-                  }
-                  className="h-8 w-8 shrink-0 cursor-pointer border border-border-strong bg-transparent"
-                  aria-label={`Colore sfondo — ${SECTION_LABELS[key]}`}
-                />
-                <input
-                  type="hidden"
-                  name={`section_color_${key}`}
-                  value={sectionColors[key] || ""}
-                />
-                {sectionColors[key] ? (
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setSectionColors((prev) => ({ ...prev, [key]: "" }))
-                    }
-                    className="text-xs text-foreground-muted hover:text-foreground"
-                  >
-                    Usa lo sfondo del sito
-                  </button>
-                ) : (
-                  <span className="text-xs text-foreground-muted">
-                    Sfondo del sito (predefinito)
-                  </span>
-                )}
-              </div>
-            ),
-          )}
-        </div>
-      </SettingsSection>
-
-      <SettingsSection
-        id="sez-blocchi"
-        title="Blocchi extra homepage"
-        description="Sezioni aggiuntive mostrate dopo il blog, prima dei Contatti. Se non ne aggiungi, la homepage resta esattamente com'è oggi."
-      >
-        <HomepageBlocksEditor
-          name="blocks"
-          defaultValue={settings.home_content.blocks ?? []}
-        />
-      </SettingsSection>
-
-      <SettingsSection id="sez-menu" title="Menu di navigazione">
-        <NavLinksEditor
-          name="nav_links"
-          defaultValue={settings.home_content.nav_links ?? []}
-        />
-      </SettingsSection>
-
-      <SettingsSection id="sez-footer" title="Footer">
-        <label className="flex flex-col gap-2">
-          <span className="text-sm text-foreground-muted">
-            Testo sotto il nome, in fondo al sito (vuoto = usa il testo
-            attuale)
-          </span>
-          <textarea
-            name="footer_tagline"
-            defaultValue={settings.home_content.footer_tagline ?? ""}
-            rows={2}
-            className={fieldClasses}
-          />
-        </label>
-      </SettingsSection>
-
-      <SettingsSection id="sez-integrazioni" title="Integrazioni (Google)">
-        <label className="flex flex-col gap-2">
-          <span className="text-sm font-medium">
-            Codice di verifica Google Search Console (opzionale)
-          </span>
-          <input
-            name="google_site_verification_code"
-            defaultValue={settings.google_site_verification_code ?? ""}
-            className={fieldClasses}
-          />
-        </label>
-
-        <label className="flex flex-col gap-2">
-          <span className="text-sm font-medium">
-            GA4 Measurement ID (es. G-XXXXXXXXXX)
-          </span>
-          <input
-            name="ga4_measurement_id"
-            defaultValue={settings.ga4_measurement_id ?? ""}
-            placeholder="G-XXXXXXXXXX"
-            pattern="G-[A-Z0-9]+"
-            title="Formato: G- seguito da lettere maiuscole e numeri"
-            className={fieldClasses}
-          />
-          <span className="text-xs text-foreground-muted">
-            Vuoto = analytics disattivato, nessun banner cookie mostrato.
-          </span>
-        </label>
-      </SettingsSection>
+        </SettingsSection>
+      </SettingsTabPanel>
 
       {/* Spazio extra in fondo così l'ultima sezione non resta nascosta
           dietro la barra di salvataggio fissa qui sotto. */}
       <div className="h-16" aria-hidden="true" />
 
-      <div className="sticky bottom-0 flex flex-wrap items-center gap-4 border-t border-border-strong bg-background py-4">
+      <div
+        hidden={tabs?.active === "seo"}
+        className="sticky bottom-0 z-20 flex flex-wrap items-center gap-4 border-t border-border-strong bg-background/95 py-4 backdrop-blur"
+      >
         <button
           type="submit"
           disabled={pending}
@@ -472,9 +500,13 @@ export function SiteSettingsForm({ settings }: { settings: SiteSettings }) {
         {state.error ? (
           <p className="text-sm text-error">{state.error}</p>
         ) : null}
-        {state.success ? (
-          <p className="text-sm text-success">Salvato.</p>
-        ) : null}
+        <p role="status" aria-live="polite" className="text-sm">
+          {pending ? null : dirty ? (
+            <span className="text-warning">Modifiche non salvate</span>
+          ) : state.success ? (
+            <span className="text-success">Salvato.</span>
+          ) : null}
+        </p>
       </div>
     </form>
   );

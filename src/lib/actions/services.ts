@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/server";
 import type { ContentBlock, ContentStatus, ServiceFaq } from "@/lib/types";
 
-type FormState = { error: string | null };
+type FormState = { error: string | null; success?: boolean };
 
 function parseJson<T>(value: FormDataEntryValue | null): T[] {
   try {
@@ -58,11 +58,19 @@ export async function createService(
   }
 
   const supabase = await createAdminClient();
-  const { error } = await supabase.from("service_pages").insert(payload);
+  const { data: created, error } = await supabase
+    .from("service_pages")
+    .insert(payload)
+    .select("id")
+    .single();
   if (error) return { error: error.message };
 
   revalidateServicePages(payload.slug);
-  redirect("/admin/servizi");
+  // Dopo la creazione si apre subito la pagina di modifica del nuovo
+  // contenuto, invece di tornare all'elenco.
+  redirect(
+    created ? `/admin/servizi/${created.id}?salvato=1` : "/admin/servizi",
+  );
 }
 
 export async function updateService(
@@ -83,7 +91,7 @@ export async function updateService(
   if (error) return { error: error.message };
 
   revalidateServicePages(payload.slug);
-  redirect("/admin/servizi");
+  return { error: null, success: true };
 }
 
 export async function duplicateService(formData: FormData) {

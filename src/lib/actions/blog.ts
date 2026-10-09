@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/server";
 import type { ContentStatus } from "@/lib/types";
 
-type FormState = { error: string | null };
+type FormState = { error: string | null; success?: boolean };
 
 function parsePostForm(formData: FormData) {
   const publishedAtRaw = String(formData.get("published_at") || "");
@@ -36,7 +36,9 @@ function parsePostForm(formData: FormData) {
 // di tempo prima che venga eseguita, salvare un articolo non deve rompersi
 // per gli altri campi: se l'errore è proprio "colonna non trovata", si
 // ritenta senza sort_order.
-function isMissingSortOrderColumn(error: { code: string; message: string } | null) {
+function isMissingSortOrderColumn(
+  error: { code: string; message: string } | null,
+) {
   return (
     !!error &&
     (error.code === "PGRST204" || error.code === "42703") &&
@@ -54,11 +56,19 @@ export async function createPost(
   }
 
   const supabase = await createAdminClient();
-  let { error } = await supabase.from("blog_posts").insert(payload);
+  let { data: created, error } = await supabase
+    .from("blog_posts")
+    .insert(payload)
+    .select("id")
+    .single();
 
   if (isMissingSortOrderColumn(error)) {
     const { sort_order: _sortOrder, ...withoutSortOrder } = payload;
-    ({ error } = await supabase.from("blog_posts").insert(withoutSortOrder));
+    ({ data: created, error } = await supabase
+      .from("blog_posts")
+      .insert(withoutSortOrder)
+      .select("id")
+      .single());
   }
 
   if (error) {
@@ -69,7 +79,9 @@ export async function createPost(
   revalidatePath("/blog");
   revalidatePath("/sitemap.xml");
   revalidatePath("/admin/blog");
-  redirect("/admin/blog");
+  // Dopo la creazione si apre subito la pagina di modifica del nuovo
+  // contenuto, invece di tornare all'elenco.
+  redirect(created ? `/admin/blog/${created.id}?salvato=1` : "/admin/blog");
 }
 
 export async function updatePost(
@@ -105,7 +117,7 @@ export async function updatePost(
   revalidatePath("/sitemap.xml");
   revalidatePath(`/blog/${payload.slug}`);
   revalidatePath("/admin/blog");
-  redirect("/admin/blog");
+  return { error: null, success: true };
 }
 
 export async function duplicatePost(formData: FormData) {

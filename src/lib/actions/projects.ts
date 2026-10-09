@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/server";
 import type { ContentBlock, ContentStatus, GalleryItem } from "@/lib/types";
 
-type FormState = { error: string | null };
+type FormState = { error: string | null; success?: boolean };
 
 function parseProjectForm(formData: FormData) {
   let contentBlocks: ContentBlock[] = [];
@@ -54,7 +54,9 @@ function parseProjectForm(formData: FormData) {
 // di tempo prima che venga eseguita, salvare un progetto non deve rompersi
 // per gli altri campi: se l'errore è proprio "colonna non trovata", si
 // ritenta senza sort_order.
-function isMissingSortOrderColumn(error: { code: string; message: string } | null) {
+function isMissingSortOrderColumn(
+  error: { code: string; message: string } | null,
+) {
   return (
     !!error &&
     (error.code === "PGRST204" || error.code === "42703") &&
@@ -72,11 +74,19 @@ export async function createProject(
   }
 
   const supabase = await createAdminClient();
-  let { error } = await supabase.from("projects").insert(payload);
+  let { data: created, error } = await supabase
+    .from("projects")
+    .insert(payload)
+    .select("id")
+    .single();
 
   if (isMissingSortOrderColumn(error)) {
     const { sort_order: _sortOrder, ...withoutSortOrder } = payload;
-    ({ error } = await supabase.from("projects").insert(withoutSortOrder));
+    ({ data: created, error } = await supabase
+      .from("projects")
+      .insert(withoutSortOrder)
+      .select("id")
+      .single());
   }
 
   if (error) {
@@ -87,7 +97,11 @@ export async function createProject(
   revalidatePath("/progetti");
   revalidatePath("/sitemap.xml");
   revalidatePath("/admin/progetti");
-  redirect("/admin/progetti");
+  // Dopo la creazione si apre subito la pagina di modifica del nuovo
+  // contenuto, invece di tornare all'elenco.
+  redirect(
+    created ? `/admin/progetti/${created.id}?salvato=1` : "/admin/progetti",
+  );
 }
 
 export async function updateProject(
@@ -101,10 +115,7 @@ export async function updateProject(
   }
 
   const supabase = await createAdminClient();
-  let { error } = await supabase
-    .from("projects")
-    .update(payload)
-    .eq("id", id);
+  let { error } = await supabase.from("projects").update(payload).eq("id", id);
 
   if (isMissingSortOrderColumn(error)) {
     const { sort_order: _sortOrder, ...withoutSortOrder } = payload;
@@ -123,7 +134,7 @@ export async function updateProject(
   revalidatePath("/sitemap.xml");
   revalidatePath(`/progetti/${payload.slug}`);
   revalidatePath("/admin/progetti");
-  redirect("/admin/progetti");
+  return { error: null, success: true };
 }
 
 export async function duplicateProject(formData: FormData) {

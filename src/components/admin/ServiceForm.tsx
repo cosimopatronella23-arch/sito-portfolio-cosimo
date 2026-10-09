@@ -1,12 +1,15 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useState } from "react";
 import { createService, updateService } from "@/lib/actions/services";
 import { ImageUploader } from "./ImageUploader";
 import { ContentBlocksEditor } from "./ContentBlocksEditor";
 import { FaqEditor } from "./FaqEditor";
 import { SerpPreview } from "./SerpPreview";
 import { SettingsSection } from "./SettingsSection";
+import { EditorForm } from "./EditorForm";
+import { SeoChecklist } from "./SeoChecklist";
+import { AdminIcon } from "./AdminIcons";
 import { SITE_URL } from "@/lib/seo";
 import type { ServicePage } from "@/lib/types";
 
@@ -16,12 +19,13 @@ const fieldClasses =
 export function ServiceForm({
   service,
   projects,
+  created = false,
 }: {
   service?: ServicePage;
   projects: { slug: string; title: string }[];
+  created?: boolean;
 }) {
   const action = service ? updateService.bind(null, service.id) : createService;
-  const [state, formAction, pending] = useActionState(action, { error: null });
   const [slug, setSlug] = useState(service?.slug ?? "");
   const [seoTitle, setSeoTitle] = useState(service?.seo_title ?? "");
   const [seoDescription, setSeoDescription] = useState(
@@ -30,7 +34,72 @@ export function ServiceForm({
   const [excerpt, setExcerpt] = useState(service?.excerpt ?? "");
 
   return (
-    <form action={formAction} className="flex flex-col gap-6">
+    <EditorForm
+      action={action}
+      submitLabel={service ? "Salva servizio" : "Crea servizio"}
+      created={created}
+      sidebar={
+        <>
+          <label className="flex flex-col gap-2 text-sm">
+            Stato
+            <select
+              name="status"
+              defaultValue={service?.status ?? "draft"}
+              className="min-h-11 border border-border-strong bg-background px-3"
+            >
+              <option value="draft">Bozza (non visibile)</option>
+              <option value="published">Pubblicato</option>
+            </select>
+          </label>
+          <label className="flex flex-col gap-2 text-sm">
+            Ordine
+            <span className="text-xs text-foreground-muted">
+              I numeri più bassi vengono mostrati prima.
+            </span>
+            <input
+              name="sort_order"
+              type="number"
+              defaultValue={service?.sort_order ?? 0}
+              className={fieldClasses}
+            />
+          </label>
+        </>
+      }
+      sidebarFooter={
+        <>
+          {service ? (
+            <div className="flex flex-col gap-2 text-sm">
+              <a
+                href={`/admin/anteprima/servizi/${service.id}`}
+                target="_blank"
+                rel="noopener"
+                className="flex items-center gap-2 text-foreground-muted hover:text-foreground"
+              >
+                <AdminIcon name="eye" className="h-4 w-4" />
+                Anteprima (ultima versione salvata)
+              </a>
+              {service.status === "published" ? (
+                <a
+                  href={`/servizi/${service.slug}`}
+                  target="_blank"
+                  rel="noopener"
+                  className="flex items-center gap-2 text-foreground-muted hover:text-foreground"
+                >
+                  <AdminIcon name="external" className="h-4 w-4" />
+                  Vedi online
+                </a>
+              ) : null}
+            </div>
+          ) : null}
+          <SeoChecklist
+            titleFields={["seo_title", "title"]}
+            descriptionFields={["seo_description", "excerpt"]}
+            imageFields={["seo_og_image"]}
+            contentField="content_blocks"
+          />
+        </>
+      }
+    >
       <SettingsSection id="sez-dati-base" title="Dati base" defaultOpen>
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
           <label className="flex flex-col gap-2">
@@ -97,29 +166,6 @@ export function ServiceForm({
             className={fieldClasses}
           />
         </label>
-
-        <div className="flex flex-wrap items-center gap-8">
-          <label className="flex flex-col gap-2 text-sm">
-            Stato
-            <select
-              name="status"
-              defaultValue={service?.status ?? "draft"}
-              className="border border-border-strong bg-transparent px-3 py-2"
-            >
-              <option value="draft">Bozza</option>
-              <option value="published">Pubblicato</option>
-            </select>
-          </label>
-          <label className="flex flex-col gap-2 text-sm">
-            Ordine (i numeri più bassi vengono mostrati prima)
-            <input
-              name="sort_order"
-              type="number"
-              defaultValue={service?.sort_order ?? 0}
-              className={fieldClasses}
-            />
-          </label>
-        </div>
       </SettingsSection>
 
       <SettingsSection
@@ -207,28 +253,6 @@ export function ServiceForm({
           description={seoDescription || excerpt}
         />
       </SettingsSection>
-
-      {state.error ? <p className="text-sm text-error">{state.error}</p> : null}
-
-      <div className="sticky bottom-0 flex flex-wrap items-center gap-4 border-t border-border-strong bg-background py-4">
-        <button
-          type="submit"
-          disabled={pending}
-          className="w-max bg-foreground px-6 py-3 text-sm font-medium text-background transition-colors hover:bg-accent disabled:opacity-50"
-        >
-          {pending ? "Salvo..." : "Salva servizio"}
-        </button>
-        {service ? (
-          <a
-            href={`/admin/anteprima/servizi/${service.id}`}
-            target="_blank"
-            rel="noopener"
-            className="text-sm text-foreground-muted underline underline-offset-4 hover:text-foreground"
-          >
-            Anteprima (ultima versione salvata)
-          </a>
-        ) : null}
-      </div>
-    </form>
+    </EditorForm>
   );
 }
