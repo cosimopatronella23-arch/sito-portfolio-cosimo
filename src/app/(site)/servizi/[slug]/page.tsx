@@ -4,6 +4,7 @@ import { ServicePageView } from "@/components/service/ServicePageView";
 import { buildMetadata } from "@/lib/seo";
 import { getPublishedServices, getServiceBySlug } from "@/lib/data/services";
 import { getPublishedProjects } from "@/lib/data/projects";
+import { getPageSeo } from "@/lib/data/settings";
 import { pickProjects } from "@/lib/data/pickProjects";
 
 export const revalidate = 3600;
@@ -17,14 +18,19 @@ export async function generateMetadata(
   props: PageProps<"/servizi/[slug]">,
 ): Promise<Metadata> {
   const { slug } = await props.params;
-  const service = await getServiceBySlug(slug);
+  const [service, home] = await Promise.all([
+    getServiceBySlug(slug),
+    getPageSeo("home"),
+  ]);
   if (!service) return {};
 
   return buildMetadata({
     title: service.seo_title ?? service.title,
     description: service.seo_description ?? service.excerpt,
     path: `/servizi/${service.slug}`,
-    ogImage: service.seo_og_image,
+    // Senza un'immagine propria si usa quella della homepage: un link
+    // condiviso deve sempre avere un'anteprima.
+    ogImage: service.seo_og_image ?? home?.seo_og_image,
     noindex: service.seo_noindex,
   });
 }

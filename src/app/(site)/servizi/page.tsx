@@ -6,16 +6,18 @@ import { TitleArrow } from "@/components/ui/TitleArrow";
 import { Button } from "@/components/ui/Button";
 import { buildMetadata } from "@/lib/seo";
 import { getPublishedServices } from "@/lib/data/services";
-import { getSiteSettings } from "@/lib/data/settings";
+import { getPageSeo, getSiteSettings } from "@/lib/data/settings";
 
 export const revalidate = 3600;
 
 export async function generateMetadata(): Promise<Metadata> {
+  const home = await getPageSeo("home");
   return buildMetadata({
     title: "Servizi di web design, grafica e SEO",
     description:
       "Siti web, identità visive, SEO, web app e gestione dei contenuti: i servizi di Cosimo Patronella, web designer a Roma, Grottaglie e Taranto.",
     path: "/servizi",
+    ogImage: home?.seo_og_image,
   });
 }
 
