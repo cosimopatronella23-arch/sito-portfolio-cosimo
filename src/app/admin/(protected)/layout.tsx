@@ -1,14 +1,9 @@
-import { AdminNav } from "@/components/admin/AdminNav";
+import { AdminShell } from "@/components/admin/AdminShell";
 
 export default function AdminProtectedLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  return (
-    <div className="min-h-screen">
-      <AdminNav />
-      <main className="container-px py-10">{children}</main>
-    </div>
-  );
+  return <AdminShell>{children}</AdminShell>;
 }
