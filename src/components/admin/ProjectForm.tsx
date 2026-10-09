@@ -100,7 +100,6 @@ export function ProjectForm({
             titleFields={["seo_title", "title"]}
             descriptionFields={["seo_description", "short_description"]}
             imageFields={["seo_og_image", "cover_image"]}
-            contentField="content_blocks"
             galleryField="gallery"
           />
         </>

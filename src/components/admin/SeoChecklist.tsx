@@ -109,8 +109,8 @@ export function SeoChecklist({
         next.push({
           ok: internal,
           label: internal
-            ? "Contiene link ad altre pagine del sito"
-            : "Nessun link ad altre pagine del sito: aggiungine uno",
+            ? "Il testo contiene link ad altre pagine del tuo sito"
+            : "Il testo non ha link ad altre pagine del tuo sito (es. un servizio o un progetto): aggiungine uno",
         });
       }
       if (galleryField) {
