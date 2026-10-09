@@ -54,7 +54,20 @@ export async function deleteForever(formData: FormData) {
   if (!UUID.test(id)) return;
 
   const supabase = await createAdminClient();
+  const { data: item } = await supabase
+    .from("content_trash")
+    .select("table_name, record_id")
+    .eq("id", id)
+    .maybeSingle();
   await supabase.from("content_trash").delete().eq("id", id);
+  // Anche le sue versioni salvate: il contenuto non esiste più.
+  if (item) {
+    await supabase
+      .from("content_revisions")
+      .delete()
+      .eq("table_name", item.table_name)
+      .eq("record_id", item.record_id);
+  }
   revalidatePath("/admin/cestino");
 }
 
