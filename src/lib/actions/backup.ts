@@ -11,18 +11,21 @@ import { createAdminClient } from "@/lib/supabase/server";
 export async function exportSiteData(): Promise<string> {
   const supabase = await createAdminClient();
 
-  const [projects, blogPosts, siteSettings, pageSeo] = await Promise.all([
-    supabase.from("projects").select("*").order("created_at"),
-    supabase.from("blog_posts").select("*").order("created_at"),
-    supabase.from("site_settings").select("*"),
-    supabase.from("page_seo").select("*"),
-  ]);
+  const [projects, blogPosts, servicePages, siteSettings, pageSeo] =
+    await Promise.all([
+      supabase.from("projects").select("*").order("created_at"),
+      supabase.from("blog_posts").select("*").order("created_at"),
+      supabase.from("service_pages").select("*").order("sort_order"),
+      supabase.from("site_settings").select("*"),
+      supabase.from("page_seo").select("*"),
+    ]);
 
   return JSON.stringify(
     {
       exported_at: new Date().toISOString(),
       projects: projects.data ?? [],
       blog_posts: blogPosts.data ?? [],
+      service_pages: servicePages.data ?? [],
       site_settings: siteSettings.data ?? [],
       page_seo: pageSeo.data ?? [],
     },

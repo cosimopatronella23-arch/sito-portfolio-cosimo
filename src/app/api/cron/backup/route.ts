@@ -23,19 +23,29 @@ export async function GET(request: Request) {
   }
 
   const supabase = createPublicClient();
-  const [projects, blogPosts, siteSettings, pageSeo, media] = await Promise.all([
-    supabase.from("projects").select("*").order("created_at"),
-    supabase.from("blog_posts").select("*").order("created_at"),
-    supabase.from("site_settings").select("*"),
-    supabase.from("page_seo").select("*"),
-    supabase.storage
-      .from("media")
-      .list("", { limit: 1000, sortBy: { column: "created_at", order: "asc" } }),
-  ]);
+  const [projects, blogPosts, servicePages, siteSettings, pageSeo, media] =
+    await Promise.all([
+      supabase.from("projects").select("*").order("created_at"),
+      supabase.from("blog_posts").select("*").order("created_at"),
+      supabase.from("service_pages").select("*").order("sort_order"),
+      supabase.from("site_settings").select("*"),
+      supabase.from("page_seo").select("*"),
+      supabase.storage
+        .from("media")
+        .list("", {
+          limit: 1000,
+          sortBy: { column: "created_at", order: "asc" },
+        }),
+    ]);
 
-  const failed = [projects, blogPosts, siteSettings, pageSeo, media].find(
-    (r) => r.error,
-  );
+  const failed = [
+    projects,
+    blogPosts,
+    servicePages,
+    siteSettings,
+    pageSeo,
+    media,
+  ].find((r) => r.error);
   if (failed?.error) {
     return NextResponse.json(
       { ok: false, error: failed.error.message },
@@ -67,6 +77,7 @@ export async function GET(request: Request) {
     note: "Backup automatico settimanale dei contenuti pubblici. Le bozze non sono incluse: per quelle usa Esporta in /admin.",
     projects: projects.data ?? [],
     blog_posts: blogPosts.data ?? [],
+    service_pages: servicePages.data ?? [],
     site_settings: siteSettings.data ?? [],
     page_seo: pageSeo.data ?? [],
     media_files: mediaFiles,
@@ -82,6 +93,7 @@ export async function GET(request: Request) {
       "",
       `Progetti pubblicati: ${backup.projects.length}`,
       `Articoli pubblicati: ${backup.blog_posts.length}`,
+      `Servizi pubblicati: ${backup.service_pages.length}`,
       `File nella libreria media: ${mediaFiles.length} (elenco con indirizzi; i file veri restano su Supabase)`,
       "",
       "Non serve fare nulla: conserva questa email. Le bozze non sono incluse, per quelle usa Esporta in /admin.",
@@ -95,7 +107,10 @@ export async function GET(request: Request) {
   });
 
   if (error) {
-    return NextResponse.json({ ok: false, error: error.message }, { status: 500 });
+    return NextResponse.json(
+      { ok: false, error: error.message },
+      { status: 500 },
+    );
   }
 
   return NextResponse.json({
@@ -103,6 +118,7 @@ export async function GET(request: Request) {
     ranAt: exportedAt.toISOString(),
     projects: backup.projects.length,
     blogPosts: backup.blog_posts.length,
+    servicePages: backup.service_pages.length,
     mediaFiles: mediaFiles.length,
   });
 }
