@@ -1,3 +1,7 @@
+// Impostato dall'admin: il browser del proprietario non entra nelle
+// statistiche (le sue visite di controllo falserebbero i numeri).
+export const OWNER_OPT_OUT_KEY = "ga-escludi-proprietario";
+
 type Gtag = (...args: unknown[]) => void;
 
 /**

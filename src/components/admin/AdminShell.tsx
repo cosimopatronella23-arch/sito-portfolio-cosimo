@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import clsx from "clsx";
 import { AdminIcon, type AdminIconName } from "./AdminIcons";
 import { LogoutButton } from "./LogoutButton";
+import { OWNER_OPT_OUT_KEY } from "@/lib/analytics";
 
 type NavItem = { label: string; href: string; icon: AdminIconName };
 
@@ -122,6 +123,16 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
       document.body.style.overflow = "";
     };
   }, [open]);
+
+  // Chi entra nell'admin è il proprietario: da questo browser le visite al
+  // sito non vengono più contate in Google Analytics.
+  useEffect(() => {
+    try {
+      window.localStorage.setItem(OWNER_OPT_OUT_KEY, "1");
+    } catch {
+      /* navigazione privata: nessuna esclusione salvata */
+    }
+  }, []);
 
   return (
     <div className="min-h-screen">

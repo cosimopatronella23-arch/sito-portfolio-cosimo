@@ -3,11 +3,26 @@
 import { useEffect, useSyncExternalStore } from "react";
 import Script from "next/script";
 import Link from "next/link";
-import { trackLead } from "@/lib/analytics";
+import { OWNER_OPT_OUT_KEY, trackLead } from "@/lib/analytics";
+import { FALLBACK_HOST, PRIMARY_HOST } from "@/lib/domain";
 
 type Consent = "unknown" | "accepted" | "rejected";
 
 const STORAGE_KEY = "cookie-consent";
+// Solo il sito vero (e l'indirizzo di riserva, se un giorno servisse):
+// mai gli indirizzi di anteprima dei singoli deploy né localhost.
+const TRACKED_HOSTS = new Set([PRIMARY_HOST, `www.${PRIMARY_HOST}`, FALLBACK_HOST]);
+
+function isTrackedVisitor() {
+  try {
+    return (
+      TRACKED_HOSTS.has(window.location.host) &&
+      window.localStorage.getItem(OWNER_OPT_OUT_KEY) !== "1"
+    );
+  } catch {
+    return TRACKED_HOSTS.has(window.location.host);
+  }
+}
 const MEASUREMENT_ID_REGEX = /^G-[A-Z0-9]+$/;
 
 const listeners = new Set<() => void>();
@@ -57,10 +72,14 @@ export function GoogleAnalytics({
     getServerSnapshot,
   );
 
+  // Il banner si mostra sempre uguale a tutti; cambia solo se gtag parte.
+  const tracked = useSyncExternalStore(subscribe, isTrackedVisitor, () => false);
+  const load = consent === "accepted" && tracked;
+
   // Click su email o telefono (footer, sezione contatti, articoli): sono
   // contatti tanto quanto l'invio del form.
   useEffect(() => {
-    if (consent !== "accepted") return;
+    if (!load) return;
     const onClick = (e: MouseEvent) => {
       const link = (e.target as Element | null)?.closest?.("a[href]");
       const href = link?.getAttribute("href") ?? "";
@@ -69,7 +88,7 @@ export function GoogleAnalytics({
     };
     document.addEventListener("click", onClick);
     return () => document.removeEventListener("click", onClick);
-  }, [consent]);
+  }, [load]);
 
   if (!measurementId || !MEASUREMENT_ID_REGEX.test(measurementId)) {
     return null;
@@ -77,7 +96,7 @@ export function GoogleAnalytics({
 
   return (
     <>
-      {consent === "accepted" ? (
+      {load ? (
         <>
           <Script
             src={`https://www.googletagmanager.com/gtag/js?id=${measurementId}`}
