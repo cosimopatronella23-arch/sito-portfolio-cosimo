@@ -4,6 +4,9 @@ import { getSiteSettings } from "@/lib/data/settings";
 import { getPublishedServices } from "@/lib/data/services";
 import { formatPhone, phoneHref } from "@/lib/phone";
 
+// Nomi mostrati per i link non social (il resto usa il nome della chiave).
+const SOCIAL_LABELS: Record<string, string> = { google: "Recensioni Google" };
+
 export async function Footer() {
   const [siteSettings, services] = await Promise.all([
     getSiteSettings(),
@@ -68,7 +71,7 @@ export async function Footer() {
         ) : null}
 
         <div className="flex flex-col gap-4">
-          <div className="flex gap-5">
+          <div className="flex flex-wrap gap-x-5 gap-y-2">
             {Object.entries(siteSettings.social_links).map(([name, url]) => (
               <a
                 key={name}
@@ -78,7 +81,7 @@ export async function Footer() {
                 rel="noreferrer noopener"
                 className="text-sm text-foreground-muted capitalize hover:text-foreground"
               >
-                {name}
+                {SOCIAL_LABELS[name] ?? name}
               </a>
             ))}
           </div>

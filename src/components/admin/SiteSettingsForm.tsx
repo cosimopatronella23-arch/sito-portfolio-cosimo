@@ -122,6 +122,20 @@ export function SiteSettingsForm({ settings }: { settings: SiteSettings }) {
               </label>
             ))}
           </div>
+          <label className="flex flex-col gap-2">
+            <span className="text-sm font-medium">
+              Profilo Google Business (link)
+            </span>
+            <span className="text-xs text-foreground-muted">
+              Collega il sito alla tua scheda su Google e compare nel footer
+              come &quot;Recensioni Google&quot;. Vuoto = nessun link.
+            </span>
+            <input
+              name="social_google"
+              defaultValue={settings.social_links.google ?? ""}
+              className={fieldClasses}
+            />
+          </label>
         </SettingsSection>
 
         <SettingsSection

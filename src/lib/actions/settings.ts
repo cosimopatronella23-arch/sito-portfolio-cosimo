@@ -43,7 +43,7 @@ export async function updateSiteSettings(
   formData: FormData,
 ): Promise<FormState> {
   const socialLinks: Record<string, string> = {};
-  for (const key of ["instagram", "linkedin", "dribbble"]) {
+  for (const key of ["instagram", "linkedin", "dribbble", "google"]) {
     const value = String(formData.get(`social_${key}`) || "").trim();
     if (value) socialLinks[key] = value;
   }
