@@ -85,6 +85,7 @@ export function GoogleAnalytics({
       const href = link?.getAttribute("href") ?? "";
       if (href.startsWith("mailto:")) trackLead("email");
       else if (href.startsWith("tel:")) trackLead("phone");
+      else if (href.startsWith("https://wa.me/")) trackLead("whatsapp");
     };
     document.addEventListener("click", onClick);
     return () => document.removeEventListener("click", onClick);

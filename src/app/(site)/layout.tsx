@@ -5,6 +5,8 @@ import { CustomCursor } from "@/components/cursor/CustomCursor";
 import { SmoothScrollProvider } from "@/components/motion/SmoothScrollProvider";
 import { PageTransition } from "@/components/motion/PageTransition";
 import { GoogleAnalytics } from "@/components/analytics/GoogleAnalytics";
+import { WhatsAppButton } from "@/components/contact/WhatsAppButton";
+import { whatsappHref } from "@/lib/phone";
 import { getSiteSettings } from "@/lib/data/settings";
 import { customColorsCss } from "@/lib/siteColors";
 
@@ -59,6 +61,9 @@ export default async function SiteLayout({
         <PageTransition>{children}</PageTransition>
       </main>
       <Footer />
+      {settings.contact_phone ? (
+        <WhatsAppButton href={whatsappHref(settings.contact_phone)} />
+      ) : null}
       <GoogleAnalytics measurementId={settings.ga4_measurement_id} />
     </>
   );

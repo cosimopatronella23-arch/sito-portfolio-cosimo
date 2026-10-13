@@ -9,7 +9,9 @@ type Gtag = (...args: unknown[]) => void;
  * standard di GA4 per i contatti). Se il visitatore non ha accettato i
  * cookie gtag non è caricato e la chiamata non fa nulla.
  */
-export function trackLead(method: "form" | "email" | "phone") {
+export function trackLead(
+  method: "form" | "email" | "phone" | "whatsapp",
+) {
   const gtag = (window as Window & { gtag?: Gtag }).gtag;
   gtag?.("event", "generate_lead", { method });
 }

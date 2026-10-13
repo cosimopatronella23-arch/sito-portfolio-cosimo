@@ -2,7 +2,7 @@ import Link from "next/link";
 import { AnimatedText } from "@/components/ui/AnimatedText";
 import { getSiteSettings } from "@/lib/data/settings";
 import { getPublishedServices } from "@/lib/data/services";
-import { formatPhone, phoneHref } from "@/lib/phone";
+import { formatPhone, phoneHref, whatsappHref } from "@/lib/phone";
 
 // Nomi mostrati per i link non social (il resto usa il nome della chiave).
 const SOCIAL_LABELS: Record<string, string> = { google: "Recensioni Google" };
@@ -43,6 +43,17 @@ export async function Footer() {
               className="text-sm text-foreground-muted hover:text-foreground"
             >
               {formatPhone(siteSettings.contact_phone)}
+            </a>
+          ) : null}
+          {siteSettings.contact_phone ? (
+            <a
+              href={whatsappHref(siteSettings.contact_phone)}
+              target="_blank"
+              rel="noopener noreferrer"
+              data-cursor="link"
+              className="text-sm text-foreground-muted hover:text-foreground"
+            >
+              WhatsApp
             </a>
           ) : null}
         </div>

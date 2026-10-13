@@ -7,7 +7,8 @@ import { Button } from "@/components/ui/Button";
 import { AnimatedBlob } from "@/components/ui/AnimatedBlob";
 import { sendContactMessage } from "@/lib/actions/contact";
 import { sectionStyle } from "@/lib/contrast";
-import { formatPhone, phoneHref } from "@/lib/phone";
+import { formatPhone, phoneHref, whatsappHref } from "@/lib/phone";
+import { WhatsAppIcon } from "@/components/contact/WhatsAppIcon";
 import { trackLead } from "@/lib/analytics";
 
 const FIELDS: Array<{
@@ -113,6 +114,18 @@ export function ContactForm({
                   className="font-medium text-foreground hover:text-accent"
                 >
                   {formatPhone(contactPhone)}
+                </a>
+              ) : null}
+              {contactPhone ? (
+                <a
+                  href={whatsappHref(contactPhone)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  data-cursor="link"
+                  className="inline-flex w-max items-center gap-2 font-medium text-foreground hover:text-accent"
+                >
+                  <WhatsAppIcon className="h-4 w-4 text-[#25D366]" />
+                  Scrivimi su WhatsApp
                 </a>
               ) : null}
             </div>

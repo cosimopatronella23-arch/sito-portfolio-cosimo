@@ -28,3 +28,12 @@ export function formatPhone(raw: string) {
   if (it) return `+39 ${it[1]}`;
   return raw.trim();
 }
+
+export const WHATSAPP_MESSAGE =
+  "Ciao Cosimo, ho visto il tuo sito e vorrei parlarti di un progetto.";
+
+/** Link "click to chat" di WhatsApp, con un messaggio già scritto. */
+export function whatsappHref(raw: string, text = WHATSAPP_MESSAGE) {
+  const digits = toInternational(raw).replace(/\D/g, "");
+  return `https://wa.me/${digits}?text=${encodeURIComponent(text)}`;
+}
