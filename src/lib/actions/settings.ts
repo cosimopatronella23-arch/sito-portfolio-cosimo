@@ -24,6 +24,7 @@ const HOME_CONTENT_TEXT_FIELDS: Array<
     | "show_contact"
     | "nav_links"
     | "blocks"
+    | "reviews"
   >
 > = [
   "hero_title_accent",
@@ -139,6 +140,19 @@ export async function updateSiteSettings(
   };
 
   const supabase = await createAdminClient();
+
+  // Le recensioni si gestiscono in /admin/recensioni, non in questo modulo:
+  // vanno conservate così come sono, altrimenti questo salvataggio (che
+  // riscrive i contenuti della homepage) le cancellerebbe.
+  const { data: current } = await supabase
+    .from("site_settings")
+    .select("home_content")
+    .eq("id", "main")
+    .maybeSingle();
+  const currentReviews = (current?.home_content as HomeContent | undefined)
+    ?.reviews;
+  if (currentReviews) homeContent.reviews = currentReviews;
+
   let { error } = await supabase
     .from("site_settings")
     .update(payload)

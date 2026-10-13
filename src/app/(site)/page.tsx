@@ -5,6 +5,7 @@ import { ProjectsGrid } from "@/components/sections/ProjectsGrid";
 import { BlogPreview } from "@/components/sections/BlogPreview";
 import { ContactForm } from "@/components/sections/ContactForm";
 import { BlockRenderer } from "@/components/blocks/BlockRenderer";
+import { Reviews } from "@/components/sections/Reviews";
 import { buildMetadata, personJsonLd, websiteJsonLd } from "@/lib/seo";
 import { getPageSeo, getSiteSettings } from "@/lib/data/settings";
 
@@ -57,6 +58,10 @@ export default async function HomePage() {
         />
       ) : null}
       <BlockRenderer blocks={settings.home_content.blocks} />
+      <Reviews
+        reviews={settings.home_content.reviews}
+        googleUrl={settings.social_links.google}
+      />
       {settings.home_content.show_contact ?? true ? (
         <ContactForm
           backgroundColor={settings.home_content.section_colors?.contact}

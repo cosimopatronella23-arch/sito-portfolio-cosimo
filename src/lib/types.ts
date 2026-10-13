@@ -168,6 +168,22 @@ export type HomepageBlock =
   | { id: string; type: "cta_banner"; data: CtaBannerBlockData }
   | { id: string; type: "gallery"; data: GalleryBlockData };
 
+/** Recensione di un cliente (da Google), gestita in /admin/recensioni. */
+export interface ClientReview {
+  id: string;
+  author: string;
+  /** Ruolo, azienda o progetto, es. "Sette Note Romane APS". */
+  context: string;
+  text: string;
+  /** Stelle da 1 a 5. */
+  rating: number;
+  /** Mese della recensione, "AAAA-MM". */
+  date: string;
+  /** Progetto collegato (slug): la recensione compare anche lì. */
+  project_slug: string;
+  visible: boolean;
+}
+
 export interface HomeContent {
   hero_title_main: string;
   hero_title_accent: string;
@@ -179,6 +195,9 @@ export interface HomeContent {
   services: ServiceItem[];
   /** Testo d'apertura della pagina /servizi (il titolo è services_title). */
   services_intro?: string;
+  // Recensioni dei clienti: vivono qui per evitare una migrazione al
+  // database. Si salvano solo da /admin/recensioni.
+  reviews?: ClientReview[];
   // Vive qui per lo stesso motivo di nav_links: evitare una migrazione al
   // database. Se assente/vuoto, il footer usa il testo di default nel codice.
   footer_tagline?: string;

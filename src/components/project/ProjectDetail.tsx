@@ -11,7 +11,8 @@ import {
 import { CoverImage } from "@/components/ui/CoverImage";
 import { ProjectMediaGallery } from "./ProjectMediaGallery";
 import { Button } from "@/components/ui/Button";
-import type { Project } from "@/lib/types";
+import type { ClientReview, Project } from "@/lib/types";
+import { ReviewQuote } from "@/components/reviews/ReviewQuote";
 import { normalizeHeadings } from "@/lib/html";
 
 const EASE_OUT: [number, number, number, number] = [0.22, 1, 0.36, 1];
@@ -27,8 +28,11 @@ const EASE_OUT: [number, number, number, number] = [0.22, 1, 0.36, 1];
 export function ProjectDetail({
   project,
   services = [],
+  review,
 }: {
   project: Project;
+  /** Recensione del cliente collegata a questo progetto, se c'è. */
+  review?: ClientReview;
   /** Servizi pubblicati che citano questo progetto come esempio. */
   services?: { slug: string; title: string }[];
 }) {
@@ -140,6 +144,12 @@ export function ProjectDetail({
               />
             </motion.section>
           ))}
+
+          {review ? (
+            <div className="border-t border-border pt-8">
+              <ReviewQuote review={review} />
+            </div>
+          ) : null}
 
           {services.length ? (
             <nav

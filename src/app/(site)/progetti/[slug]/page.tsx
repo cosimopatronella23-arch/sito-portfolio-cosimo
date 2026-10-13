@@ -4,6 +4,7 @@ import { ProjectDetail } from "@/components/project/ProjectDetail";
 import { buildMetadata, projectJsonLd } from "@/lib/seo";
 import { getProjectBySlug, getPublishedProjects } from "@/lib/data/projects";
 import { getServicesForProject } from "@/lib/data/services";
+import { getSiteSettings } from "@/lib/data/settings";
 
 export const revalidate = 3600;
 
@@ -32,10 +33,14 @@ export default async function ProjectPage(
   props: PageProps<"/progetti/[slug]">,
 ) {
   const { slug } = await props.params;
-  const [project, services] = await Promise.all([
+  const [project, services, settings] = await Promise.all([
     getProjectBySlug(slug),
     getServicesForProject(slug),
+    getSiteSettings(),
   ]);
+  const review = settings.home_content.reviews?.find(
+    (r) => r.visible && r.project_slug === slug,
+  );
   if (!project) notFound();
 
   return (
@@ -49,6 +54,7 @@ export default async function ProjectPage(
       <ProjectDetail
         project={project}
         services={services.map(({ slug, title }) => ({ slug, title }))}
+        review={review}
       />
     </>
   );

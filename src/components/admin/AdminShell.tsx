@@ -18,6 +18,7 @@ const GROUPS: { title: string; items: NavItem[] }[] = [
       { label: "Progetti", href: "/admin/progetti", icon: "projects" },
       { label: "Servizi", href: "/admin/servizi", icon: "services" },
       { label: "Blog", href: "/admin/blog", icon: "blog" },
+      { label: "Recensioni", href: "/admin/recensioni", icon: "star" },
       { label: "Media", href: "/admin/media", icon: "media" },
     ],
   },
