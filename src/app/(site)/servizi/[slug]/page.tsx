@@ -4,7 +4,7 @@ import { ServicePageView } from "@/components/service/ServicePageView";
 import { buildMetadata } from "@/lib/seo";
 import { getPublishedServices, getServiceBySlug } from "@/lib/data/services";
 import { getPublishedProjects } from "@/lib/data/projects";
-import { getPageSeo } from "@/lib/data/settings";
+import { getPageSeo, getSiteSettings } from "@/lib/data/settings";
 import { pickProjects } from "@/lib/data/pickProjects";
 
 export const revalidate = 3600;
@@ -37,9 +37,10 @@ export async function generateMetadata(
 
 export default async function ServicePage(props: PageProps<"/servizi/[slug]">) {
   const { slug } = await props.params;
-  const [service, projects] = await Promise.all([
+  const [service, projects, settings] = await Promise.all([
     getServiceBySlug(slug),
     getPublishedProjects(),
+    getSiteSettings(),
   ]);
   if (!service) notFound();
 
@@ -47,6 +48,7 @@ export default async function ServicePage(props: PageProps<"/servizi/[slug]">) {
     <ServicePageView
       service={service}
       projects={pickProjects(projects, service.related_project_slugs)}
+      contactPhone={settings.contact_phone}
     />
   );
 }

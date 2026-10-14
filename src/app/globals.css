@@ -269,8 +269,13 @@ body {
   text-underline-offset: 4px;
 }
 
+/* Al passaggio la sottolineatura si colora: leggibile su ogni tema. */
+.prose-editor a {
+  transition: text-decoration-color 0.2s;
+}
 .prose-editor a:hover {
-  color: var(--accent);
+  text-decoration-color: var(--secondary);
+  text-decoration-thickness: 2px;
 }
 
 .prose-editor img {
@@ -385,6 +390,14 @@ body {
 }
 .shape-float-slow {
   animation: shape-float 10s ease-in-out infinite reverse;
+}
+
+/* Ingresso del banner cookie: sale dal basso. */
+@keyframes cookie-in {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
 }
 
 /* La banda che scorre si ferma quando ci si passa sopra. */

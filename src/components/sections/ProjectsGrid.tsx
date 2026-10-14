@@ -46,6 +46,7 @@ export async function ProjectsGrid({ theme }: { theme: SectionTheme }) {
         <Link
           href="/progetti"
           data-cursor="link"
+          data-hide-whatsapp
           className="group flex items-center justify-between gap-6 border-t border-border-strong pt-7"
         >
           <span className="font-display text-xl font-semibold tracking-[-0.02em] sm:text-2xl">

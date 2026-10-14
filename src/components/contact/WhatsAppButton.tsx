@@ -7,7 +7,8 @@ import { WhatsAppIcon } from "./WhatsAppIcon";
 /**
  * Pulsante WhatsApp discreto: compare solo dopo aver iniziato a scorrere e
  * sparisce quando sono già visibili la sezione Contatti o il footer (dove
- * il contatto è già a portata di mano). Sta sotto il banner dei cookie.
+ * il contatto è già a portata di mano) o un elemento con data-hide-whatsapp
+ * che finirebbe coperto. Sta sotto il banner dei cookie.
  */
 export function WhatsAppButton({ href }: { href: string }) {
   const [scrolled, setScrolled] = useState(false);
@@ -21,6 +22,8 @@ export function WhatsAppButton({ href }: { href: string }) {
     const targets = [
       document.getElementById("contatti"),
       document.querySelector("footer"),
+      // Elementi in basso a destra che il pulsante coprirebbe.
+      ...document.querySelectorAll("[data-hide-whatsapp]"),
     ].filter((el): el is HTMLElement => !!el);
     const visible = new Set<Element>();
     const observer = new IntersectionObserver((entries) => {

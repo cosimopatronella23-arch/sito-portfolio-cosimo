@@ -75,16 +75,16 @@ export function Hero({
           <span className="hidden sm:inline">Portfolio {new Date().getFullYear()}</span>
         </motion.div>
 
-        <h1 className="font-display mt-8 text-[clamp(3.25rem,9.6vw,9rem)] leading-[0.9] font-bold tracking-[-0.045em] sm:mt-11">
+        <h1 className="font-display mt-8 text-[clamp(3.25rem,min(9.6vw,14vh),9rem)] leading-[0.9] font-bold tracking-[-0.045em] sm:mt-9">
           <span className="flex flex-col-reverse gap-6 sm:flex-row sm:items-center sm:justify-between">
             <span>
               <AnimatedText text={first ?? ""} />
             </span>
             <span className="flex items-end gap-2.5 sm:gap-4" aria-hidden="true">
-              <Shape kind="circle" color="bg-secondary" float="fast" className="size-14 hover:scale-110 sm:size-[clamp(4rem,8vw,7.5rem)]" />
-              <Shape kind="square" color="bg-accent" className="size-14 hover:rotate-45 sm:size-[clamp(4rem,8vw,7.5rem)]" />
-              <Shape kind="ring" color="border-foreground" float="slow" className="size-14 hover:scale-90 sm:size-[clamp(4rem,8vw,7.5rem)]" />
-              <Shape kind="quarter" color="bg-secondary" className="size-14 hover:-rotate-90 sm:size-[clamp(4rem,8vw,7.5rem)]" />
+              <Shape kind="circle" color="bg-secondary" float="fast" className="size-14 hover:scale-110 sm:size-[clamp(4rem,min(8vw,12vh),7.5rem)]" />
+              <Shape kind="square" color="bg-accent" className="size-14 hover:rotate-45 sm:size-[clamp(4rem,min(8vw,12vh),7.5rem)]" />
+              <Shape kind="ring" color="border-foreground" float="slow" className="size-14 hover:scale-90 sm:size-[clamp(4rem,min(8vw,12vh),7.5rem)]" />
+              <Shape kind="quarter" color="bg-secondary" className="size-14 hover:-rotate-90 sm:size-[clamp(4rem,min(8vw,12vh),7.5rem)]" />
             </span>
           </span>
           {others.map((line, i) => (
@@ -102,7 +102,7 @@ export function Hero({
           </span>
         </h1>
 
-        <div className="mt-14 grid grid-cols-1 items-end gap-8 sm:mt-20 lg:grid-cols-12 lg:gap-6">
+        <div className="mt-12 grid grid-cols-1 items-end gap-8 sm:mt-14 lg:grid-cols-12 lg:gap-6">
           <motion.p
             variants={fadeUp}
             initial={reduce ? false : "hidden"}

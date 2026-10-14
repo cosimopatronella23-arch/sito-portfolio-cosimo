@@ -3,6 +3,7 @@
 import { useEffect, useSyncExternalStore } from "react";
 import Script from "next/script";
 import Link from "next/link";
+import { Button } from "@/components/ui/Button";
 import { OWNER_OPT_OUT_KEY, trackLead } from "@/lib/analytics";
 import { FALLBACK_HOST, PRIMARY_HOST } from "@/lib/domain";
 
@@ -116,49 +117,35 @@ export function GoogleAnalytics({
         <div
           role="dialog"
           aria-label="Consenso cookie"
-          className="container-px fixed inset-x-0 bottom-0 z-[100] border-t border-border-strong bg-background/95 py-5 backdrop-blur-md"
+          className="theme-paper fixed inset-x-3 bottom-3 z-[100] flex flex-col gap-4 border-2 border-foreground bg-background p-5 text-foreground motion-safe:animate-[cookie-in_0.5s_cubic-bezier(0.22,1,0.36,1)] sm:inset-x-auto sm:bottom-6 sm:left-6 sm:max-w-sm sm:p-6"
         >
-          <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex max-w-2xl flex-col gap-1.5 text-sm">
-              <p className="font-medium text-foreground">
-                Un cookie? Tranquillo, non entro nel tuo conto in banca.
+          <div className="flex items-start gap-3">
+            <span aria-hidden="true" className="mt-1 size-3.5 shrink-0 rounded-full bg-secondary" />
+            <div className="flex flex-col gap-2 text-sm leading-relaxed">
+              <p className="font-display text-base font-bold tracking-[-0.01em]">
+                Solo statistiche anonime.
               </p>
               <p className="text-foreground-muted">
-                Solo statistiche di Google Analytics su quali pagine vengono
-                viste, senza sapere chi sei: mi aiutano a capire cosa
-                funziona. Se rifiuti, il sito funziona esattamente uguale.
+                Google Analytics mi dice quali pagine vengono viste, senza
+                sapere chi sei. Se rifiuti, il sito funziona uguale.
               </p>
-              <p className="flex flex-wrap gap-x-4 gap-y-1 text-foreground-muted">
-                <Link
-                  href="/blog/banner-cookie-cosa-accetti-davvero"
-                  className="underline underline-offset-2 hover:text-foreground"
-                >
+              <p className="flex flex-wrap gap-x-4 gap-y-1 text-xs font-semibold tracking-[0.06em] uppercase">
+                <Link href="/blog/banner-cookie-cosa-accetti-davvero" className="link-draw">
                   Perché te lo chiedo
                 </Link>
-                <Link
-                  href="/cookie-policy"
-                  className="underline underline-offset-2 hover:text-foreground"
-                >
+                <Link href="/cookie-policy" className="link-draw">
                   Cookie policy
                 </Link>
               </p>
             </div>
-            <div className="flex shrink-0 gap-3">
-              <button
-                type="button"
-                onClick={() => setConsent("rejected")}
-                className="border border-border-strong px-4 py-2 text-sm text-foreground transition-colors hover:border-foreground"
-              >
-                No, grazie
-              </button>
-              <button
-                type="button"
-                onClick={() => setConsent("accepted")}
-                className="bg-foreground px-4 py-2 text-sm font-medium text-background transition-colors hover:bg-accent"
-              >
-                Accetta, dai
-              </button>
-            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            <Button type="button" variant="secondary" onClick={() => setConsent("rejected")}>
+              Rifiuta
+            </Button>
+            <Button type="button" onClick={() => setConsent("accepted")}>
+              Accetta
+            </Button>
           </div>
         </div>
       ) : null}

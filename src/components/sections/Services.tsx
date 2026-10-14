@@ -53,7 +53,7 @@ export function Services({
             </>
           );
           const cell =
-            "group flex min-h-[26rem] flex-col gap-5 border-b border-border-strong py-8 transition-colors duration-300 sm:px-6 sm:[&:nth-child(2n)]:border-l lg:border-l lg:first:border-l-0 lg:first:pl-0 lg:[&:nth-child(2n)]:border-l";
+            "group flex flex-col lg:min-h-[26rem] gap-5 border-b border-border-strong py-8 transition-colors duration-300 sm:px-6 sm:[&:nth-child(2n)]:border-l lg:border-l lg:first:border-l-0 lg:first:pl-0 lg:[&:nth-child(2n)]:border-l";
           return service.href ? (
             <Link key={`${i}-${service.title}`} href={service.href} data-cursor="link" className={`${cell} hover:bg-surface-hover`}>
               {body}

@@ -83,8 +83,9 @@ export function ContactForm({
       className={`theme-${theme} relative overflow-hidden container-px py-24 sm:py-32`}
     >
       {/* Forme decorative nell'angolo, che respirano lentamente. */}
-      <span aria-hidden="true" className="shape-float-slow pointer-events-none absolute -top-24 -right-24 hidden size-96 rounded-full border-2 border-foreground lg:block" />
-      <span aria-hidden="true" className="shape-float pointer-events-none absolute top-20 right-40 hidden size-24 bg-foreground lg:block" />
+      {/* Stanno nell'angolo in alto, lontano dal modulo. */}
+      <span aria-hidden="true" className="shape-float-slow pointer-events-none absolute -top-28 -right-28 hidden size-56 rounded-full border-2 border-foreground lg:block" />
+      <span aria-hidden="true" className="shape-float pointer-events-none absolute top-14 right-48 hidden size-12 bg-foreground lg:block" />
 
       <div className="relative grid grid-cols-1 gap-16 lg:grid-cols-12 lg:gap-6">
         <div className="flex flex-col gap-8 lg:col-span-6">

@@ -105,7 +105,16 @@ export function ProjectScreen({
             {project.client && project.client !== project.title ? `${project.client} · ` : ""}
             {project.year}
           </span>
-          <Heading className="font-display max-w-4xl text-[clamp(2.5rem,7vw,7rem)] leading-[0.92] font-bold tracking-[-0.045em] text-balance text-paper">
+          <Heading
+            className={clsx(
+              "font-display max-w-5xl font-bold tracking-[-0.045em] text-balance text-paper",
+              // I titoli lunghi scendono di taglia (e respirano di più tra
+              // le righe): mai più di due righe giganti.
+              project.title.length > 24
+                ? "text-[clamp(2.25rem,5vw,5rem)] leading-[1]"
+                : "text-[clamp(2.5rem,7vw,7rem)] leading-[0.92]",
+            )}
+          >
             {project.title}
           </Heading>
         </div>

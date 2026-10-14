@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { buildMetadata } from "@/lib/seo";
 import { BlogPostView } from "@/components/blog/BlogPostView";
 import { getPostBySlug, getPublishedPosts } from "@/lib/data/blog";
+import { getSiteSettings } from "@/lib/data/settings";
 
 export const revalidate = 3600;
 
@@ -29,8 +30,11 @@ export async function generateMetadata(
 
 export default async function BlogPostPage(props: PageProps<"/blog/[slug]">) {
   const { slug } = await props.params;
-  const post = await getPostBySlug(slug);
+  const [post, settings] = await Promise.all([
+    getPostBySlug(slug),
+    getSiteSettings(),
+  ]);
   if (!post) notFound();
 
-  return <BlogPostView post={post} />;
+  return <BlogPostView post={post} contactPhone={settings.contact_phone} />;
 }
