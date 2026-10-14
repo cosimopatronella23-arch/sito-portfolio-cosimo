@@ -44,7 +44,7 @@ export function ProjectScreen({
       href={`/progetti/${project.slug}`}
       data-cursor="link"
       style={{ zIndex: index + 1 }}
-      className="group sticky top-0 flex h-[85svh] w-full items-end overflow-hidden bg-ink shadow-[0_-1px_40px_rgba(0,0,0,0.5)] sm:h-screen"
+      className="group sticky top-0 flex h-[85svh] w-full items-end overflow-hidden bg-ink sm:h-screen"
     >
       <motion.div
         className="absolute inset-0"

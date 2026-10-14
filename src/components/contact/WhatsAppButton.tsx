@@ -50,7 +50,7 @@ export function WhatsAppButton({ href }: { href: string }) {
       tabIndex={shown ? 0 : -1}
       aria-hidden={!shown}
       className={clsx(
-        "theme-ink group fixed right-4 bottom-4 z-50 flex h-12 items-center gap-2 overflow-hidden border border-border-strong bg-background/95! px-3.5 text-sm font-semibold tracking-[0.06em] uppercase text-foreground shadow-lg backdrop-blur transition-[opacity,transform,border-color] duration-300 ease-out hover:border-[#25D366] motion-reduce:transition-none sm:right-6 sm:bottom-6",
+        "theme-ink group fixed right-4 bottom-4 z-50 flex h-12 items-center gap-2 overflow-hidden border border-border-strong bg-background/95! px-3.5 text-sm font-semibold tracking-[0.06em] uppercase text-foreground backdrop-blur transition-[opacity,transform,border-color] duration-300 ease-out hover:border-[#25D366] motion-reduce:transition-none sm:right-6 sm:bottom-6",
         shown
           ? "translate-y-0 opacity-100"
           : "pointer-events-none translate-y-3 opacity-0",
