@@ -371,7 +371,9 @@ body {
   transition: background-size 0.35s cubic-bezier(0.22, 1, 0.36, 1);
 }
 .link-draw:hover,
-.link-draw:focus-visible {
+.link-draw:focus-visible,
+a:hover > .link-draw,
+a:focus-visible > .link-draw {
   background-size: 100% 1px;
 }
 

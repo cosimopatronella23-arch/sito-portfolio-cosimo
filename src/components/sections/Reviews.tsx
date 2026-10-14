@@ -43,9 +43,17 @@ export function Reviews({
           target="_blank"
           rel="noopener noreferrer"
           data-cursor="link"
-          className="link-draw mt-14 inline-flex text-sm font-medium"
+          className="group mt-14 inline-flex items-center gap-2 text-sm font-medium"
         >
-          Tutte le recensioni su Google ↗
+          <span className="link-draw">Tutte le recensioni su Google</span>
+          {/* Freccia disegnata, non il carattere: su iPhone diventerebbe un'emoji. */}
+          <svg
+            aria-hidden="true"
+            viewBox="0 0 12 12"
+            className="size-3 fill-none stroke-current stroke-[1.5] transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+          >
+            <path d="M3 9 9 3M4 3h5v5" />
+          </svg>
         </a>
       ) : null}
     </section>
