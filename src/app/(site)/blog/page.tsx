@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { SectionHeading } from "@/components/ui/SectionHeading";
-import { BlogListRow } from "@/components/blog/BlogListRow";
+import { BlogCard } from "@/components/blog/BlogCard";
 import { buildMetadata } from "@/lib/seo";
 import { getPublishedPosts } from "@/lib/data/blog";
 
@@ -20,15 +20,17 @@ export default async function BlogIndexPage() {
   const published = await getPublishedPosts();
 
   return (
-    <div className="container-px py-20 sm:py-28">
-      <div className="flex flex-col gap-14">
+    <div className="theme-ink container-px py-20 sm:py-28">
+      <div className="flex flex-wrap items-end justify-between gap-6 pb-12 sm:pb-16">
         <SectionHeading title="Tutti gli articoli." size="poster" as="h1" />
-
-        <div className="flex flex-col">
-          {published.map((post, i) => (
-            <BlogListRow key={post.id} post={post} index={i} headingLevel="h2" />
-          ))}
-        </div>
+        <span className="font-display text-base font-semibold text-foreground-muted">
+          {String(published.length).padStart(2, "0")} articoli
+        </span>
+      </div>
+      <div className="grid grid-cols-1 gap-x-6 gap-y-14 md:grid-cols-2 lg:grid-cols-3">
+        {published.map((post, i) => (
+          <BlogCard key={post.id} post={post} index={i} headingLevel="h2" />
+        ))}
       </div>
     </div>
   );

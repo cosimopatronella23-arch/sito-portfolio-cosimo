@@ -2,11 +2,10 @@
 
 import { useActionState, useEffect } from "react";
 import Link from "next/link";
-import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Button } from "@/components/ui/Button";
-import { AnimatedBlob } from "@/components/ui/AnimatedBlob";
 import { sendContactMessage } from "@/lib/actions/contact";
-import { sectionStyle } from "@/lib/contrast";
+import { AnimatedText } from "@/components/ui/AnimatedText";
+import type { SectionTheme } from "@/lib/types";
 import { formatPhone, phoneHref, whatsappHref } from "@/lib/phone";
 import { WhatsAppIcon } from "@/components/contact/WhatsAppIcon";
 import { trackLead } from "@/lib/analytics";
@@ -14,6 +13,7 @@ import { trackLead } from "@/lib/analytics";
 const FIELDS: Array<{
   name: string;
   type: string;
+  label: string;
   placeholder: string;
   autoComplete: string;
   maxLength: number;
@@ -22,6 +22,7 @@ const FIELDS: Array<{
   {
     name: "name",
     type: "text",
+    label: "Nome",
     placeholder: "Come ti chiami?",
     autoComplete: "name",
     maxLength: 100,
@@ -29,14 +30,16 @@ const FIELDS: Array<{
   {
     name: "email",
     type: "email",
-    placeholder: "La tua email",
+    label: "Email",
+    placeholder: "La tua email, per risponderti",
     autoComplete: "email",
     maxLength: 254,
   },
   {
     name: "message",
     type: "text",
-    placeholder: "Raccontami del progetto",
+    label: "Il progetto",
+    placeholder: "Raccontami cosa ti serve, anche solo un'idea",
     autoComplete: "off",
     maxLength: 5000,
     isTextarea: true,
@@ -44,160 +47,148 @@ const FIELDS: Array<{
 ];
 
 const fieldClasses =
-  "w-full border-0 border-b border-border-strong bg-transparent px-0 py-3 text-lg text-foreground placeholder:text-foreground-muted focus-visible:border-accent focus-visible:outline-none";
+  "w-full border-0 border-b-2 border-border-strong bg-transparent px-0 py-3 text-lg text-foreground placeholder:text-foreground-muted transition-colors focus-visible:border-foreground focus-visible:outline-none";
 
+/**
+ * Sezione finale: "Parliamo." gigante, contatti diretti (WhatsApp in primo
+ * piano) e modulo con etichette sempre visibili. L'invio, l'anti-spam e il
+ * conteggio dei contatti in Analytics sono quelli di sempre.
+ */
 export function ContactForm({
-  backgroundColor,
+  theme = "secondary",
+  eyebrow,
+  title,
+  text,
   contactEmail,
   contactPhone,
 }: {
-  backgroundColor?: string;
+  theme?: SectionTheme;
+  eyebrow: string;
+  title: string;
+  text: string;
   contactEmail?: string;
   contactPhone?: string;
-} = {}) {
+}) {
   const [state, formAction, pending] = useActionState(sendContactMessage, {
     error: null,
   });
-  const style = sectionStyle(backgroundColor);
 
   useEffect(() => {
     if (state.success) trackLead("form");
   }, [state.success]);
 
-  if (state.success) {
-    return (
-      <section id="contatti" style={style} className="container-px py-24 sm:py-32">
-        <div className="mx-auto max-w-2xl border border-border p-10 text-center">
-          <h2 className="font-display text-2xl font-semibold">
-            Ricevuto, grazie!
-          </h2>
-          <p className="mt-3 text-foreground-muted">
-            Ti scrivo il prima possibile.
-          </p>
-        </div>
-      </section>
-    );
-  }
-
   return (
     <section
       id="contatti"
-      style={style}
-      className="relative container-px overflow-hidden py-24 sm:py-32"
+      className={`theme-${theme} relative overflow-hidden container-px py-24 sm:py-32`}
     >
-      <AnimatedBlob
-        variant="warm"
-        className="-bottom-40 -left-24 -z-10 h-[24rem] w-[24rem] sm:h-[30rem] sm:w-[30rem]"
-      />
-      <div className="grid grid-cols-1 gap-14 lg:grid-cols-[0.9fr_1.1fr]">
-        <div className="flex flex-col gap-8">
-          <SectionHeading
-            title="Raccontami cosa stai costruendo."
-            size="poster"
-          />
-          {contactEmail || contactPhone ? (
-            <div className="flex flex-col gap-2 border-t border-border pt-6 text-sm">
-              <span className="text-foreground-muted">Oppure, più diretto:</span>
-              {contactEmail ? (
-                <a
-                  href={`mailto:${contactEmail}`}
-                  data-cursor="link"
-                  className="font-medium text-foreground hover:text-accent"
-                >
-                  {contactEmail}
-                </a>
-              ) : null}
+      {/* Forme decorative nell'angolo, che respirano lentamente. */}
+      <span aria-hidden="true" className="shape-float-slow pointer-events-none absolute -top-24 -right-24 hidden size-96 rounded-full border-2 border-foreground lg:block" />
+      <span aria-hidden="true" className="shape-float pointer-events-none absolute top-20 right-40 hidden size-24 bg-foreground lg:block" />
+
+      <div className="relative grid grid-cols-1 gap-16 lg:grid-cols-12 lg:gap-6">
+        <div className="flex flex-col gap-8 lg:col-span-6">
+          <p className="text-xs font-semibold tracking-[0.14em] uppercase">{eyebrow}</p>
+          <h2 className="font-display text-[clamp(4.5rem,13vw,13rem)] leading-[0.8] font-extrabold tracking-[-0.06em]">
+            <AnimatedText text={title} />
+          </h2>
+          <p className="max-w-md text-xl leading-relaxed">{text}</p>
+
+          {contactPhone || contactEmail ? (
+            <div className="flex flex-col gap-4">
               {contactPhone ? (
-                <a
-                  href={phoneHref(contactPhone)}
-                  data-cursor="link"
-                  className="font-medium text-foreground hover:text-accent"
-                >
-                  {formatPhone(contactPhone)}
-                </a>
-              ) : null}
-              {contactPhone ? (
-                <a
+                <Button
                   href={whatsappHref(contactPhone)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  data-cursor="link"
-                  className="inline-flex w-max items-center gap-2 font-medium text-foreground hover:text-accent"
+                  size="lg"
+                  arrow
+                  className="w-full justify-between sm:w-max"
                 >
-                  <WhatsAppIcon className="h-4 w-4 text-[#25D366]" />
+                  <WhatsAppIcon className="h-5 w-5 text-[#25D366]" />
                   Scrivimi su WhatsApp
-                </a>
+                </Button>
               ) : null}
+              <div className="flex flex-col gap-1 text-base">
+                {contactEmail ? (
+                  <a href={`mailto:${contactEmail}`} data-cursor="link" className="link-draw w-max font-medium">
+                    {contactEmail}
+                  </a>
+                ) : null}
+                {contactPhone ? (
+                  <a href={phoneHref(contactPhone)} data-cursor="link" className="link-draw w-max font-medium">
+                    {formatPhone(contactPhone)}
+                  </a>
+                ) : null}
+              </div>
             </div>
           ) : null}
         </div>
 
-        <form action={formAction} className="flex flex-col gap-6">
-          <input
-            type="text"
-            name="website"
-            tabIndex={-1}
-            autoComplete="off"
-            aria-hidden="true"
-            className="absolute h-0 w-0 opacity-0"
-            style={{ pointerEvents: "none" }}
-          />
-          {FIELDS.map((field) => (
-            <div key={field.name} className="flex flex-col gap-2">
-              <label htmlFor={field.name} className="sr-only">
-                {field.placeholder}
-              </label>
-              {field.isTextarea ? (
-                <textarea
-                  id={field.name}
-                  name={field.name}
-                  rows={2}
-                  required
-                  minLength={10}
-                  maxLength={field.maxLength}
-                  className={fieldClasses}
-                  placeholder={field.placeholder}
-                />
-              ) : (
-                <input
-                  id={field.name}
-                  name={field.name}
-                  type={field.type}
-                  autoComplete={field.autoComplete}
-                  required
-                  maxLength={field.maxLength}
-                  className={fieldClasses}
-                  placeholder={field.placeholder}
-                />
-              )}
+        <div className="lg:col-span-5 lg:col-start-8 lg:self-end">
+          {state.success ? (
+            <div role="status" className="flex flex-col gap-3 border-2 border-foreground p-8">
+              <p className="font-display text-3xl font-bold tracking-[-0.03em]">Ricevuto, grazie.</p>
+              <p className="text-lg">Ti rispondo il prima possibile, di solito in giornata.</p>
             </div>
-          ))}
+          ) : (
+            <form action={formAction} className="flex flex-col gap-7">
+              <input
+                type="text"
+                name="website"
+                tabIndex={-1}
+                autoComplete="off"
+                aria-hidden="true"
+                className="absolute h-0 w-0 opacity-0"
+                style={{ pointerEvents: "none" }}
+              />
+              {FIELDS.map((field) => (
+                <div key={field.name} className="flex flex-col gap-1">
+                  <label htmlFor={field.name} className="text-xs font-semibold tracking-[0.12em] uppercase">
+                    {field.label}
+                  </label>
+                  {field.isTextarea ? (
+                    <textarea
+                      id={field.name}
+                      name={field.name}
+                      rows={3}
+                      required
+                      minLength={10}
+                      maxLength={field.maxLength}
+                      className={`${fieldClasses} resize-y`}
+                      placeholder={field.placeholder}
+                    />
+                  ) : (
+                    <input
+                      id={field.name}
+                      name={field.name}
+                      type={field.type}
+                      autoComplete={field.autoComplete}
+                      required
+                      maxLength={field.maxLength}
+                      className={fieldClasses}
+                      placeholder={field.placeholder}
+                    />
+                  )}
+                </div>
+              ))}
 
-          <p role="alert" className="text-sm text-error empty:hidden">
-            {state.error}
-          </p>
+              <p role="alert" className="border-l-2 border-foreground pl-3 text-sm font-medium empty:hidden">
+                {state.error}
+              </p>
 
-          <p className="text-xs text-foreground-muted">
-            Usi questi dati solo per risponderti. Dettagli nella{" "}
-            <Link
-              href="/privacy-policy"
-              data-cursor="link"
-              className="underline underline-offset-2 hover:text-foreground"
-            >
-              Privacy Policy
-            </Link>
-            .
-          </p>
+              <p className="text-sm">
+                Uso questi dati solo per risponderti. Dettagli nella{" "}
+                <Link href="/privacy-policy" data-cursor="link" className="link-draw font-medium">
+                  Privacy Policy
+                </Link>
+                .
+              </p>
 
-          <div className="mt-2 flex flex-wrap items-center gap-5">
-            <Button type="submit" size="lg" disabled={pending}>
-              {pending ? "Invio in corso..." : "Invia"}
-            </Button>
-            <span className="font-display rotate-1 text-sm text-foreground-muted italic">
-              (rispondo io — non un bot)
-            </span>
-          </div>
-        </form>
+              <Button type="submit" size="lg" arrow disabled={pending} className="w-full justify-between sm:w-max">
+                {pending ? "Invio in corso..." : "Invia il messaggio"}
+              </Button>
+            </form>
+          )}
+        </div>
       </div>
     </section>
   );

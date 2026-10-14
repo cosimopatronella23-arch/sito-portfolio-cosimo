@@ -1,99 +1,69 @@
-"use client";
-
 import Link from "next/link";
-import { motion } from "framer-motion";
-import { TitleArrow } from "@/components/ui/TitleArrow";
 import { SectionHeading } from "@/components/ui/SectionHeading";
-import { sectionStyle } from "@/lib/contrast";
-import type { ServiceItem } from "@/lib/types";
+import { ServiceGlyph } from "@/components/dumbar/ServiceGlyph";
+import type { SectionTheme, ServiceItem } from "@/lib/types";
 
-// Un gradiente diverso per ogni riga (si ripete se i servizi sono più di 4),
-// stesso set di colori-accento già usato per i blob animati altrove nel
-// sito — coerenza visiva, nessun asset nuovo. Opacità moderata: a piena
-// forza il testo chiaro perderebbe leggibilità sopra un colore chiaro.
-const ROW_GRADIENTS = [
-  "linear-gradient(100deg, var(--accent), var(--accent-blue))",
-  "linear-gradient(100deg, var(--accent-pink), var(--accent-strong))",
-  "linear-gradient(100deg, var(--accent-blue), var(--accent-pink))",
-  "linear-gradient(100deg, var(--accent-strong), var(--accent))",
-];
-
-const ROW_CLASSES =
-  "container-px relative flex flex-col gap-3 py-10 sm:flex-row sm:items-baseline sm:justify-between sm:gap-10 sm:py-14";
-
-// Se il servizio ha una sua pagina, l'intera riga diventa il link.
-function RowContent({
-  href,
-  children,
-}: {
-  href?: string;
-  children: React.ReactNode;
-}) {
-  if (!href) return <div className={ROW_CLASSES}>{children}</div>;
-  return (
-    <Link href={href} data-cursor="link" className={ROW_CLASSES}>
-      {children}
-    </Link>
-  );
-}
-
+/**
+ * Servizi in homepage: una colonna per servizio con il suo glifo
+ * geometrico. Con un link (impostato in /admin) l'intera colonna è
+ * cliccabile e al passaggio del mouse il glifo si scompone.
+ */
 export function Services({
   title,
   services,
-  backgroundColor,
+  theme,
 }: {
   title: string;
   services: ServiceItem[];
-  backgroundColor?: string;
+  theme: SectionTheme;
 }) {
+  if (services.length === 0) return null;
+  const cols =
+    services.length >= 5 ? "lg:grid-cols-5" : services.length === 4 ? "lg:grid-cols-4" : "lg:grid-cols-3";
+
   return (
-    <section
-      id="servizi"
-      style={sectionStyle(backgroundColor)}
-      className="pt-24 pb-4 sm:pt-32 sm:pb-8"
-    >
-      <div className="container-px">
+    <section id="servizi" className={`theme-${theme} container-px py-24 sm:py-32`}>
+      <div className="flex flex-wrap items-end justify-between gap-6 pb-12 sm:pb-16">
         <SectionHeading title={title} size="poster" />
+        <span className="font-display text-base font-semibold text-foreground-muted">
+          {String(services.length).padStart(2, "0")} servizi
+        </span>
       </div>
 
-      {/* Righe a piena larghezza invece di card chiuse in un riquadro: al
-          passaggio del mouse un velo di colore attraversa tutta la riga da
-          un bordo all'altro dello schermo, non solo l'interno di una card —
-          più "poster", meno "componente da libreria UI". */}
-      <div className="mt-14 flex flex-col">
-        {services.map((service, i) => (
-          <motion.div
-            key={`${i}-${service.title}`}
-            initial={{ opacity: 0, y: 16 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-80px" }}
-            transition={{ duration: 0.5, delay: i * 0.06 }}
-            className="group relative w-full overflow-hidden border-t border-border last:border-b"
-          >
-            <div
-              aria-hidden="true"
-              className="absolute inset-0 origin-left scale-x-0 opacity-40 transition-transform duration-500 ease-out group-hover:scale-x-100"
-              style={{ background: ROW_GRADIENTS[i % ROW_GRADIENTS.length] }}
-            />
-            <RowContent href={service.href}>
-              <div className="flex items-baseline gap-6">
-                <span aria-hidden="true" className="font-display text-xl text-foreground-muted sm:text-2xl">
-                  {String(i + 1).padStart(2, "0")}
+      <div className={`grid grid-cols-1 border-t border-border-strong sm:grid-cols-2 ${cols}`}>
+        {services.map((service, i) => {
+          const body = (
+            <>
+              <ServiceGlyph index={i} />
+              <span className="font-display text-sm text-foreground-muted tabular-nums">
+                {String(i + 1).padStart(2, "0")}
+              </span>
+              <h3 className="font-display text-2xl leading-[1.05] font-bold tracking-[-0.03em] sm:text-3xl">
+                {service.title}
+              </h3>
+              <p className="leading-relaxed text-foreground-muted">{service.description}</p>
+              {service.href ? (
+                <span className="mt-auto flex items-center gap-2 pt-4 text-xs font-semibold tracking-[0.12em] uppercase">
+                  Scopri
+                  <span aria-hidden="true" className="transition-transform duration-300 group-hover:translate-x-1">
+                    →
+                  </span>
                 </span>
-                <h3 className="font-display text-4xl font-semibold tracking-tight sm:text-6xl">
-                  {service.href ? (
-                    <TitleArrow text={service.title} />
-                  ) : (
-                    service.title
-                  )}
-                </h3>
-              </div>
-              <p className="max-w-sm text-foreground-muted sm:text-right">
-                {service.description}
-              </p>
-            </RowContent>
-          </motion.div>
-        ))}
+              ) : null}
+            </>
+          );
+          const cell =
+            "group flex min-h-[26rem] flex-col gap-5 border-b border-border-strong py-8 transition-colors duration-300 sm:px-6 sm:[&:nth-child(2n)]:border-l lg:border-l lg:first:border-l-0 lg:first:pl-0 lg:[&:nth-child(2n)]:border-l";
+          return service.href ? (
+            <Link key={`${i}-${service.title}`} href={service.href} data-cursor="link" className={`${cell} hover:bg-surface-hover`}>
+              {body}
+            </Link>
+          ) : (
+            <div key={`${i}-${service.title}`} className={cell}>
+              {body}
+            </div>
+          );
+        })}
       </div>
     </section>
   );

@@ -4,6 +4,9 @@ import { Services } from "@/components/sections/Services";
 import { ProjectsGrid } from "@/components/sections/ProjectsGrid";
 import { BlogPreview } from "@/components/sections/BlogPreview";
 import { ContactForm } from "@/components/sections/ContactForm";
+import { MarqueeBand } from "@/components/sections/MarqueeBand";
+import { Process } from "@/components/sections/Process";
+import { homeText, processSteps, sectionTheme } from "@/lib/homeDefaults";
 import { BlockRenderer } from "@/components/blocks/BlockRenderer";
 import { Reviews } from "@/components/sections/Reviews";
 import { buildMetadata, personJsonLd, websiteJsonLd } from "@/lib/seo";
@@ -26,6 +29,8 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function HomePage() {
   const settings = await getSiteSettings();
+  const c = settings.home_content;
+  const theme = (key: Parameters<typeof sectionTheme>[1]) => sectionTheme(c, key);
 
   return (
     <>
@@ -39,32 +44,31 @@ export default async function HomePage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd()) }}
       />
-      <Hero content={settings.home_content} />
-      {settings.home_content.show_projects ?? true ? (
-        <ProjectsGrid
-          backgroundColor={settings.home_content.section_colors?.projects}
+      <Hero content={c} eyebrow={homeText(c, "hero_eyebrow")} theme={theme("hero")} />
+      <MarqueeBand items={c.services.map((s) => s.title)} theme={theme("marquee")} />
+      {c.show_projects ?? true ? <ProjectsGrid theme={theme("projects")} /> : null}
+      {c.show_services ?? true ? (
+        <Services title={c.services_title} services={c.services} theme={theme("services")} />
+      ) : null}
+      {c.show_process ?? true ? (
+        <Process
+          title={homeText(c, "process_title")}
+          subtitle={homeText(c, "process_subtitle")}
+          steps={processSteps(c)}
+          theme={theme("process")}
         />
       ) : null}
-      {settings.home_content.show_services ?? true ? (
-        <Services
-          title={settings.home_content.services_title}
-          services={settings.home_content.services}
-          backgroundColor={settings.home_content.section_colors?.services}
-        />
+      {c.show_reviews ?? true ? (
+        <Reviews reviews={c.reviews} googleUrl={settings.social_links.google} theme={theme("reviews")} />
       ) : null}
-      {settings.home_content.show_blog_preview ?? true ? (
-        <BlogPreview
-          backgroundColor={settings.home_content.section_colors?.blog}
-        />
-      ) : null}
-      <BlockRenderer blocks={settings.home_content.blocks} />
-      <Reviews
-        reviews={settings.home_content.reviews}
-        googleUrl={settings.social_links.google}
-      />
-      {settings.home_content.show_contact ?? true ? (
+      {c.show_blog_preview ?? true ? <BlogPreview theme={theme("blog")} /> : null}
+      <BlockRenderer blocks={c.blocks} />
+      {c.show_contact ?? true ? (
         <ContactForm
-          backgroundColor={settings.home_content.section_colors?.contact}
+          theme={theme("contact")}
+          eyebrow={homeText(c, "contact_eyebrow")}
+          title={homeText(c, "contact_title")}
+          text={homeText(c, "contact_text")}
           contactEmail={settings.contact_email}
           contactPhone={settings.contact_phone}
         />

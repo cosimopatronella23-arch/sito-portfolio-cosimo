@@ -184,6 +184,26 @@ export interface ClientReview {
   visible: boolean;
 }
 
+export type SectionTheme = "ink" | "paper" | "accent" | "secondary";
+
+export type HomeSectionKey =
+  | "hero"
+  | "marquee"
+  | "projects"
+  | "services"
+  | "process"
+  | "reviews"
+  | "blog"
+  | "contact";
+
+/** Un passo della sezione "Come lavoro" in homepage. */
+export interface ProcessStep {
+  title: string;
+  text: string;
+  /** Etichetta facoltativa, es. "Gratis". */
+  badge: string;
+}
+
 export interface HomeContent {
   hero_title_main: string;
   hero_title_accent: string;
@@ -198,6 +218,21 @@ export interface HomeContent {
   // Recensioni dei clienti: vivono qui per evitare una migrazione al
   // database. Si salvano solo da /admin/recensioni.
   reviews?: ClientReview[];
+  // Design "Dumbar" (ottobre 2026): campi nuovi, tutti facoltativi. Se
+  // mancano si usano i valori predefiniti di src/lib/homeDefaults.ts.
+  hero_eyebrow?: string;
+  process_title?: string;
+  process_subtitle?: string;
+  process_steps?: ProcessStep[];
+  show_process?: boolean;
+  show_reviews?: boolean;
+  contact_eyebrow?: string;
+  contact_title?: string;
+  contact_text?: string;
+  /** Secondo colore del sito (corallo), oltre all'accento. */
+  secondary_color?: string;
+  /** Sfondo di ogni sezione della homepage. */
+  section_themes?: Partial<Record<HomeSectionKey, SectionTheme>>;
   // Vive qui per lo stesso motivo di nav_links: evitare una migrazione al
   // database. Se assente/vuoto, il footer usa il testo di default nel codice.
   footer_tagline?: string;

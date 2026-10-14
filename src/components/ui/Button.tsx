@@ -7,6 +7,8 @@ import clsx from "clsx";
 type BaseProps = {
   variant?: "primary" | "secondary" | "ghost";
   size?: "md" | "lg";
+  /** Freccia finale che scatta in avanti al passaggio del mouse. */
+  arrow?: boolean;
   className?: string;
   children: React.ReactNode;
 };
@@ -26,10 +28,12 @@ type ButtonProps = ButtonAsLink | ButtonAsButton;
 const base =
   "group relative inline-flex items-center justify-center gap-2 overflow-hidden border font-medium transition-colors duration-300 focus-visible:outline-2 focus-visible:outline-accent disabled:opacity-50 disabled:pointer-events-none";
 
+// Sempre squadrati. Al passaggio del mouse un riempimento entra da
+// sinistra: il colore (--fill) lo decide il tema della sezione, così resta
+// visibile su ogni sfondo; il testo diventa inchiostro per restare leggibile.
 const variants = {
-  primary: "border-foreground bg-foreground text-background",
-  secondary:
-    "border-border-strong text-foreground hover:border-accent hover:text-accent",
+  primary: "border-foreground bg-foreground text-background hover:text-ink",
+  secondary: "border-foreground text-foreground hover:text-background",
   ghost: "border-transparent text-foreground-muted hover:text-foreground",
 };
 
@@ -61,20 +65,35 @@ function magneticReset(el: MagneticEl | null) {
 
 function ButtonContent({
   variant,
+  arrow,
   children,
 }: {
   variant: BaseProps["variant"];
+  arrow?: boolean;
   children: React.ReactNode;
 }) {
   return (
     <>
-      {variant === "primary" ? (
+      {variant === "primary" || variant === "secondary" ? (
         <span
-          className="pointer-events-none absolute inset-0 origin-left scale-x-0 bg-accent transition-transform duration-300 ease-out group-hover:scale-x-100"
+          className={clsx(
+            "pointer-events-none absolute inset-0 origin-left scale-x-0 transition-transform duration-300 ease-out group-hover:scale-x-100",
+            variant === "primary" ? "bg-fill" : "bg-foreground",
+          )}
           aria-hidden="true"
         />
       ) : null}
-      <span className="relative">{children}</span>
+      <span className="relative inline-flex items-center gap-3">
+        {children}
+        {arrow ? (
+          <span
+            aria-hidden="true"
+            className="inline-block transition-transform duration-300 ease-out group-hover:translate-x-1"
+          >
+            →
+          </span>
+        ) : null}
+      </span>
     </>
   );
 }
@@ -82,6 +101,7 @@ function ButtonContent({
 export function Button({
   variant = "primary",
   size = "md",
+  arrow = false,
   className,
   children,
   ...props
@@ -114,7 +134,9 @@ export function Button({
         onMouseLeave={() => magneticReset(ref.current)}
         {...rest}
       >
-        <ButtonContent variant={variant}>{children}</ButtonContent>
+        <ButtonContent variant={variant} arrow={arrow}>
+          {children}
+        </ButtonContent>
       </Link>
     );
   }
@@ -129,7 +151,9 @@ export function Button({
       onMouseLeave={() => magneticReset(ref.current)}
       {...rest}
     >
-      <ButtonContent variant={variant}>{children}</ButtonContent>
+      <ButtonContent variant={variant} arrow={arrow}>
+          {children}
+        </ButtonContent>
     </button>
   );
 }

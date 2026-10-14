@@ -70,7 +70,7 @@ export function ProjectDetail({
               src={project.cover_image}
               alt={project.title}
               priority
-              className="h-full w-full grayscale contrast-125 brightness-90"
+              className="h-full w-full"
             />
           </motion.div>
 

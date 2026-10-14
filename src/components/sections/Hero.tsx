@@ -1,13 +1,11 @@
 "use client";
 
 import { Fragment } from "react";
-import Link from "next/link";
-import { motion, type Variants } from "framer-motion";
-import { AnimatedBlob } from "@/components/ui/AnimatedBlob";
+import { motion, useReducedMotion, type Variants } from "framer-motion";
 import { AnimatedText } from "@/components/ui/AnimatedText";
-import { Marquee } from "@/components/ui/Marquee";
-import { sectionStyle } from "@/lib/contrast";
-import type { HomeContent } from "@/lib/types";
+import { Button } from "@/components/ui/Button";
+import { Shape } from "@/components/dumbar/Shapes";
+import type { HomeContent, SectionTheme } from "@/lib/types";
 
 const EASE_OUT: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
@@ -16,45 +14,87 @@ const fadeUp: Variants = {
   visible: (i: number = 0) => ({
     opacity: 1,
     y: 0,
-    transition: { duration: 0.6, delay: i * 0.08, ease: EASE_OUT },
+    transition: { duration: 0.7, delay: 0.35 + i * 0.1, ease: EASE_OUT },
   }),
 };
 
-export function Hero({ content }: { content: HomeContent }) {
-  // Toglie solo spazi/tab finali (mai affidabili da un editor/trim), ma
-  // preserva un "a capo" finale intenzionale: serve a spingere il titolo
-  // accentato sulla riga successiva invece che in coda all'ultima riga.
-  const titleLines = content.hero_title_main.replace(/[ \t]+$/, "").split("\n");
-  const style = sectionStyle(content.section_colors?.hero);
+/**
+ * Apertura della homepage, sistema grafico "Dumbar": titolo gigante sulla
+ * griglia a 12 colonne, una fila di forme geometriche (cerchio, quadrato,
+ * anello, quarto di cerchio) accanto alla prima riga, sottotitolo,
+ * citazione e pulsanti. Le linee della griglia si disegnano all'ingresso.
+ */
+export function Hero({
+  content,
+  eyebrow,
+  theme,
+}: {
+  content: HomeContent;
+  eyebrow: string;
+  theme: SectionTheme;
+}) {
+  const reduce = useReducedMotion();
+  // Un "a capo" nel titolo in /admin manda a capo anche qui; le righe vuote
+  // (es. un a capo finale) si ignorano.
+  const titleLines = content.hero_title_main
+    .split(/\r?\n/)
+    .map((l) => l.trim())
+    .filter(Boolean);
+  const [first, ...others] = titleLines;
 
   return (
     <section
-      style={style}
-      className="relative overflow-hidden container-px pt-28 pb-0 sm:pt-36"
+      className={`theme-${theme} relative overflow-hidden container-px pt-10 pb-16 sm:pt-14 sm:pb-20`}
     >
-      <AnimatedBlob className="-top-32 -right-24 -z-10 h-[26rem] w-[26rem] sm:h-[34rem] sm:w-[34rem]" />
-      <AnimatedBlob
-        variant="warm"
-        opacity={0.3}
-        className="-bottom-40 left-[-10rem] -z-10 hidden h-[22rem] w-[22rem] sm:block"
-      />
-
-      <span
-        className="font-display pointer-events-none absolute right-[-0.04em] bottom-[-0.12em] -z-10 text-[40vw] leading-none font-bold text-foreground/[0.12] select-none sm:text-[26vw]"
+      {/* Griglia a 12 colonne sullo sfondo, disegnata dall'alto. */}
+      <div
         aria-hidden="true"
+        className="container-px pointer-events-none absolute inset-0 hidden sm:block"
       >
-        00
-      </span>
+        <div className="grid h-full grid-cols-12 border-r border-border">
+          {Array.from({ length: 12 }).map((_, i) => (
+            <motion.span
+              key={i}
+              className="h-full origin-top border-l border-border"
+              initial={reduce ? false : { scaleY: 0 }}
+              animate={{ scaleY: 1 }}
+              transition={{ duration: 1.1, delay: i * 0.04, ease: EASE_OUT }}
+            />
+          ))}
+        </div>
+      </div>
 
-      <div className="relative flex flex-col gap-14 pb-24 sm:pb-32">
-        <h1 className="font-display text-[clamp(2.75rem,10vw,9rem)] leading-[0.92] font-semibold tracking-tight text-balance">
-          {titleLines.map((line, i) => (
+      <div className="relative">
+        <motion.div
+          variants={fadeUp}
+          initial={reduce ? false : "hidden"}
+          animate="visible"
+          className="flex items-center justify-between gap-6 text-xs font-medium tracking-[0.14em] text-foreground-muted uppercase"
+        >
+          <span>{eyebrow}</span>
+          <span className="hidden sm:inline">Portfolio {new Date().getFullYear()}</span>
+        </motion.div>
+
+        <h1 className="font-display mt-8 text-[clamp(3.25rem,9.6vw,9rem)] leading-[0.9] font-bold tracking-[-0.045em] sm:mt-11">
+          <span className="flex flex-col-reverse gap-6 sm:flex-row sm:items-center sm:justify-between">
+            <span>
+              <AnimatedText text={first ?? ""} />
+            </span>
+            <span className="flex items-end gap-2.5 sm:gap-4" aria-hidden="true">
+              <Shape kind="circle" color="bg-secondary" float="fast" className="size-14 hover:scale-110 sm:size-[clamp(4rem,8vw,7.5rem)]" />
+              <Shape kind="square" color="bg-accent" className="size-14 hover:rotate-45 sm:size-[clamp(4rem,8vw,7.5rem)]" />
+              <Shape kind="ring" color="border-foreground" float="slow" className="size-14 hover:scale-90 sm:size-[clamp(4rem,8vw,7.5rem)]" />
+              <Shape kind="quarter" color="bg-secondary" className="size-14 hover:-rotate-90 sm:size-[clamp(4rem,8vw,7.5rem)]" />
+            </span>
+          </span>
+          {others.map((line, i) => (
             <Fragment key={i}>
-              {i > 0 ? <br /> : null}
-              <AnimatedText text={line} delay={i * 0.12} />
+              <span className="block sm:pl-[16.66%]">
+                <AnimatedText text={line} delay={(i + 1) * 0.12} />
+              </span>
             </Fragment>
           ))}
-          <span className="text-accent">
+          <span className="block text-accent">
             <AnimatedText
               text={content.hero_title_accent}
               delay={titleLines.length * 0.12}
@@ -62,57 +102,42 @@ export function Hero({ content }: { content: HomeContent }) {
           </span>
         </h1>
 
-        {/* Sottotitolo e call to action su righe opposte, non impilati al
-            centro: una spaziatura più asimmetrica, da composizione
-            editoriale invece che da landing page centrata. */}
-        <div className="flex flex-col gap-10 sm:flex-row sm:items-end sm:justify-between">
+        <div className="mt-14 grid grid-cols-1 items-end gap-8 sm:mt-20 lg:grid-cols-12 lg:gap-6">
           <motion.p
             variants={fadeUp}
-            initial="hidden"
+            initial={reduce ? false : "hidden"}
             animate="visible"
             custom={1}
-            className="max-w-md text-lg text-foreground-muted"
+            className="max-w-xl text-lg leading-relaxed whitespace-pre-line text-foreground/85 lg:col-span-5 sm:text-xl"
           >
             {content.hero_subtitle}
           </motion.p>
-
+          {content.hero_quote ? (
+            <motion.p
+              variants={fadeUp}
+              initial={reduce ? false : "hidden"}
+              animate="visible"
+              custom={2}
+              className="font-display max-w-sm border-l-2 border-secondary pl-4 text-sm leading-relaxed text-foreground-muted lg:col-span-3 lg:col-start-7"
+            >
+              {content.hero_quote}
+            </motion.p>
+          ) : null}
           <motion.div
             variants={fadeUp}
-            initial="hidden"
+            initial={reduce ? false : "hidden"}
             animate="visible"
-            custom={2}
-            className="flex flex-col gap-3 sm:items-end"
+            custom={3}
+            className="flex flex-col gap-3 sm:flex-row lg:col-span-3 lg:col-start-10 lg:flex-col lg:items-stretch"
           >
-            <Link
-              href="/#contatti"
-              data-cursor="link"
-              className="font-display text-2xl font-semibold underline decoration-border-strong underline-offset-8 transition-colors hover:text-accent hover:decoration-accent sm:text-3xl"
-            >
-              {content.cta_primary} →
-            </Link>
-            <Link
-              href="/#progetti"
-              data-cursor="link"
-              className="text-sm text-foreground-muted underline decoration-border-strong underline-offset-4 hover:text-foreground"
-            >
+            <Button href="/#contatti" size="lg" arrow className="justify-between">
+              {content.cta_primary}
+            </Button>
+            <Button href="/#progetti" variant="secondary" size="lg" className="justify-between">
               {content.cta_secondary}
-            </Link>
+            </Button>
           </motion.div>
         </div>
-
-        <motion.p
-          variants={fadeUp}
-          initial="hidden"
-          animate="visible"
-          custom={3}
-          className="font-display max-w-[16rem] -rotate-2 text-base text-foreground-muted italic"
-        >
-          {content.hero_quote}
-        </motion.p>
-      </div>
-
-      <div className="relative mx-[calc(50%-50vw)] w-screen">
-        <Marquee items={["Web Design", "UI/UX", "SEO", "Frontend"]} />
       </div>
     </section>
   );

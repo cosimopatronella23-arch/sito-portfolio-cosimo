@@ -37,14 +37,19 @@ export function Header({ navLinks }: { navLinks?: NavLink[] }) {
     navLinks && navLinks.length > 0 ? navLinks : DEFAULT_NAV_LINKS;
 
   return (
-    <header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
+    <header className="theme-ink sticky top-0 z-50 border-b border-border bg-background/90! backdrop-blur-md">
       <div className="container-px flex items-center justify-between py-5">
         <Link
           href="/"
           data-cursor="link"
-          className="font-display text-sm font-semibold tracking-[0.08em] uppercase"
+          className="group font-display flex items-center gap-3 text-sm font-semibold tracking-[0.12em] uppercase"
           onClick={() => setOpen(false)}
         >
+          {/* Due punti del sistema grafico: al passaggio del mouse si scambiano. */}
+          <span aria-hidden="true" className="relative flex h-3.5 w-6">
+            <span className="absolute left-0 size-3.5 rounded-full bg-secondary transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:translate-x-2.5" />
+            <span className="absolute left-2.5 size-3.5 rounded-full bg-accent mix-blend-screen transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:-translate-x-2.5" />
+          </span>
           Cosimo Patronella
         </Link>
 
@@ -66,15 +71,17 @@ export function Header({ navLinks }: { navLinks?: NavLink[] }) {
           <Link
             href="/#contatti"
             data-cursor="link"
-            className="text-xs font-medium tracking-[0.08em] text-accent uppercase underline decoration-accent/40 underline-offset-4 transition-colors hover:text-foreground hover:decoration-foreground/40"
+            className="group relative inline-flex items-center gap-2 overflow-hidden border border-foreground px-4 py-2.5 text-xs font-semibold tracking-[0.1em] uppercase transition-colors duration-300 hover:text-ink"
           >
-            Iniziamo un progetto →
+            <span aria-hidden="true" className="absolute inset-0 origin-left scale-x-0 bg-fill transition-transform duration-300 ease-out group-hover:scale-x-100" />
+            <span className="relative">Scrivimi</span>
+            <span aria-hidden="true" className="relative transition-transform duration-300 group-hover:translate-x-1">→</span>
           </Link>
         </nav>
 
         <button
           type="button"
-          className="flex h-10 w-10 items-center justify-center border border-border-strong md:hidden"
+          className="flex h-11 w-11 items-center justify-center border border-border-strong md:hidden"
           aria-label={open ? "Chiudi il menu" : "Apri il menu"}
           aria-expanded={open}
           onClick={() => setOpen((v) => !v)}
@@ -111,7 +118,7 @@ export function Header({ navLinks }: { navLinks?: NavLink[] }) {
                   key={link.href}
                   href={link.href}
                   aria-current={isActive(pathname, link.href) ? "page" : undefined}
-                  className="px-3 py-3 text-base font-medium text-foreground-muted hover:bg-surface hover:text-foreground"
+                  className="font-display border-b border-border px-1 py-4 text-2xl font-semibold tracking-[-0.02em] text-foreground transition-colors last:border-b-0 hover:text-accent"
                   onClick={() => setOpen(false)}
                 >
                   {link.label}

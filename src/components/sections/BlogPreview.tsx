@@ -1,45 +1,27 @@
 import Link from "next/link";
 import { SectionHeading } from "@/components/ui/SectionHeading";
-import { BlogListRow } from "@/components/blog/BlogListRow";
+import { BlogCard } from "@/components/blog/BlogCard";
 import { getPublishedPosts } from "@/lib/data/blog";
-import { sectionStyle } from "@/lib/contrast";
+import type { SectionTheme } from "@/lib/types";
 
-export async function BlogPreview({
-  backgroundColor,
-}: {
-  backgroundColor?: string;
-} = {}) {
-  const posts = await getPublishedPosts();
-  const latest = posts.slice(0, 3);
 
+/** Ultimi 3 articoli: copertina che si avvicina e titolo che si sottolinea. */
+export async function BlogPreview({ theme }: { theme: SectionTheme }) {
+  const latest = (await getPublishedPosts()).slice(0, 3);
   if (latest.length === 0) return null;
 
   return (
-    <section
-      id="blog"
-      style={sectionStyle(backgroundColor)}
-      className="container-px py-24 sm:py-32"
-    >
-      <div className="flex flex-col gap-14">
-        <div className="flex flex-wrap items-end justify-between gap-6">
-          <SectionHeading
-            title="Cose che scrivo, tra un progetto e l'altro."
-            size="poster"
-          />
-          <Link
-            href="/blog"
-            data-cursor="link"
-            className="text-sm font-medium text-foreground underline decoration-border-strong underline-offset-4 hover:text-accent"
-          >
-            Tutti gli articoli →
-          </Link>
-        </div>
-
-        <div className="flex flex-col">
-          {latest.map((post, i) => (
-            <BlogListRow key={post.id} post={post} index={i} />
-          ))}
-        </div>
+    <section id="blog" className={`theme-${theme} container-px py-24 sm:py-32`}>
+      <div className="flex flex-wrap items-end justify-between gap-6 pb-12 sm:pb-16">
+        <SectionHeading title="Dal blog." size="poster" />
+        <Link href="/blog" data-cursor="link" className="link-draw text-sm font-semibold tracking-[0.1em] uppercase">
+          Tutti gli articoli →
+        </Link>
+      </div>
+      <div className="grid grid-cols-1 gap-x-6 gap-y-12 md:grid-cols-3">
+        {latest.map((post, i) => (
+          <BlogCard key={post.id} post={post} index={i} />
+        ))}
       </div>
     </section>
   );

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { TitleArrow } from "@/components/ui/TitleArrow";
+import { ServiceGlyph } from "@/components/dumbar/ServiceGlyph";
 import { Button } from "@/components/ui/Button";
 import { buildMetadata } from "@/lib/seo";
 import { getPublishedServices } from "@/lib/data/services";
@@ -58,7 +59,8 @@ export default async function ServicesIndexPage() {
               data-cursor="link"
               className="group container-px flex flex-col gap-3 py-10 transition-colors hover:bg-foreground/[0.03] sm:flex-row sm:items-baseline sm:justify-between sm:gap-10 sm:py-14"
             >
-              <div className="flex items-baseline gap-6">
+              <div className="flex items-center gap-6">
+                <ServiceGlyph index={i} className="hidden scale-[0.6] origin-left sm:block sm:-mr-14" />
                 <span
                   aria-hidden="true"
                   className="font-display text-xl text-foreground-muted sm:text-2xl"

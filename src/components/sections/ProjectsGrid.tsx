@@ -1,54 +1,47 @@
 import Link from "next/link";
 import { SectionHeading } from "@/components/ui/SectionHeading";
-import { ProjectScreen } from "@/components/project/ProjectScreen";
+import { WorkGrid } from "@/components/project/WorkGrid";
 import { getPublishedProjects } from "@/lib/data/projects";
-import { sectionStyle } from "@/lib/contrast";
+import type { SectionTheme } from "@/lib/types";
 
-// Solo i progetti "in evidenza" appaiono in homepage (max 5): l'elenco
-// completo vive nella pagina dedicata /progetti, per non appesantire la
-// home man mano che i progetti crescono di numero.
-const HOMEPAGE_LIMIT = 5;
+// Solo i progetti "in evidenza" (massimo 4) in homepage: l'elenco completo
+// vive in /progetti.
+const HOMEPAGE_LIMIT = 4;
 
-export async function ProjectsGrid({
-  backgroundColor,
-}: {
-  backgroundColor?: string;
-} = {}) {
-  // getPublishedProjects() restituisce già i progetti ordinati per
-  // "sort_order" (il campo che scegli tu da /admin): qui basta filtrare
-  // senza riordinare. Solo i progetti con "In evidenza" spuntato — qualsiasi
-  // altro progetto pubblicato resta visibile solo in /progetti, mai qui —
-  // nessun ripiego automatico se non ne hai ancora segnato nessuno.
+export async function ProjectsGrid({ theme }: { theme: SectionTheme }) {
   const published = await getPublishedProjects();
-  const ordered = published.filter((p) => p.featured).slice(0, HOMEPAGE_LIMIT);
-
-  if (ordered.length === 0) return null;
+  const featured = published.filter((p) => p.featured).slice(0, HOMEPAGE_LIMIT);
+  if (featured.length === 0) return null;
+  const others = published.length - featured.length;
 
   return (
-    <section id="progetti" style={sectionStyle(backgroundColor)} className="relative">
-      <div className="container-px flex flex-wrap items-end justify-between gap-6 pt-24 sm:pt-32">
-        <SectionHeading title="Qualche progetto di cui vado fiero." />
-        {published.length > 0 ? (
-          <Link
-            href="/progetti"
-            data-cursor="link"
-            className="text-sm font-medium text-foreground underline decoration-border-strong underline-offset-4 hover:text-accent"
-          >
-            Tutti i progetti →
-          </Link>
-        ) : null}
+    <section id="progetti" className={`theme-${theme} container-px py-24 sm:py-32`}>
+      <div className="flex flex-wrap items-end justify-between gap-6 pb-12 sm:pb-16">
+        <SectionHeading title="Lavori scelti." size="poster" />
+        <span className="font-display text-base font-semibold text-foreground-muted">
+          {String(published.length).padStart(2, "0")} progetti
+        </span>
       </div>
 
-      <div className="mt-14 flex flex-col sm:mt-20">
-        {ordered.map((project, i) => (
-          <ProjectScreen
-            key={project.id}
-            project={project}
-            index={i}
-            total={ordered.length}
-          />
-        ))}
-      </div>
+      <WorkGrid projects={featured} />
+
+      <Link
+        href="/progetti"
+        data-cursor="link"
+        className="group mt-14 flex items-center justify-between gap-6 border-t border-border-strong pt-7"
+      >
+        <span className="font-display text-xl font-semibold tracking-[-0.02em] sm:text-2xl">
+          <span className="link-draw">
+            {others > 0 ? `Tutti i progetti, altri ${others}` : "Tutti i progetti"}
+          </span>
+        </span>
+        <span
+          aria-hidden="true"
+          className="flex size-14 items-center justify-center bg-foreground text-xl text-background transition-[background-color,color] duration-300 group-hover:bg-fill group-hover:text-ink"
+        >
+          <span className="transition-transform duration-300 group-hover:translate-x-1">→</span>
+        </span>
+      </Link>
     </section>
   );
 }

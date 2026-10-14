@@ -2,8 +2,15 @@
 
 import { revalidatePath } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/server";
+import {
+  DEFAULT_SECTION_THEMES,
+  THEME_LABELS,
+} from "@/lib/homeDefaults";
 import type {
   HomeContent,
+  HomeSectionKey,
+  ProcessStep,
+  SectionTheme,
   HomepageBlock,
   NavLink,
   PageSeo,
@@ -25,6 +32,10 @@ const HOME_CONTENT_TEXT_FIELDS: Array<
     | "nav_links"
     | "blocks"
     | "reviews"
+    | "process_steps"
+    | "show_process"
+    | "show_reviews"
+    | "section_themes"
   >
 > = [
   "hero_title_accent",
@@ -34,6 +45,12 @@ const HOME_CONTENT_TEXT_FIELDS: Array<
   "cta_secondary",
   "services_title",
   "services_intro",
+  "hero_eyebrow",
+  "process_title",
+  "process_subtitle",
+  "contact_eyebrow",
+  "contact_title",
+  "contact_text",
   "footer_tagline",
   "background_color",
   "foreground_color",
@@ -112,18 +129,37 @@ export async function updateSiteSettings(
   }
   homeContent.blocks = blocks.filter((b) => b.id && b.type);
 
-  const sectionColors: Record<string, string> = {};
-  for (const section of [
-    "hero",
-    "services",
-    "projects",
-    "blog",
-    "contact",
-  ] as const) {
-    const value = String(formData.get(`section_color_${section}`) || "").trim();
-    if (value) sectionColors[section] = value;
+  // Design "Dumbar": secondo colore, sezione "Come lavoro", tema di ogni
+  // sezione. Vuoti = valori predefiniti (src/lib/homeDefaults.ts).
+  const secondaryColor = String(formData.get("secondary_color") || "").trim();
+  if (secondaryColor && !HEX_COLOR_REGEX.test(secondaryColor)) {
+    return { error: "Il secondo colore deve essere un esadecimale tipo #ff5b3a." };
   }
-  homeContent.section_colors = sectionColors;
+  if (secondaryColor) homeContent.secondary_color = secondaryColor;
+  homeContent.show_process = formData.get("show_process") === "on";
+  homeContent.show_reviews = formData.get("show_reviews") === "on";
+
+  let processSteps: ProcessStep[] = [];
+  try {
+    processSteps = JSON.parse(String(formData.get("process_steps") || "[]"));
+  } catch {
+    processSteps = [];
+  }
+  homeContent.process_steps = processSteps
+    .filter((step) => step.title?.trim())
+    .map((step) => ({
+      title: String(step.title).trim().slice(0, 80),
+      text: String(step.text ?? "").trim().slice(0, 400),
+      badge: String(step.badge ?? "").trim().slice(0, 30),
+    }))
+    .slice(0, 6);
+
+  const themes: Partial<Record<HomeSectionKey, SectionTheme>> = {};
+  for (const key of Object.keys(DEFAULT_SECTION_THEMES) as HomeSectionKey[]) {
+    const value = String(formData.get(`section_theme_${key}`) || "");
+    if (value in THEME_LABELS) themes[key] = value as SectionTheme;
+  }
+  homeContent.section_themes = themes;
 
   const payload = {
     site_title: String(formData.get("site_title") || "").trim(),
@@ -152,6 +188,11 @@ export async function updateSiteSettings(
   const currentReviews = (current?.home_content as HomeContent | undefined)
     ?.reviews;
   if (currentReviews) homeContent.reviews = currentReviews;
+  // Colori per sezione del vecchio design: non più modificabili qui, ma si
+  // conservano così come sono.
+  const currentSectionColors = (current?.home_content as HomeContent | undefined)
+    ?.section_colors;
+  if (currentSectionColors) homeContent.section_colors = currentSectionColors;
 
   let { error } = await supabase
     .from("site_settings")

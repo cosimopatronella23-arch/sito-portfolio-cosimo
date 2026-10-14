@@ -15,6 +15,15 @@
 
   --accent: #a78bfa;
   --accent-strong: #8b5cf6;
+  /* Palette del design "Dumbar": inchiostro, carta, corallo. L'accento
+     (lavanda) e il corallo si cambiano da /admin/impostazioni. */
+  --ink: #0b0a10;
+  --paper: #f3efe6;
+  --on-ink: #f3efe6;
+  --secondary: #ff5b3a;
+  /* Colore di riempimento dei pulsanti al passaggio del mouse: ogni tema
+     di sezione lo ridefinisce perché resti visibile sul suo sfondo. */
+  --fill: var(--accent);
   --accent-blue: #6366f1;
   --accent-pink: #ec4899;
 
@@ -33,6 +42,10 @@
   --color-border-strong: var(--border-strong);
 
   --color-accent: var(--accent);
+  --color-secondary: var(--secondary);
+  --color-ink: var(--ink);
+  --color-paper: var(--paper);
+  --color-fill: var(--fill);
   --color-accent-strong: var(--accent-strong);
   --color-accent-blue: var(--accent-blue);
   --color-accent-pink: var(--accent-pink);
@@ -56,8 +69,12 @@
   }
 }
 
-* {
-  border-color: var(--border);
+/* Nel livello "base": così le classi di colore dei bordi (es.
+   border-foreground) hanno sempre la precedenza su questo valore generale. */
+@layer base {
+  * {
+    border-color: var(--border);
+  }
 }
 
 html {
@@ -271,4 +288,106 @@ body {
 .cursor-active-custom a,
 .cursor-active-custom button {
   cursor: none;
+}
+
+/* ---------------------------------------------------------------------- */
+/* Temi di sezione: ogni sezione sceglie uno sfondo e ridefinisce i colori */
+/* di testo, bordi ed evidenziazione così tutto resta leggibile.          */
+/* ---------------------------------------------------------------------- */
+.theme-ink,
+.theme-paper,
+.theme-accent,
+.theme-secondary {
+  background-color: var(--background);
+  color: var(--foreground);
+}
+.theme-ink {
+  --background: var(--ink);
+  --surface: #14121b;
+  --surface-hover: #1b1824;
+  --foreground: var(--on-ink);
+  --foreground-muted: #a39dae;
+  --border: rgba(243, 239, 230, 0.1);
+  --border-strong: rgba(243, 239, 230, 0.2);
+  --fill: var(--accent);
+  --highlight: var(--accent);
+}
+.theme-paper {
+  --background: var(--paper);
+  --surface: #e9e3d6;
+  --surface-hover: #e2dbcc;
+  --foreground: var(--ink);
+  --foreground-muted: rgba(11, 10, 16, 0.64);
+  --border: rgba(11, 10, 16, 0.12);
+  --border-strong: rgba(11, 10, 16, 0.24);
+  --fill: var(--secondary);
+  --highlight: var(--secondary);
+}
+.theme-accent {
+  --background: var(--accent);
+  --surface: rgba(11, 10, 16, 0.06);
+  --surface-hover: rgba(11, 10, 16, 0.1);
+  --foreground: var(--ink);
+  --foreground-muted: rgba(11, 10, 16, 0.72);
+  --border: rgba(11, 10, 16, 0.16);
+  --border-strong: rgba(11, 10, 16, 0.32);
+  --fill: var(--secondary);
+  --highlight: var(--ink);
+}
+.theme-secondary {
+  --background: var(--secondary);
+  --surface: rgba(11, 10, 16, 0.06);
+  --surface-hover: rgba(11, 10, 16, 0.1);
+  --foreground: var(--ink);
+  --foreground-muted: rgba(11, 10, 16, 0.76);
+  --border: rgba(11, 10, 16, 0.18);
+  --border-strong: rgba(11, 10, 16, 0.36);
+  --fill: var(--paper);
+  --highlight: var(--ink);
+}
+.theme-paper ::selection,
+.theme-accent ::selection,
+.theme-secondary ::selection {
+  background: var(--ink);
+  color: var(--paper);
+}
+.theme-paper :focus-visible,
+.theme-accent :focus-visible,
+.theme-secondary :focus-visible {
+  outline-color: var(--ink);
+}
+
+/* Sottolineatura che si disegna da sinistra al passaggio del mouse. */
+.link-draw {
+  background-image: linear-gradient(currentColor, currentColor);
+  background-size: 0% 1px;
+  background-position: 0 100%;
+  background-repeat: no-repeat;
+  transition: background-size 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.link-draw:hover,
+.link-draw:focus-visible {
+  background-size: 100% 1px;
+}
+
+/* Forme geometriche che respirano lentamente (fermate con riduci movimento). */
+@keyframes shape-float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-8px) rotate(4deg);
+  }
+}
+.shape-float {
+  animation: shape-float 7s ease-in-out infinite;
+}
+.shape-float-slow {
+  animation: shape-float 10s ease-in-out infinite reverse;
+}
+
+/* La banda che scorre si ferma quando ci si passa sopra. */
+.marquee-pause:hover .marquee-track {
+  animation-play-state: paused;
 }

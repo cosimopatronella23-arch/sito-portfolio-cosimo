@@ -12,10 +12,14 @@ export function customColorsCss(settings: SiteSettings): string {
   const accent = pick(settings.accent_color);
   const background = pick(settings.home_content.background_color);
   const foreground = pick(settings.home_content.foreground_color);
+  const secondary = pick(settings.home_content.secondary_color);
+  // Sfondo e testo personalizzati valgono per le sezioni scure (tema
+  // "inchiostro"); le sezioni "carta" mantengono il loro tono caldo.
   return [
     accent ? `--accent: ${accent}; --accent-strong: ${accent};` : "",
-    background ? `--background: ${background};` : "",
-    foreground ? `--foreground: ${foreground};` : "",
+    background ? `--background: ${background}; --ink: ${background};` : "",
+    foreground ? `--foreground: ${foreground}; --on-ink: ${foreground};` : "",
+    secondary ? `--secondary: ${secondary};` : "",
   ]
     .filter(Boolean)
     .join(" ");

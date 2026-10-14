@@ -6,6 +6,16 @@ import { ServicesEditor } from "./ServicesEditor";
 import { NavLinksEditor } from "./NavLinksEditor";
 import { HomepageBlocksEditor } from "./HomepageBlocksEditor";
 import { SettingsSection } from "./SettingsSection";
+import { ProcessStepsEditor } from "./ProcessStepsEditor";
+import {
+  DEFAULT_SECTION_THEMES,
+  HOME_DEFAULTS,
+  SECTION_LABELS,
+  THEME_LABELS,
+  processSteps,
+  sectionTheme,
+} from "@/lib/homeDefaults";
+import type { HomeSectionKey } from "@/lib/types";
 import { SettingsTabPanel, useSettingsTab } from "./SettingsTabs";
 import { useUnsavedChanges } from "./useUnsavedChanges";
 import { contrastRatio } from "@/lib/contrast";
@@ -56,16 +66,10 @@ export function SiteSettingsForm({ settings }: { settings: SiteSettings }) {
   );
   const ratio = contrastRatio(backgroundColor, foregroundColor);
 
-  const [sectionColors, setSectionColors] = useState(
-    settings.home_content.section_colors ?? {},
+  const [secondaryColor, setSecondaryColor] = useState(
+    settings.home_content.secondary_color || HOME_DEFAULTS.secondary_color,
   );
-  const SECTION_LABELS: Record<string, string> = {
-    hero: "Intestazione (Hero)",
-    services: "Servizi",
-    projects: "Progetti",
-    blog: "Anteprima blog",
-    contact: "Contatti",
-  };
+
 
   return (
     <form
@@ -165,6 +169,28 @@ export function SiteSettingsForm({ settings }: { settings: SiteSettings }) {
             </div>
           </label>
 
+          <label className="flex flex-col gap-2">
+            <span className="text-sm font-medium">
+              Secondo colore (corallo: banda dei servizi, contatti, dettagli)
+            </span>
+            <div className="flex items-center gap-4">
+              <input
+                type="color"
+                value={secondaryColor}
+                onChange={(e) => setSecondaryColor(e.target.value)}
+                className="h-11 w-11 shrink-0 cursor-pointer border border-border-strong bg-transparent"
+                aria-label="Secondo colore"
+              />
+              <input
+                name="secondary_color"
+                value={secondaryColor}
+                onChange={(e) => setSecondaryColor(e.target.value)}
+                pattern="#[0-9a-fA-F]{6}"
+                className={fieldClasses}
+              />
+            </div>
+          </label>
+
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <label className="flex flex-col gap-2">
               <span className="text-sm font-medium">Colore sfondo</span>
@@ -242,6 +268,18 @@ export function SiteSettingsForm({ settings }: { settings: SiteSettings }) {
           title="Homepage — testi"
           defaultOpen
         >
+          <label className="flex flex-col gap-2">
+            <span className="text-sm text-foreground-muted">
+              Riga sopra il titolo (es. ruolo e zone in cui lavori)
+            </span>
+            <input
+              name="hero_eyebrow"
+              defaultValue={settings.home_content.hero_eyebrow ?? ""}
+              placeholder={HOME_DEFAULTS.hero_eyebrow}
+              className={fieldClasses}
+            />
+          </label>
+
           <label className="flex flex-col gap-2">
             <span className="text-sm text-foreground-muted">
               Titolo principale (prima parte, non colorata — vai a capo con
@@ -356,6 +394,8 @@ export function SiteSettingsForm({ settings }: { settings: SiteSettings }) {
               [
                 { name: "show_services", label: "Servizi" },
                 { name: "show_projects", label: "Progetti" },
+                { name: "show_process", label: "Come lavoro" },
+                { name: "show_reviews", label: "Recensioni" },
                 { name: "show_blog_preview", label: "Anteprima blog" },
                 { name: "show_contact", label: "Contatti" },
               ] as const
@@ -373,53 +413,98 @@ export function SiteSettingsForm({ settings }: { settings: SiteSettings }) {
         </SettingsSection>
 
         <SettingsSection
-          id="sez-colori-sezione"
-          title="Colori per sezione (homepage)"
-          description="Dai a una sezione fissa uno sfondo diverso dal resto del sito (es. per alternare colori come in un moodboard). Il testo di quella sezione si adatta da solo per restare leggibile."
+          id="sez-come-lavoro"
+          title="Homepage — Come lavoro"
+          description="I passi del tuo metodo di lavoro, mostrati in homepage. Vuoto = testi predefiniti."
           defaultOpen
         >
-          <div className="flex flex-col gap-4">
-            {(["hero", "services", "projects", "blog", "contact"] as const).map(
-              (key) => (
-                <div key={key} className="flex items-center gap-3 text-sm">
-                  <span className="w-40 shrink-0 text-foreground-muted">
-                    {SECTION_LABELS[key]}
-                  </span>
-                  <input
-                    type="color"
-                    value={sectionColors[key] || "#0b0a10"}
-                    onChange={(e) =>
-                      setSectionColors((prev) => ({
-                        ...prev,
-                        [key]: e.target.value,
-                      }))
-                    }
-                    className="h-8 w-8 shrink-0 cursor-pointer border border-border-strong bg-transparent"
-                    aria-label={`Colore sfondo — ${SECTION_LABELS[key]}`}
-                  />
-                  <input
-                    type="hidden"
-                    name={`section_color_${key}`}
-                    value={sectionColors[key] || ""}
-                  />
-                  {sectionColors[key] ? (
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setSectionColors((prev) => ({ ...prev, [key]: "" }))
-                      }
-                      className="text-xs text-foreground-muted hover:text-foreground"
-                    >
-                      Usa lo sfondo del sito
-                    </button>
-                  ) : (
-                    <span className="text-xs text-foreground-muted">
-                      Sfondo del sito (predefinito)
-                    </span>
-                  )}
-                </div>
-              ),
-            )}
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+            <label className="flex flex-col gap-2">
+              <span className="text-sm text-foreground-muted">Titolo</span>
+              <input
+                name="process_title"
+                defaultValue={settings.home_content.process_title ?? ""}
+                placeholder={HOME_DEFAULTS.process_title}
+                className={fieldClasses}
+              />
+            </label>
+            <label className="flex flex-col gap-2">
+              <span className="text-sm text-foreground-muted">Sottotitolo</span>
+              <input
+                name="process_subtitle"
+                defaultValue={settings.home_content.process_subtitle ?? ""}
+                placeholder={HOME_DEFAULTS.process_subtitle}
+                className={fieldClasses}
+              />
+            </label>
+          </div>
+          <ProcessStepsEditor
+            name="process_steps"
+            defaultValue={processSteps(settings.home_content)}
+          />
+        </SettingsSection>
+
+        <SettingsSection
+          id="sez-invito"
+          title="Homepage — Contatti"
+          description="I testi della sezione finale con il modulo di contatto. Vuoto = testi predefiniti."
+          defaultOpen
+        >
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+            <label className="flex flex-col gap-2">
+              <span className="text-sm text-foreground-muted">Etichetta</span>
+              <input
+                name="contact_eyebrow"
+                defaultValue={settings.home_content.contact_eyebrow ?? ""}
+                placeholder={HOME_DEFAULTS.contact_eyebrow}
+                className={fieldClasses}
+              />
+            </label>
+            <label className="flex flex-col gap-2">
+              <span className="text-sm text-foreground-muted">Titolo grande</span>
+              <input
+                name="contact_title"
+                defaultValue={settings.home_content.contact_title ?? ""}
+                placeholder={HOME_DEFAULTS.contact_title}
+                className={fieldClasses}
+              />
+            </label>
+          </div>
+          <label className="flex flex-col gap-2">
+            <span className="text-sm text-foreground-muted">Testo</span>
+            <textarea
+              name="contact_text"
+              defaultValue={settings.home_content.contact_text ?? ""}
+              placeholder={HOME_DEFAULTS.contact_text}
+              rows={2}
+              className={fieldClasses}
+            />
+          </label>
+        </SettingsSection>
+
+        <SettingsSection
+          id="sez-stile-sezioni"
+          title="Homepage — stile delle sezioni"
+          description="Lo sfondo di ogni sezione. Testo, bordi e pulsanti si adattano da soli per restare leggibili."
+          defaultOpen
+        >
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            {(Object.keys(DEFAULT_SECTION_THEMES) as HomeSectionKey[]).map((key) => (
+              <label key={key} className="flex flex-col gap-2 text-sm">
+                {SECTION_LABELS[key]}
+                <select
+                  name={`section_theme_${key}`}
+                  defaultValue={sectionTheme(settings.home_content, key)}
+                  className="min-h-11 border border-border-strong bg-background px-3"
+                >
+                  {Object.entries(THEME_LABELS).map(([value, label]) => (
+                    <option key={value} value={value}>
+                      {label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            ))}
           </div>
         </SettingsSection>
 

@@ -18,7 +18,7 @@ export function Stars({ rating, className }: { rating: number; className?: strin
     <span
       role="img"
       aria-label={`${rating} stelle su 5`}
-      className={clsx("flex gap-1 text-accent", className)}
+      className={clsx("flex gap-1 text-[var(--highlight,var(--accent))]", className)}
     >
       {[1, 2, 3, 4, 5].map((n) => (
         <svg
@@ -58,7 +58,7 @@ export function ReviewQuote({
         className={clsx(
           "text-pretty text-foreground",
           featured
-            ? "font-display text-2xl leading-snug font-medium tracking-tight sm:text-3xl lg:text-4xl"
+            ? "font-display max-w-5xl text-3xl leading-[1.05] font-semibold tracking-[-0.035em] sm:text-5xl lg:text-6xl"
             : "text-lg leading-relaxed",
         )}
       >
@@ -76,7 +76,7 @@ export function ReviewQuote({
             <Link
               href={`/progetti/${review.project_slug}`}
               data-cursor="link"
-              className="text-foreground underline decoration-border-strong underline-offset-4 hover:text-accent hover:decoration-accent"
+              className="link-draw font-medium text-foreground"
             >
               Vedi il progetto
             </Link>
