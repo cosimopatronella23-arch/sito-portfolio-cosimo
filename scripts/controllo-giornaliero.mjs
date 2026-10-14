@@ -19,17 +19,24 @@ const metriche = {};
 const add = (list, msg) => list.push(msg);
 
 async function get(url, opts = {}) {
-  try {
-    const res = await fetch(url, {
-      redirect: opts.redirect ?? "follow",
-      headers: { "User-Agent": "controllo-giornaliero" },
-      signal: AbortSignal.timeout(30000),
-    });
-    const text = opts.body === false ? "" : await res.text();
-    return { status: res.status, text, headers: res.headers };
-  } catch (e) {
-    return { status: 0, text: "", headers: new Headers(), error: e.message };
+  // Fino a 3 tentativi: una connessione caduta sul computer che esegue il
+  // controllo non deve diventare un "problema del sito".
+  let last;
+  for (let attempt = 1; attempt <= 3; attempt++) {
+    try {
+      const res = await fetch(url, {
+        redirect: opts.redirect ?? "follow",
+        headers: { "User-Agent": "controllo-giornaliero" },
+        signal: AbortSignal.timeout(30000),
+      });
+      const text = opts.body === false ? "" : await res.text();
+      return { status: res.status, text, headers: res.headers };
+    } catch (e) {
+      last = { status: 0, text: "", headers: new Headers(), error: e.message };
+      if (attempt < 3) await new Promise((r) => setTimeout(r, 5000));
+    }
   }
+  return last;
 }
 
 const decode = (s) =>
@@ -312,7 +319,13 @@ try {
 // 10. Confronto con il controllo precedente
 const previous = existsSync(STATE_FILE) ? JSON.parse(readFileSync(STATE_FILE, "utf8")) : null;
 const novita = [];
-if (previous) {
+// Senza sitemap non si è controllato nulla: si tiene l'elenco di ieri
+// invece di segnare tutte le pagine come "perse".
+if (previous && urls.length === 0) {
+  metriche.indicizzate = previous.metriche?.indicizzate ?? [];
+  metriche.non_indicizzate = previous.metriche?.non_indicizzate ?? [];
+  add(avvisi, "Indicizzazione non ricontrollata oggi (sitemap non letta): resta il dato di ieri");
+} else if (previous) {
   const prevIdx = new Set(previous.metriche?.indicizzate ?? []);
   const nuove = (metriche.indicizzate ?? []).filter((p) => !prevIdx.has(p));
   // "Persa" solo se oggi Google ha risposto e la pagina risulta non
