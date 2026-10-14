@@ -2,7 +2,6 @@ import Link from "next/link";
 import { getSiteSettings } from "@/lib/data/settings";
 import { getPublishedServices } from "@/lib/data/services";
 import { formatPhone, phoneHref, whatsappHref } from "@/lib/phone";
-import { Shape } from "@/components/dumbar/Shapes";
 
 // Nomi mostrati per i link non social (il resto usa il nome della chiave).
 const SOCIAL_LABELS: Record<string, string> = { google: "Recensioni Google" };
@@ -24,15 +23,10 @@ export async function Footer() {
         <a
           href={`mailto:${siteSettings.contact_email}`}
           data-cursor="link"
-          className="font-display w-max max-w-full text-[clamp(1.05rem,5vw,4.5rem)] leading-none font-bold tracking-[-0.04em] [overflow-wrap:anywhere]"
+          className="font-display w-max max-w-full text-[clamp(1.05rem,3.4vw,2.75rem)] leading-none font-bold tracking-[-0.035em] [overflow-wrap:anywhere]"
         >
           <span className="link-draw">{siteSettings.contact_email}</span>
         </a>
-        <span className="flex items-end gap-3" aria-hidden="true">
-          <Shape kind="circle" color="bg-secondary" className="size-10 hover:scale-110 sm:size-12" />
-          <Shape kind="square" color="bg-accent" className="size-10 hover:rotate-45 sm:size-12" />
-          <Shape kind="quarter" color="bg-foreground" className="size-10 hover:-rotate-90 sm:size-12" />
-        </span>
       </div>
 
       <div className="container-px grid grid-cols-2 gap-x-6 gap-y-10 border-t border-border py-12 md:grid-cols-4">

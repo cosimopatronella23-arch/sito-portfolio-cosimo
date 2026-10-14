@@ -66,9 +66,6 @@ export function SiteSettingsForm({ settings }: { settings: SiteSettings }) {
   );
   const ratio = contrastRatio(backgroundColor, foregroundColor);
 
-  const [secondaryColor, setSecondaryColor] = useState(
-    settings.home_content.secondary_color || HOME_DEFAULTS.secondary_color,
-  );
 
 
   return (
@@ -169,27 +166,6 @@ export function SiteSettingsForm({ settings }: { settings: SiteSettings }) {
             </div>
           </label>
 
-          <label className="flex flex-col gap-2">
-            <span className="text-sm font-medium">
-              Secondo colore (corallo: banda dei servizi, contatti, dettagli)
-            </span>
-            <div className="flex items-center gap-4">
-              <input
-                type="color"
-                value={secondaryColor}
-                onChange={(e) => setSecondaryColor(e.target.value)}
-                className="h-11 w-11 shrink-0 cursor-pointer border border-border-strong bg-transparent"
-                aria-label="Secondo colore"
-              />
-              <input
-                name="secondary_color"
-                value={secondaryColor}
-                onChange={(e) => setSecondaryColor(e.target.value)}
-                pattern="#[0-9a-fA-F]{6}"
-                className={fieldClasses}
-              />
-            </div>
-          </label>
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <label className="flex flex-col gap-2">

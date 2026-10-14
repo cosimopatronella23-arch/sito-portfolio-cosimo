@@ -55,7 +55,7 @@ export function BlogPostView({
 
           <div className="flex flex-col gap-6">
             {post.category ? (
-              <p className="w-max bg-secondary px-3 py-1.5 text-xs font-semibold tracking-[0.1em] text-ink uppercase">
+              <p className="w-max bg-accent px-3 py-1.5 text-xs font-semibold tracking-[0.1em] text-ink uppercase">
                 {post.category}
               </p>
             ) : null}
@@ -72,7 +72,7 @@ export function BlogPostView({
               <time dateTime={post.published_at}>
                 {dateFormatter.format(new Date(post.published_at))}
               </time>
-              <span aria-hidden="true" className="size-1.5 rounded-full bg-secondary" />
+              <span aria-hidden="true" className="size-1.5 rounded-full bg-accent" />
               <span>{readingMinutes(post.content)} min di lettura</span>
             </p>
           </div>

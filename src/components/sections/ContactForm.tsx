@@ -55,7 +55,7 @@ const fieldClasses =
  * conteggio dei contatti in Analytics sono quelli di sempre.
  */
 export function ContactForm({
-  theme = "secondary",
+  theme = "accent",
   eyebrow,
   title,
   text,
@@ -90,7 +90,7 @@ export function ContactForm({
       <div className="relative grid grid-cols-1 gap-16 lg:grid-cols-12 lg:gap-6">
         <div className="flex flex-col gap-8 lg:col-span-6">
           <p className="text-xs font-semibold tracking-[0.14em] uppercase">{eyebrow}</p>
-          <h2 className="font-display text-[clamp(4.5rem,13vw,13rem)] leading-[0.8] font-extrabold tracking-[-0.06em]">
+          <h2 className="font-display text-[clamp(3.5rem,9vw,8.5rem)] leading-[0.85] font-extrabold tracking-[-0.055em]">
             <AnimatedText text={title} />
           </h2>
           <p className="max-w-md text-xl leading-relaxed">{text}</p>

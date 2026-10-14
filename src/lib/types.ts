@@ -184,7 +184,7 @@ export interface ClientReview {
   visible: boolean;
 }
 
-export type SectionTheme = "ink" | "paper" | "accent" | "secondary";
+export type SectionTheme = "ink" | "paper" | "accent";
 
 export type HomeSectionKey =
   | "hero"
@@ -229,10 +229,10 @@ export interface HomeContent {
   contact_eyebrow?: string;
   contact_title?: string;
   contact_text?: string;
-  /** Secondo colore del sito (corallo), oltre all'accento. */
-  secondary_color?: string;
-  /** Sfondo di ogni sezione della homepage. */
-  section_themes?: Partial<Record<HomeSectionKey, SectionTheme>>;
+  /** Sfondo di ogni sezione della homepage (solo scuro, carta, accento).
+   *  Chiave nuova: le scelte della versione precedente, con il corallo,
+   *  restano nel database ma non vengono più lette. */
+  section_style?: Partial<Record<HomeSectionKey, SectionTheme>>;
   // Vive qui per lo stesso motivo di nav_links: evitare una migrazione al
   // database. Se assente/vuoto, il footer usa il testo di default nel codice.
   footer_tagline?: string;

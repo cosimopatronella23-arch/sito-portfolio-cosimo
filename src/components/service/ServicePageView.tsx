@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { AnimatedText } from "@/components/ui/AnimatedText";
-import { Shape } from "@/components/dumbar/Shapes";
 import { WorkGrid } from "@/components/project/WorkGrid";
 import { ClosingCta } from "@/components/sections/ClosingCta";
 import { normalizeHeadings } from "@/lib/html";
@@ -58,14 +57,10 @@ export function ServicePageView({
           </ol>
         </nav>
 
-        <div className="mt-10 flex flex-col gap-10 sm:mt-14 lg:flex-row lg:items-end lg:justify-between">
+        <div className="mt-10 sm:mt-14">
           <h1 className="font-display max-w-5xl text-[clamp(2.75rem,7vw,6.5rem)] leading-[0.92] font-bold tracking-[-0.045em] text-balance">
             <AnimatedText text={service.title} />
           </h1>
-          <span aria-hidden="true" className="hidden shrink-0 items-end gap-3 lg:flex">
-            <Shape kind="square" color="bg-accent" className="size-16 hover:rotate-45" />
-            <Shape kind="circle" color="bg-secondary" float="fast" className="size-16 hover:scale-110" />
-          </span>
         </div>
 
         {service.intro || areas.length ? (

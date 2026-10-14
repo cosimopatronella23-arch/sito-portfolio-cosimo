@@ -120,7 +120,7 @@ export function GoogleAnalytics({
           className="theme-paper fixed inset-x-3 bottom-3 z-[100] flex flex-col gap-4 border-2 border-foreground bg-background p-5 text-foreground motion-safe:animate-[cookie-in_0.5s_cubic-bezier(0.22,1,0.36,1)] sm:inset-x-auto sm:bottom-6 sm:left-6 sm:max-w-sm sm:p-6"
         >
           <div className="flex items-start gap-3">
-            <span aria-hidden="true" className="mt-1 size-3.5 shrink-0 rounded-full bg-secondary" />
+            <span aria-hidden="true" className="mt-1 size-3.5 shrink-0 rounded-full bg-accent" />
             <div className="flex flex-col gap-2 text-sm leading-relaxed">
               <p className="font-display text-base font-bold tracking-[-0.01em]">
                 Solo statistiche anonime.

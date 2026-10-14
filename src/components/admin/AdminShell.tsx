@@ -97,7 +97,7 @@ function Brand() {
     <Link href="/admin" className="group flex flex-col px-3 leading-tight">
       <span className="font-display flex items-center gap-2.5 text-base font-semibold tracking-tight">
         <span aria-hidden="true" className="relative flex h-3 w-5 shrink-0">
-          <span className="absolute left-0 size-3 rounded-full bg-secondary transition-transform duration-500 group-hover:translate-x-2" />
+          <span className="absolute left-0 size-3 rounded-full bg-paper transition-transform duration-500 group-hover:translate-x-2" />
           <span className="absolute left-2 size-3 rounded-full bg-accent mix-blend-screen transition-transform duration-500 group-hover:-translate-x-2" />
         </span>
         Cosimo Patronella

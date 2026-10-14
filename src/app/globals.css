@@ -15,12 +15,11 @@
 
   --accent: #a78bfa;
   --accent-strong: #8b5cf6;
-  /* Palette del design "Dumbar": inchiostro, carta, corallo. L'accento
-     (lavanda) e il corallo si cambiano da /admin/impostazioni. */
+  /* Palette: inchiostro e carta, con un solo colore d'accento (lavanda)
+     che si cambia da /admin/impostazioni. */
   --ink: #0b0a10;
   --paper: #f3efe6;
   --on-ink: #f3efe6;
-  --secondary: #ff5b3a;
   /* Colore di riempimento dei pulsanti al passaggio del mouse: ogni tema
      di sezione lo ridefinisce perché resti visibile sul suo sfondo. */
   --fill: var(--accent);
@@ -42,7 +41,6 @@
   --color-border-strong: var(--border-strong);
 
   --color-accent: var(--accent);
-  --color-secondary: var(--secondary);
   --color-ink: var(--ink);
   --color-paper: var(--paper);
   --color-fill: var(--fill);
@@ -274,7 +272,7 @@ body {
   transition: text-decoration-color 0.2s;
 }
 .prose-editor a:hover {
-  text-decoration-color: var(--secondary);
+  text-decoration-color: currentColor;
   text-decoration-thickness: 2px;
 }
 
@@ -301,8 +299,7 @@ body {
 /* ---------------------------------------------------------------------- */
 .theme-ink,
 .theme-paper,
-.theme-accent,
-.theme-secondary {
+.theme-accent {
   background-color: var(--background);
   color: var(--foreground);
 }
@@ -325,8 +322,8 @@ body {
   --foreground-muted: rgba(11, 10, 16, 0.64);
   --border: rgba(11, 10, 16, 0.12);
   --border-strong: rgba(11, 10, 16, 0.24);
-  --fill: var(--secondary);
-  --highlight: var(--secondary);
+  --fill: var(--accent);
+  --highlight: var(--ink);
 }
 .theme-accent {
   --background: var(--accent);
@@ -336,29 +333,16 @@ body {
   --foreground-muted: rgba(11, 10, 16, 0.72);
   --border: rgba(11, 10, 16, 0.16);
   --border-strong: rgba(11, 10, 16, 0.32);
-  --fill: var(--secondary);
-  --highlight: var(--ink);
-}
-.theme-secondary {
-  --background: var(--secondary);
-  --surface: rgba(11, 10, 16, 0.06);
-  --surface-hover: rgba(11, 10, 16, 0.1);
-  --foreground: var(--ink);
-  --foreground-muted: rgba(11, 10, 16, 0.76);
-  --border: rgba(11, 10, 16, 0.18);
-  --border-strong: rgba(11, 10, 16, 0.36);
   --fill: var(--paper);
   --highlight: var(--ink);
 }
 .theme-paper ::selection,
-.theme-accent ::selection,
-.theme-secondary ::selection {
+.theme-accent ::selection {
   background: var(--ink);
   color: var(--paper);
 }
 .theme-paper :focus-visible,
-.theme-accent :focus-visible,
-.theme-secondary :focus-visible {
+.theme-accent :focus-visible {
   outline-color: var(--ink);
 }
 

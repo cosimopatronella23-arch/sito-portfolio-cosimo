@@ -81,10 +81,10 @@ export function Hero({
               <AnimatedText text={first ?? ""} />
             </span>
             <span className="flex items-end gap-2.5 sm:gap-4" aria-hidden="true">
-              <Shape kind="circle" color="bg-secondary" float="fast" className="size-14 hover:scale-110 sm:size-[clamp(4rem,min(8vw,12vh),7.5rem)]" />
-              <Shape kind="square" color="bg-accent" className="size-14 hover:rotate-45 sm:size-[clamp(4rem,min(8vw,12vh),7.5rem)]" />
+              <Shape kind="circle" color="bg-accent" float="fast" className="size-14 hover:scale-110 sm:size-[clamp(4rem,min(8vw,12vh),7.5rem)]" />
+              <Shape kind="square" color="bg-paper" className="size-14 hover:rotate-45 sm:size-[clamp(4rem,min(8vw,12vh),7.5rem)]" />
               <Shape kind="ring" color="border-foreground" float="slow" className="size-14 hover:scale-90 sm:size-[clamp(4rem,min(8vw,12vh),7.5rem)]" />
-              <Shape kind="quarter" color="bg-secondary" className="size-14 hover:-rotate-90 sm:size-[clamp(4rem,min(8vw,12vh),7.5rem)]" />
+              <Shape kind="quarter" color="bg-accent" className="size-14 hover:-rotate-90 sm:size-[clamp(4rem,min(8vw,12vh),7.5rem)]" />
             </span>
           </span>
           {others.map((line, i) => (
@@ -118,7 +118,7 @@ export function Hero({
               initial={reduce ? false : "hidden"}
               animate="visible"
               custom={2}
-              className="font-display max-w-sm border-l-2 border-secondary pl-4 text-sm leading-relaxed text-foreground-muted lg:col-span-3 lg:col-start-7"
+              className="font-display max-w-sm border-l-2 border-accent pl-4 text-sm leading-relaxed text-foreground-muted lg:col-span-3 lg:col-start-7"
             >
               {content.hero_quote}
             </motion.p>

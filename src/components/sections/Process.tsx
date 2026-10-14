@@ -27,7 +27,7 @@ export function Process({
         <SectionHeading title={title} size="poster" />
         <span className="font-display max-w-xs text-base font-semibold sm:text-right">{subtitle}</span>
       </div>
-      <ol className={`grid grid-cols-1 gap-x-6 gap-y-12 border-t-2 border-foreground sm:grid-cols-2 ${cols}`}>
+      <ol className={`grid grid-cols-1 gap-x-6 gap-y-12 border-t border-border-strong sm:grid-cols-2 ${cols}`}>
         {steps.map((step, i) => (
           <motion.li
             key={`${i}-${step.title}`}
@@ -39,12 +39,12 @@ export function Process({
           >
             <span
               aria-hidden="true"
-              className="font-display text-[clamp(5rem,10vw,9rem)] leading-[0.8] font-extrabold tracking-[-0.06em] transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:-translate-y-2"
+              className="font-display text-[clamp(3rem,5vw,4.5rem)] leading-[0.85] font-bold tracking-[-0.05em] text-foreground-muted transition-[transform,color] duration-500 group-hover:text-foreground ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:-translate-y-2"
             >
               {String(i + 1).padStart(2, "0")}
             </span>
             {step.badge ? (
-              <span className="w-max bg-ink px-3 py-1.5 text-xs font-semibold tracking-[0.1em] text-paper uppercase">
+              <span className="w-max bg-accent px-3 py-1.5 text-xs font-semibold tracking-[0.1em] text-ink uppercase">
                 {step.badge}
               </span>
             ) : null}

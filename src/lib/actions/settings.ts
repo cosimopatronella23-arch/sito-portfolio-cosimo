@@ -35,7 +35,7 @@ const HOME_CONTENT_TEXT_FIELDS: Array<
     | "process_steps"
     | "show_process"
     | "show_reviews"
-    | "section_themes"
+    | "section_style"
   >
 > = [
   "hero_title_accent",
@@ -131,11 +131,6 @@ export async function updateSiteSettings(
 
   // Design "Dumbar": secondo colore, sezione "Come lavoro", tema di ogni
   // sezione. Vuoti = valori predefiniti (src/lib/homeDefaults.ts).
-  const secondaryColor = String(formData.get("secondary_color") || "").trim();
-  if (secondaryColor && !HEX_COLOR_REGEX.test(secondaryColor)) {
-    return { error: "Il secondo colore deve essere un esadecimale tipo #ff5b3a." };
-  }
-  if (secondaryColor) homeContent.secondary_color = secondaryColor;
   homeContent.show_process = formData.get("show_process") === "on";
   homeContent.show_reviews = formData.get("show_reviews") === "on";
 
@@ -159,7 +154,7 @@ export async function updateSiteSettings(
     const value = String(formData.get(`section_theme_${key}`) || "");
     if (value in THEME_LABELS) themes[key] = value as SectionTheme;
   }
-  homeContent.section_themes = themes;
+  homeContent.section_style = themes;
 
   const payload = {
     site_title: String(formData.get("site_title") || "").trim(),

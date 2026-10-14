@@ -36,18 +36,19 @@ export const HOME_DEFAULTS = {
   contact_title: "Parliamo.",
   contact_text:
     "Raccontami cosa stai costruendo: ti dico come lo farei, senza impegno.",
-  secondary_color: "#ff5b3a",
 } as const;
 
+// Ritmo calmo: scuro e carta che si alternano a coppie, un solo grande
+// blocco nel colore d'accento (i contatti, il punto d'arrivo della pagina).
 export const DEFAULT_SECTION_THEMES: Record<HomeSectionKey, SectionTheme> = {
   hero: "ink",
-  marquee: "secondary",
+  marquee: "ink",
   projects: "paper",
   services: "ink",
-  process: "accent",
+  process: "ink",
   reviews: "paper",
-  blog: "ink",
-  contact: "secondary",
+  blog: "paper",
+  contact: "accent",
 };
 
 export const SECTION_LABELS: Record<HomeSectionKey, string> = {
@@ -65,14 +66,13 @@ export const THEME_LABELS: Record<SectionTheme, string> = {
   ink: "Scuro",
   paper: "Carta (chiaro)",
   accent: "Accento (lavanda)",
-  secondary: "Secondo colore (corallo)",
 };
 
 export function sectionTheme(
   content: HomeContent,
   key: HomeSectionKey,
 ): SectionTheme {
-  const value = content.section_themes?.[key];
+  const value = content.section_style?.[key];
   return value && value in THEME_LABELS ? value : DEFAULT_SECTION_THEMES[key];
 }
 

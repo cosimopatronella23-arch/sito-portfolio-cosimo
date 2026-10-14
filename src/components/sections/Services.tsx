@@ -1,12 +1,11 @@
 import Link from "next/link";
 import { SectionHeading } from "@/components/ui/SectionHeading";
-import { ServiceGlyph } from "@/components/dumbar/ServiceGlyph";
 import type { SectionTheme, ServiceItem } from "@/lib/types";
 
 /**
- * Servizi in homepage: una colonna per servizio con il suo glifo
- * geometrico. Con un link (impostato in /admin) l'intera colonna è
- * cliccabile e al passaggio del mouse il glifo si scompone.
+ * Servizi in homepage: una colonna per servizio, solo testo. Con un link
+ * (impostato in /admin) l'intera colonna è cliccabile e si illumina al
+ * passaggio del mouse.
  */
 export function Services({
   title,
@@ -34,11 +33,7 @@ export function Services({
         {services.map((service, i) => {
           const body = (
             <>
-              <ServiceGlyph index={i} />
-              <span className="font-display text-sm text-foreground-muted tabular-nums">
-                {String(i + 1).padStart(2, "0")}
-              </span>
-              <h3 className="font-display text-2xl leading-[1.05] font-bold tracking-[-0.03em] sm:text-3xl">
+              <h3 className="font-display text-2xl leading-[1.05] font-bold tracking-[-0.03em]">
                 {service.title}
               </h3>
               <p className="leading-relaxed text-foreground-muted">{service.description}</p>
@@ -53,7 +48,7 @@ export function Services({
             </>
           );
           const cell =
-            "group flex flex-col lg:min-h-[26rem] gap-5 border-b border-border-strong py-8 transition-colors duration-300 sm:px-6 sm:[&:nth-child(2n)]:border-l lg:border-l lg:first:border-l-0 lg:first:pl-0 lg:[&:nth-child(2n)]:border-l";
+            "group flex flex-col gap-4 border-b border-border-strong py-8 transition-colors duration-300 sm:px-6 sm:[&:nth-child(2n)]:border-l lg:border-l lg:first:border-l-0 lg:first:pl-0 lg:[&:nth-child(2n)]:border-l";
           return service.href ? (
             <Link key={`${i}-${service.title}`} href={service.href} data-cursor="link" className={`${cell} hover:bg-surface-hover`}>
               {body}

@@ -47,7 +47,7 @@ export function Header({ navLinks }: { navLinks?: NavLink[] }) {
         >
           {/* Due punti del sistema grafico: al passaggio del mouse si scambiano. */}
           <span aria-hidden="true" className="relative flex h-3.5 w-6">
-            <span className="absolute left-0 size-3.5 rounded-full bg-secondary transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:translate-x-2.5" />
+            <span className="absolute left-0 size-3.5 rounded-full bg-paper transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:translate-x-2.5" />
             <span className="absolute left-2.5 size-3.5 rounded-full bg-accent mix-blend-screen transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:-translate-x-2.5" />
           </span>
           Cosimo Patronella

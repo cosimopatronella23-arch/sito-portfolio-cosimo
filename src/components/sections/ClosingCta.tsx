@@ -1,6 +1,5 @@
 import { AnimatedText } from "@/components/ui/AnimatedText";
 import { Button } from "@/components/ui/Button";
-import { Shape } from "@/components/dumbar/Shapes";
 import { WhatsAppIcon } from "@/components/contact/WhatsAppIcon";
 import { whatsappHref } from "@/lib/phone";
 
@@ -19,14 +18,9 @@ export function ClosingCta({
   contactPhone?: string;
 }) {
   return (
-    <section className="theme-secondary relative overflow-hidden container-px py-20 sm:py-28">
-      <span aria-hidden="true" className="pointer-events-none absolute top-10 right-6 hidden items-end gap-3 sm:flex lg:right-12">
-        <Shape kind="circle" color="bg-foreground" float="slow" className="size-12 hover:scale-110 lg:size-16" />
-        <Shape kind="quarter" color="bg-paper" className="size-12 lg:size-16" />
-      </span>
-
-      <div className="relative flex max-w-4xl flex-col gap-8">
-        <h2 className="font-display text-[clamp(2.75rem,8vw,7rem)] leading-[0.9] font-extrabold tracking-[-0.05em] text-balance">
+    <section className="theme-accent container-px py-20 sm:py-28">
+      <div className="flex max-w-4xl flex-col gap-8">
+        <h2 className="font-display text-[clamp(2.5rem,6vw,5rem)] leading-[0.95] font-bold tracking-[-0.045em] text-balance">
           <AnimatedText text={title} />
         </h2>
         <p className="max-w-xl text-lg leading-relaxed sm:text-xl">{text}</p>

@@ -52,7 +52,7 @@ export function WorkGrid({
                   className="h-full w-full transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.04]"
                 />
                 {project.id === newId ? (
-                  <span className="absolute top-4 left-4 bg-secondary px-3 py-1.5 text-xs font-semibold tracking-[0.1em] text-ink uppercase">
+                  <span className="absolute top-4 left-4 bg-accent px-3 py-1.5 text-xs font-semibold tracking-[0.1em] text-ink uppercase">
                     Nuovo
                   </span>
                 ) : null}

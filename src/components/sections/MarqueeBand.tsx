@@ -1,8 +1,8 @@
 import type { SectionTheme } from "@/lib/types";
 
 /**
- * Banda a tutta larghezza con i servizi che scorrono, alternando peso
- * pieno e sottile. Si ferma al passaggio del mouse e con "riduci movimento".
+ * Banda sottile con i servizi che scorrono, alternando peso pieno e
+ * leggero, separati da un punto nel colore d'accento. Si ferma al passaggio del mouse e con "riduci movimento".
  * Solo CSS: il contenuto è duplicato e il loop non ha scatti.
  */
 export function MarqueeBand({
@@ -19,15 +19,13 @@ export function MarqueeBand({
       {words.map((item, i) => (
         <span key={i} className="flex items-center">
           <span
-            className={`font-display px-6 text-[clamp(2.5rem,6vw,5.5rem)] leading-none tracking-[-0.04em] sm:px-10 ${
+            className={`font-display px-5 text-[clamp(1.25rem,2.2vw,1.75rem)] leading-none tracking-[-0.02em] sm:px-8 ${
               i % 2 === 0 ? "font-bold" : "font-light"
             }`}
           >
             {item}
           </span>
-          <svg aria-hidden="true" viewBox="0 0 24 24" className="size-6 shrink-0 fill-current sm:size-10">
-            {i % 3 === 0 ? <circle cx="12" cy="12" r="12" /> : i % 3 === 1 ? <rect width="24" height="24" /> : <path d="M0 24A24 24 0 0 1 24 0v24z" />}
-          </svg>
+          <span aria-hidden="true" className="size-2 shrink-0 rounded-full bg-accent" />
         </span>
       ))}
     </span>
@@ -36,7 +34,7 @@ export function MarqueeBand({
   return (
     <div
       aria-hidden="true"
-      className={`theme-${theme} marquee-pause flex w-full overflow-hidden border-y border-border-strong py-6 sm:py-8`}
+      className={`theme-${theme} marquee-pause flex w-full overflow-hidden border-y border-border py-4 sm:py-5`}
     >
       <div className="marquee-track flex w-max shrink-0">
         {content}

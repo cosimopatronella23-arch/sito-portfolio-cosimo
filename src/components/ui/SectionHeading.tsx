@@ -39,7 +39,7 @@ export function SectionHeading({
         (() => {
           const Tag = as;
           return (
-            <Tag className="font-display text-[clamp(2.5rem,7vw,6rem)] leading-[0.95] font-semibold tracking-tight text-balance">
+            <Tag className="font-display text-[clamp(2.25rem,5vw,4.25rem)] leading-[0.98] font-semibold tracking-tight text-balance">
               <AnimatedText text={title} />
             </Tag>
           );
