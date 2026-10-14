@@ -2,6 +2,7 @@ import Link from "next/link";
 import clsx from "clsx";
 import { CoverImage } from "@/components/ui/CoverImage";
 import type { Project } from "@/lib/types";
+import { newestRecentProjectId } from "@/lib/newProject";
 
 // Ritmo asimmetrico che si ripete ogni 4 progetti: grande/piccolo,
 // piccolo/grande. Su telefono un progetto per riga.
@@ -12,13 +13,6 @@ const PATTERN = [
   { span: "lg:col-span-8", h: "aspect-[4/3] lg:aspect-auto lg:h-[min(36vw,520px)]" },
 ];
 
-// "Nuovo" solo sul progetto creato più di recente, se ha meno di 60 giorni.
-function newestRecentId(projects: Project[]) {
-  const newest = [...projects].sort((a, b) => b.created_at.localeCompare(a.created_at))[0];
-  if (!newest) return null;
-  const days = (Date.now() - new Date(newest.created_at).getTime()) / 864e5;
-  return days < 60 ? newest.id : null;
-}
 
 /**
  * Griglia dei progetti (homepage e /progetti). Foto a colori; al passaggio
@@ -36,7 +30,7 @@ export function WorkGrid({
   headingLevel?: "h2" | "h3";
 }) {
   const Heading = headingLevel;
-  const newId = newestRecentId(projects);
+  const newId = newestRecentProjectId(projects);
   return (
     <div className="grid grid-cols-1 gap-x-6 gap-y-12 lg:grid-cols-12 lg:gap-y-14">
       {projects.map((project, i) => {

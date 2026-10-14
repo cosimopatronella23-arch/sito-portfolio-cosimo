@@ -1,47 +1,66 @@
 import Link from "next/link";
 import { SectionHeading } from "@/components/ui/SectionHeading";
-import { WorkGrid } from "@/components/project/WorkGrid";
+import { ProjectScreen } from "@/components/project/ProjectScreen";
 import { getPublishedProjects } from "@/lib/data/projects";
+import { newestRecentProjectId } from "@/lib/newProject";
 import type { SectionTheme } from "@/lib/types";
 
-// Solo i progetti "in evidenza" (massimo 4) in homepage: l'elenco completo
+// Solo i progetti "in evidenza" (massimo 5) in homepage: l'elenco completo
 // vive in /progetti.
-const HOMEPAGE_LIMIT = 4;
+const HOMEPAGE_LIMIT = 5;
 
+/**
+ * Progetti in homepage: ogni progetto a tutto schermo, che scorrendo si
+ * impila sul precedente. Titolo e link finale stanno nel tema della sezione.
+ */
 export async function ProjectsGrid({ theme }: { theme: SectionTheme }) {
   const published = await getPublishedProjects();
   const featured = published.filter((p) => p.featured).slice(0, HOMEPAGE_LIMIT);
   if (featured.length === 0) return null;
   const others = published.length - featured.length;
 
+  const newestId = newestRecentProjectId(published);
+
   return (
-    <section id="progetti" className={`theme-${theme} container-px py-24 sm:py-32`}>
-      <div className="flex flex-wrap items-end justify-between gap-6 pb-12 sm:pb-16">
+    <section id="progetti" className={`theme-${theme}`}>
+      <div className="container-px flex flex-wrap items-end justify-between gap-6 pt-24 pb-12 sm:pt-32 sm:pb-16">
         <SectionHeading title="Lavori scelti." size="poster" />
         <span className="font-display text-base font-semibold text-foreground-muted">
           {String(published.length).padStart(2, "0")} progetti
         </span>
       </div>
 
-      <WorkGrid projects={featured} />
+      <div className="flex flex-col">
+        {featured.map((project, i) => (
+          <ProjectScreen
+            key={project.id}
+            project={project}
+            index={i}
+            total={featured.length}
+            isNew={project.id === newestId}
+          />
+        ))}
+      </div>
 
-      <Link
-        href="/progetti"
-        data-cursor="link"
-        className="group mt-14 flex items-center justify-between gap-6 border-t border-border-strong pt-7"
-      >
-        <span className="font-display text-xl font-semibold tracking-[-0.02em] sm:text-2xl">
-          <span className="link-draw">
-            {others > 0 ? `Tutti i progetti, altri ${others}` : "Tutti i progetti"}
-          </span>
-        </span>
-        <span
-          aria-hidden="true"
-          className="flex size-14 items-center justify-center bg-foreground text-xl text-background transition-[background-color,color] duration-300 group-hover:bg-fill group-hover:text-ink"
+      <div className="container-px py-14 sm:py-16">
+        <Link
+          href="/progetti"
+          data-cursor="link"
+          className="group flex items-center justify-between gap-6 border-t border-border-strong pt-7"
         >
-          <span className="transition-transform duration-300 group-hover:translate-x-1">→</span>
-        </span>
-      </Link>
+          <span className="font-display text-xl font-semibold tracking-[-0.02em] sm:text-2xl">
+            <span className="link-draw">
+              {others > 0 ? `Tutti i progetti, altri ${others}` : "Tutti i progetti"}
+            </span>
+          </span>
+          <span
+            aria-hidden="true"
+            className="flex size-14 items-center justify-center bg-foreground text-xl text-background transition-[background-color,color] duration-300 group-hover:bg-fill group-hover:text-ink"
+          >
+            <span className="transition-transform duration-300 group-hover:translate-x-1">→</span>
+          </span>
+        </Link>
+      </div>
     </section>
   );
 }
