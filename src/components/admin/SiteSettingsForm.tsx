@@ -518,6 +518,19 @@ export function SiteSettingsForm({ settings }: { settings: SiteSettings }) {
               className={fieldClasses}
             />
           </label>
+          <label className="flex flex-col gap-2">
+            <span className="text-sm text-foreground-muted">
+              Partita IVA (compare in fondo a ogni pagina accanto al nome)
+            </span>
+            <input
+              name="vat_number"
+              defaultValue={settings.home_content.vat_number ?? ""}
+              inputMode="numeric"
+              pattern="(IT)?\s*[0-9 ]{11,14}"
+              title="11 cifre, es. 01234567890"
+              className={fieldClasses}
+            />
+          </label>
         </SettingsSection>
       </SettingsTabPanel>
 

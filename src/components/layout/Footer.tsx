@@ -79,7 +79,12 @@ export async function Footer() {
       </div>
 
       <div className="container-px flex flex-wrap items-center justify-between gap-4 border-t border-border py-6 text-xs text-foreground-muted">
-        <p>© {year} Cosimo Patronella</p>
+        <p>
+          © {year} Cosimo Patronella
+          {siteSettings.home_content.vat_number
+            ? ` · P.IVA ${siteSettings.home_content.vat_number}`
+            : ""}
+        </p>
         <div className="flex gap-5">
           <Link href="/privacy-policy" className="link-draw hover:text-foreground">Privacy Policy</Link>
           <Link href="/cookie-policy" className="link-draw hover:text-foreground">Cookie Policy</Link>

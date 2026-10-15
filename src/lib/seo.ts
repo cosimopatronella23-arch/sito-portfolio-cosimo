@@ -117,6 +117,7 @@ export function personJsonLd(settings: SiteSettings) {
     telephone: settings.contact_phone
       ? formatPhone(settings.contact_phone)
       : undefined,
+    vatID: settings.home_content.vat_number || undefined,
     sameAs: Object.values(settings.social_links),
   };
 }

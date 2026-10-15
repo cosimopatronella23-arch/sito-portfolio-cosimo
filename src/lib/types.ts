@@ -236,6 +236,8 @@ export interface HomeContent {
   // Vive qui per lo stesso motivo di nav_links: evitare una migrazione al
   // database. Se assente/vuoto, il footer usa il testo di default nel codice.
   footer_tagline?: string;
+  /** Partita IVA, mostrata nel footer (obbligatoria per legge se presente). */
+  vat_number?: string;
   // Sfondo e testo principale del sito (oltre all'accento, già in una
   // colonna dedicata). Vuoti = usa i colori di default in globals.css.
   background_color?: string;

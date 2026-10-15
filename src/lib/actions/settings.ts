@@ -52,6 +52,7 @@ const HOME_CONTENT_TEXT_FIELDS: Array<
   "contact_title",
   "contact_text",
   "footer_tagline",
+  "vat_number",
   "background_color",
   "foreground_color",
 ];
@@ -91,6 +92,14 @@ export async function updateSiteSettings(
         error: "I colori devono essere esadecimali tipo #0b0a10, oppure vuoti.",
       };
     }
+  }
+
+  // Partita IVA: solo le 11 cifre, senza spazi né "IT" davanti.
+  homeContent.vat_number = (homeContent.vat_number ?? "")
+    .replace(/\s+/g, "")
+    .replace(/^IT/i, "");
+  if (homeContent.vat_number && !/^\d{11}$/.test(homeContent.vat_number)) {
+    return { error: "La partita IVA deve avere 11 cifre, es. 01234567890." };
   }
 
   let services: ServiceItem[] = [];
