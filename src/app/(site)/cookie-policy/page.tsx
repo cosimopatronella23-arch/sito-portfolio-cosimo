@@ -50,11 +50,13 @@ export default function CookiePolicyPage() {
             Solo se l&apos;utente clicca &quot;Accetta&quot; nel banner
             cookie, il sito carica <strong>Google Analytics 4</strong>, un
             servizio di analisi statistica fornito da Google che utilizza
-            cookie per raccogliere informazioni in forma aggregata e con
-            IP anonimizzato su come viene utilizzato il sito (pagine
-            visitate, provenienza del traffico, dispositivo usato). Questi
-            dati aiutano a capire come migliorare il sito e non vengono
-            utilizzati per identificare singoli utenti. Se l&apos;utente
+            cookie per raccogliere informazioni su come viene utilizzato il
+            sito (pagine visitate, provenienza del traffico, dispositivo
+            usato). I dati sono pseudonimi: il cookie contiene un
+            identificativo casuale, non il tuo nome o i tuoi contatti, e
+            Google Analytics 4 non registra né conserva l&apos;indirizzo IP.
+            Li consulto solo in forma aggregata, per capire come migliorare
+            il sito, e non li uso per identificare singoli utenti. Se l&apos;utente
             clicca &quot;Rifiuta&quot;, oppure non compie alcuna scelta,
             questi cookie non vengono mai installati.
           </p>

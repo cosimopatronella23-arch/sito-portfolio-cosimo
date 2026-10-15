@@ -123,11 +123,12 @@ export function GoogleAnalytics({
             <span aria-hidden="true" className="mt-1 size-3.5 shrink-0 rounded-full bg-accent" />
             <div className="flex flex-col gap-2 text-sm leading-relaxed">
               <p className="font-display text-base font-bold tracking-[-0.01em]">
-                Solo statistiche anonime.
+                Solo statistiche di visita.
               </p>
               <p className="text-foreground-muted">
-                Google Analytics mi dice quali pagine vengono viste, senza
-                sapere chi sei. Se rifiuti, il sito funziona uguale.
+                Google Analytics mi dice quali pagine vengono viste, non chi
+                sei. Parte solo se accetti; se rifiuti, il sito funziona
+                uguale.
               </p>
               <p className="flex flex-wrap gap-x-4 gap-y-1 text-xs font-semibold tracking-[0.06em] uppercase">
                 <Link href="/blog/banner-cookie-cosa-accetti-davvero" className="link-draw">

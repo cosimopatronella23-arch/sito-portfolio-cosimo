@@ -23,11 +23,8 @@ export async function ProjectsGrid({ theme }: { theme: SectionTheme }) {
 
   return (
     <section id="progetti" className={`theme-${theme}`}>
-      <div className="container-px flex flex-wrap items-end justify-between gap-6 pt-24 pb-12 sm:pt-32 sm:pb-16">
+      <div className="container-px pt-24 pb-12 sm:pt-32 sm:pb-16">
         <SectionHeading title="Lavori scelti." size="poster" />
-        <span className="font-display text-base font-semibold text-foreground-muted">
-          {String(published.length).padStart(2, "0")} progetti
-        </span>
       </div>
 
       <div className="flex flex-col">
@@ -51,7 +48,7 @@ export async function ProjectsGrid({ theme }: { theme: SectionTheme }) {
         >
           <span className="font-display text-xl font-semibold tracking-[-0.02em] sm:text-2xl">
             <span className="link-draw">
-              {others > 0 ? `Tutti i progetti, altri ${others}` : "Tutti i progetti"}
+              {others > 0 ? `Vedi tutti i ${published.length} progetti` : "Tutti i progetti"}
             </span>
           </span>
           <span

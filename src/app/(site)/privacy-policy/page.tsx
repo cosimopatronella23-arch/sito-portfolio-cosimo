@@ -61,10 +61,10 @@ export default async function PrivacyPolicyPage() {
               strettamente necessario a queste finalità.
             </li>
             <li>
-              <strong>Dati statistici anonimi:</strong> solo se l&apos;utente
-              presta consenso esplicito tramite il banner cookie, viene
-              utilizzato Google Analytics per raccogliere statistiche
-              aggregate e anonimizzate sull&apos;uso del sito. Maggiori
+              <strong>Dati statistici:</strong> solo se l&apos;utente presta
+              consenso esplicito tramite il banner cookie, viene utilizzato
+              Google Analytics per raccogliere dati pseudonimi
+              sull&apos;uso del sito, consultati solo in forma aggregata. Maggiori
               dettagli nella{" "}
               <a href="/cookie-policy">Cookie Policy</a>.
             </li>

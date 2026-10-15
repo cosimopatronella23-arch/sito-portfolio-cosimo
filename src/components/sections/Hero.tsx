@@ -87,13 +87,17 @@ export function Hero({
               <Shape kind="quarter" color="bg-accent" className="size-14 hover:-rotate-90 sm:size-[clamp(4rem,min(8vw,12vh),7.5rem)]" />
             </span>
           </span>
+          {/* Gli spazi tra le righe non si vedono (sono blocchi) ma servono
+              a chi legge il testo: senza, Google e gli screen reader
+              leggerebbero "Grafica eweb design.Senza fronzoli." */}
           {others.map((line, i) => (
             <Fragment key={i}>
+              {" "}
               <span className="block sm:pl-[16.66%]">
                 <AnimatedText text={line} delay={(i + 1) * 0.12} />
               </span>
             </Fragment>
-          ))}
+          ))}{" "}
           <span className="block text-accent">
             <AnimatedText
               text={content.hero_title_accent}
