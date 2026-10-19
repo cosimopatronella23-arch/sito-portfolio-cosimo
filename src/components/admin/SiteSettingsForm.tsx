@@ -389,6 +389,23 @@ export function SiteSettingsForm({ settings }: { settings: SiteSettings }) {
         </SettingsSection>
 
         <SettingsSection
+          id="sez-progetti"
+          title="Homepage — Progetti"
+          description="Titolo sopra i progetti in evidenza. Vuoto = testo predefinito."
+          defaultOpen
+        >
+          <label className="flex flex-col gap-2">
+            <span className="text-sm text-foreground-muted">Titolo</span>
+            <input
+              name="projects_title"
+              defaultValue={settings.home_content.projects_title ?? ""}
+              placeholder={HOME_DEFAULTS.projects_title}
+              className={fieldClasses}
+            />
+          </label>
+        </SettingsSection>
+
+        <SettingsSection
           id="sez-come-lavoro"
           title="Homepage — Come lavoro"
           description="I passi del tuo metodo di lavoro, mostrati in homepage. Vuoto = testi predefiniti."

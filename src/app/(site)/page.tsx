@@ -46,7 +46,7 @@ export default async function HomePage() {
       />
       <Hero content={c} eyebrow={homeText(c, "hero_eyebrow")} theme={theme("hero")} />
       <MarqueeBand items={c.services.map((s) => s.title)} theme={theme("marquee")} />
-      {c.show_projects ?? true ? <ProjectsGrid theme={theme("projects")} /> : null}
+      {c.show_projects ?? true ? <ProjectsGrid title={homeText(c, "projects_title")} theme={theme("projects")} /> : null}
       {c.show_services ?? true ? (
         <Services title={c.services_title} services={c.services} theme={theme("services")} />
       ) : null}

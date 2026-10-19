@@ -46,6 +46,7 @@ const HOME_CONTENT_TEXT_FIELDS: Array<
   "services_title",
   "services_intro",
   "hero_eyebrow",
+  "projects_title",
   "process_title",
   "process_subtitle",
   "contact_eyebrow",

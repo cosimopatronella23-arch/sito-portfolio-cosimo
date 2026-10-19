@@ -13,7 +13,13 @@ const HOMEPAGE_LIMIT = 5;
  * Progetti in homepage: ogni progetto a tutto schermo, che scorrendo si
  * impila sul precedente. Titolo e link finale stanno nel tema della sezione.
  */
-export async function ProjectsGrid({ theme }: { theme: SectionTheme }) {
+export async function ProjectsGrid({
+  title,
+  theme,
+}: {
+  title: string;
+  theme: SectionTheme;
+}) {
   const published = await getPublishedProjects();
   const featured = published.filter((p) => p.featured).slice(0, HOMEPAGE_LIMIT);
   if (featured.length === 0) return null;
@@ -24,7 +30,7 @@ export async function ProjectsGrid({ theme }: { theme: SectionTheme }) {
   return (
     <section id="progetti" className={`theme-${theme}`}>
       <div className="container-px pt-24 pb-12 sm:pt-32 sm:pb-16">
-        <SectionHeading title="Lavori scelti." size="poster" />
+        <SectionHeading title={title} size="poster" />
       </div>
 
       <div className="flex flex-col">

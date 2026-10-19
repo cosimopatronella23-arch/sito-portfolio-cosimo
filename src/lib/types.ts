@@ -221,6 +221,7 @@ export interface HomeContent {
   // Design "Dumbar" (ottobre 2026): campi nuovi, tutti facoltativi. Se
   // mancano si usano i valori predefiniti di src/lib/homeDefaults.ts.
   hero_eyebrow?: string;
+  projects_title?: string;
   process_title?: string;
   process_subtitle?: string;
   process_steps?: ProcessStep[];

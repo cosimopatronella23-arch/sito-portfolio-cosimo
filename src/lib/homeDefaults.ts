@@ -8,6 +8,7 @@ import type {
 /** Valori usati finché i campi non vengono compilati in /admin. */
 export const HOME_DEFAULTS = {
   hero_eyebrow: "Web designer — Roma · Grottaglie · Taranto · da remoto",
+  projects_title: "Progetti.",
   process_title: "Come lavoro.",
   process_subtitle: "Dal primo messaggio al giorno dopo il lancio",
   process_steps: [
@@ -86,6 +87,7 @@ export function homeText(
   content: HomeContent,
   key:
     | "hero_eyebrow"
+    | "projects_title"
     | "process_title"
     | "process_subtitle"
     | "contact_eyebrow"
