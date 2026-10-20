@@ -18,6 +18,12 @@ import type { GalleryItem } from "@/lib/types";
 // React. Per gli attributi "name" si usa invece l'indice della riga.
 type EditableItem = GalleryItem & { key: string };
 
+const LAYOUT_LABELS: Record<GalleryItem["layout"], string> = {
+  full: "Intera",
+  half: "Affiancata",
+  slide: "In sequenza",
+};
+
 function withKeys(items: GalleryItem[]): EditableItem[] {
   return items.map((item) => ({ ...item, key: crypto.randomUUID() }));
 }
@@ -75,7 +81,10 @@ export function ProjectGalleryEditor({
         unico formato che funziona su tutti i browser, incluso Safari su
         Mac e iPhone (il WebM su Safari spesso non si vede). I video
         partono in automatico, senza audio, in loop. Per ognuno scegli se
-        mostrarlo a tutta larghezza o affiancato a un altro.
+        mostrarlo a tutta larghezza, affiancato a un altro, oppure &quot;in
+        sequenza&quot;: più immagini in sequenza una dopo l&apos;altra si
+        alternano da sole nello stesso riquadro (meglio se hanno le stesse
+        proporzioni; i video restano sempre fuori dalla sequenza).
       </p>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         {items.map((item, i) => (
@@ -130,7 +139,7 @@ export function ProjectGalleryEditor({
             ) : null}
             <div className="flex items-center gap-4 text-sm">
               <span className="text-foreground-muted">Layout:</span>
-              {(["full", "half"] as const).map((layout) => (
+              {(["full", "half", "slide"] as const).map((layout) => (
                 <label key={layout} className="flex items-center gap-1.5">
                   <input
                     type="radio"
@@ -138,7 +147,7 @@ export function ProjectGalleryEditor({
                     checked={item.layout === layout}
                     onChange={() => update(item.key, { layout })}
                   />
-                  {layout === "full" ? "Intera" : "Affiancata"}
+                  {LAYOUT_LABELS[layout]}
                 </label>
               ))}
             </div>

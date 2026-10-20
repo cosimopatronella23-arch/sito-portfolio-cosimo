@@ -20,8 +20,9 @@ function normalizeGallery(raw: unknown): GalleryItem[] {
       if (item && typeof item === "object" && "url" in item) {
         const url = String((item as { url: unknown }).url || "");
         if (!url) return null;
+        const rawLayout = (item as { layout?: unknown }).layout;
         const layout =
-          (item as { layout?: unknown }).layout === "half" ? "half" : "full";
+          rawLayout === "half" || rawLayout === "slide" ? rawLayout : "full";
         const alt = String((item as { alt?: unknown }).alt ?? "").trim();
         return alt ? { url, layout, alt } : { url, layout };
       }

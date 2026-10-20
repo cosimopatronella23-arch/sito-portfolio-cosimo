@@ -24,9 +24,11 @@ function parseProjectForm(formData: FormData) {
   }
   gallery = gallery
     .filter((item) => item.url)
-    .map(({ url, layout, alt }) =>
-      alt?.trim() ? { url, layout, alt: alt.trim() } : { url, layout },
-    );
+    .map(({ url, layout: rawLayout, alt }) => {
+      const layout: GalleryItem["layout"] =
+        rawLayout === "half" || rawLayout === "slide" ? rawLayout : "full";
+      return alt?.trim() ? { url, layout, alt: alt.trim() } : { url, layout };
+    });
 
   return {
     slug: String(formData.get("slug") || "").trim(),

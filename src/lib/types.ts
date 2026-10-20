@@ -14,8 +14,10 @@ export interface ContentBlock {
 
 export interface GalleryItem {
   url: string;
-  // "full" = a tutta larghezza, "half" = affiancata a un'altra "half".
-  layout: "full" | "half";
+  // "full" = a tutta larghezza, "half" = affiancata a un'altra "half",
+  // "slide" = più "slide" consecutive si alternano da sole nello stesso
+  // riquadro (dissolvenza).
+  layout: "full" | "half" | "slide";
   // Testo alternativo (descrizione per Google e lettori di schermo). Se
   // manca si usa il titolo del progetto. Ignorato per i video.
   alt?: string;
