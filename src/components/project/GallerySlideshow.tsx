@@ -6,15 +6,16 @@ import { useReducedMotion } from "framer-motion";
 import { CoverImage } from "@/components/ui/CoverImage";
 import type { GalleryItem } from "@/lib/types";
 
-const INTERVAL_MS = 3500;
+// Ritmo da gif: abbastanza veloce da sembrare un'animazione, abbastanza
+// lento da far leggere ogni tavola.
+const INTERVAL_MS = 1800;
 
 /**
  * Più immagini nello stesso riquadro che si alternano da sole, con una
  * dissolvenza: utile quando le tavole sono tante e affiancarle le
- * renderebbe troppo piccole. Avanza solo quando è visibile sullo schermo,
- * si ferma al passaggio del mouse, con il tasto pausa e con "riduci
- * movimento". Sotto: contatore, un quadratino per immagine (per saltare a
- * quella) e una barra che si riempie fino al cambio successivo.
+ * renderebbe troppo piccole. Gira come una gif finché è sullo schermo; si
+ * ferma solo con il tasto pausa (e con "riduci movimento"). Sotto:
+ * contatore e un quadratino per immagine, per saltare a quella.
  */
 export function GallerySlideshow({
   items,
@@ -25,7 +26,6 @@ export function GallerySlideshow({
 }) {
   const [active, setActive] = useState(0);
   const [userPaused, setUserPaused] = useState(false);
-  const [hovered, setHovered] = useState(false);
   const [visible, setVisible] = useState(false);
   const reduceMotion = useReducedMotion() ?? false;
   const ref = useRef<HTMLDivElement>(null);
@@ -33,14 +33,14 @@ export function GallerySlideshow({
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => setVisible(entry.isIntersecting),
-      { threshold: 0.4 },
+      { threshold: 0.2 },
     );
     if (ref.current) observer.observe(ref.current);
 
     return () => observer.disconnect();
   }, []);
 
-  const playing = visible && !hovered && !userPaused && !reduceMotion;
+  const playing = visible && !userPaused && !reduceMotion;
 
   useEffect(() => {
     if (!playing) return;
@@ -60,10 +60,6 @@ export function GallerySlideshow({
       aria-roledescription="sequenza di immagini"
       aria-label={alt}
       className="flex flex-col gap-3"
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      onFocus={() => setHovered(true)}
-      onBlur={() => setHovered(false)}
     >
       <div className="relative aspect-[3/2] w-full overflow-hidden bg-surface">
         {items.map((item, i) => (
@@ -71,7 +67,7 @@ export function GallerySlideshow({
             key={item.url}
             aria-hidden={i !== active}
             className={clsx(
-              "absolute inset-0 transition-opacity duration-700 ease-out motion-reduce:transition-none",
+              "absolute inset-0 transition-opacity duration-300 ease-out motion-reduce:transition-none",
               i === active ? "opacity-100" : "opacity-0",
             )}
           >
@@ -84,20 +80,6 @@ export function GallerySlideshow({
           </div>
         ))}
       </div>
-
-      {/* Barra di avanzamento: si riempie fino al cambio successivo. */}
-      {reduceMotion ? null : (
-        <div aria-hidden="true" className="h-0.5 w-full bg-border">
-          <div
-            key={active}
-            className="h-full origin-left bg-foreground"
-            style={{
-              animation: `slideshow-progress ${INTERVAL_MS}ms linear forwards`,
-              animationPlayState: playing ? "running" : "paused",
-            }}
-          />
-        </div>
-      )}
 
       <div className="container-px flex items-center justify-between gap-4">
         <span className="font-display text-sm font-semibold text-foreground-muted tabular-nums">

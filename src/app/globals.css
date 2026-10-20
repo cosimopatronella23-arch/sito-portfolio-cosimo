@@ -378,16 +378,6 @@ a:focus-visible > .link-draw {
   animation: shape-float 10s ease-in-out infinite reverse;
 }
 
-/* Barra della sequenza di immagini nei progetti. */
-@keyframes slideshow-progress {
-  from {
-    transform: scaleX(0);
-  }
-  to {
-    transform: scaleX(1);
-  }
-}
-
 /* Ingresso del banner cookie: sale dal basso. */
 @keyframes cookie-in {
   from {
