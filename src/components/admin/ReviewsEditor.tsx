@@ -180,6 +180,39 @@ export function ReviewsEditor({
               </select>
             </label>
           </div>
+          {review.project_slug ? (
+            <div className="flex flex-col gap-2 text-sm">
+              <span>
+                Mostrala anche nei progetti{" "}
+                <span className="text-foreground-muted">
+                  (se il cliente parla di più lavori)
+                </span>
+              </span>
+              <div className="flex flex-wrap gap-x-5 gap-y-2">
+                {projects
+                  .filter((p) => p.slug !== review.project_slug)
+                  .map((p) => {
+                    const also = review.also_project_slugs ?? [];
+                    return (
+                      <label key={p.slug} className="flex items-center gap-2">
+                        <input
+                          type="checkbox"
+                          checked={also.includes(p.slug)}
+                          onChange={(e) =>
+                            update(review.id, {
+                              also_project_slugs: e.target.checked
+                                ? [...also, p.slug]
+                                : also.filter((s) => s !== p.slug),
+                            })
+                          }
+                        />
+                        {p.title}
+                      </label>
+                    );
+                  })}
+              </div>
+            </div>
+          ) : null}
         </fieldset>
       ))}
 

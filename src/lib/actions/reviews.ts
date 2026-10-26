@@ -24,6 +24,13 @@ function sanitize(raw: unknown): ClientReview[] {
         project_slug: /^[a-z0-9-]*$/.test(String(item.project_slug ?? ""))
           ? text(item.project_slug, 120)
           : "",
+        also_project_slugs: (Array.isArray(item.also_project_slugs)
+          ? item.also_project_slugs
+          : []
+        )
+          .map((s) => String(s))
+          .filter((s) => /^[a-z0-9-]+$/.test(s) && s !== item.project_slug)
+          .slice(0, 10),
         visible: item.visible !== false,
       };
     })

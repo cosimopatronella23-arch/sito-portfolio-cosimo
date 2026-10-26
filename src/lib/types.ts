@@ -181,8 +181,11 @@ export interface ClientReview {
   rating: number;
   /** Mese della recensione, "AAAA-MM". */
   date: string;
-  /** Progetto collegato (slug): la recensione compare anche lì. */
+  /** Progetto collegato (slug): la recensione compare anche lì ed è il
+   *  link "Vedi il progetto" in homepage. */
   project_slug: string;
+  /** Altri progetti in cui mostrarla (es. un cliente con più siti). */
+  also_project_slugs?: string[];
   visible: boolean;
 }
 

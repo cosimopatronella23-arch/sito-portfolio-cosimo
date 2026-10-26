@@ -39,7 +39,9 @@ export default async function ProjectPage(
     getSiteSettings(),
   ]);
   const review = settings.home_content.reviews?.find(
-    (r) => r.visible && r.project_slug === slug,
+    (r) =>
+      r.visible &&
+      (r.project_slug === slug || r.also_project_slugs?.includes(slug)),
   );
   if (!project) notFound();
 
