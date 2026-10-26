@@ -39,15 +39,18 @@ export function Stars({ rating, className }: { rating: number; className?: strin
 
 /**
  * Una recensione nello stile del sito: niente riquadri, solo stelle,
- * citazione e firma. "featured" è la versione grande, la prima in homepage.
+ * citazione e firma. "featured" è la versione grande (una recensione sola,
+ * o la prima di tre o più); "medium" quella usata quando sono affiancate.
  */
 export function ReviewQuote({
   review,
   featured = false,
+  medium = false,
   showProjectLink = false,
 }: {
   review: ClientReview;
   featured?: boolean;
+  medium?: boolean;
   showProjectLink?: boolean;
 }) {
   const month = formatMonth(review.date);
@@ -59,7 +62,9 @@ export function ReviewQuote({
           "text-pretty text-foreground",
           featured
             ? "font-display max-w-5xl text-3xl leading-[1.05] font-semibold tracking-[-0.035em] sm:text-5xl lg:text-6xl"
-            : "text-lg leading-relaxed",
+            : medium
+              ? "font-display text-2xl leading-[1.15] font-semibold tracking-[-0.025em] sm:text-3xl"
+              : "text-lg leading-relaxed",
         )}
       >
         <p>&ldquo;{review.text}&rdquo;</p>
