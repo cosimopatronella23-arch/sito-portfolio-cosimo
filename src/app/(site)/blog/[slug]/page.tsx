@@ -23,7 +23,9 @@ export async function generateMetadata(
     title: post.seo_title ?? post.title,
     description: post.seo_description ?? post.excerpt,
     path: `/blog/${post.slug}`,
-    ogImage: post.seo_og_image ?? post.cover_image,
+    // Senza immagine scelta in admin vale quella generata dal sito
+    // (opengraph-image.tsx), con il titolo dell'articolo.
+    ogImage: post.seo_og_image,
     noindex: post.seo_noindex,
   });
 }

@@ -37,6 +37,7 @@ export function SeoChecklist({
   imageFields,
   contentField,
   galleryField,
+  autoImage = false,
 }: {
   /** In ordine di priorità, es. ["seo_title", "title"]. */
   titleFields: string[];
@@ -44,6 +45,8 @@ export function SeoChecklist({
   imageFields: string[];
   contentField?: string;
   galleryField?: string;
+  /** L'immagine di condivisione è generata dal sito se manca (articoli). */
+  autoImage?: boolean;
 }) {
   const [checks, setChecks] = useState<Check[]>([]);
   const [root, setRoot] = useState<HTMLElement | null>(null);
@@ -55,6 +58,7 @@ export function SeoChecklist({
     imageFields,
     contentField ?? "",
     galleryField ?? "",
+    autoImage,
   ]);
 
   useEffect(() => {
@@ -66,7 +70,15 @@ export function SeoChecklist({
       imageFields,
       contentField,
       galleryField,
-    ] = JSON.parse(configKey) as [string[], string[], string[], string, string];
+      autoImage,
+    ] = JSON.parse(configKey) as [
+      string[],
+      string[],
+      string[],
+      string,
+      string,
+      boolean,
+    ];
     let lastKey = "";
 
     const evaluate = () => {
@@ -95,10 +107,12 @@ export function SeoChecklist({
                 : "Descrizione per Google della lunghezza giusta",
         },
         {
-          ok: !!image,
+          ok: !!image || autoImage,
           label: image
             ? "Immagine per la condivisione presente"
-            : "Manca un'immagine (copertina o condivisione social)",
+            : autoImage
+              ? "Immagine per la condivisione creata in automatico dal titolo"
+              : "Manca un'immagine (copertina o condivisione social)",
         },
       ];
       if (contentField) {

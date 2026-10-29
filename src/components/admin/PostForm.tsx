@@ -114,7 +114,8 @@ export function PostForm({
           <SeoChecklist
             titleFields={["seo_title", "title"]}
             descriptionFields={["seo_description", "excerpt"]}
-            imageFields={["seo_og_image", "cover_image"]}
+            imageFields={["seo_og_image"]}
+            autoImage
             contentField="content"
           />
         </>
@@ -166,13 +167,6 @@ export function PostForm({
         </label>
       </SettingsSection>
 
-      <SettingsSection id="sez-media" title="Media">
-        <ImageUploader
-          name="cover_image"
-          label="Immagine di copertina"
-          defaultValue={post?.cover_image}
-        />
-      </SettingsSection>
 
       <SettingsSection id="sez-contenuto" title="Contenuto">
         <RichTextEditor name="content" defaultValue={post?.content} />

@@ -34,13 +34,15 @@ export function buildMetadata(input: {
       siteName: siteName ?? "Cosimo Patronella",
       type: "website",
       locale: "it_IT",
-      images: ogImage ? [{ url: ogImage }] : undefined,
+      // Senza immagine la chiave non va proprio scritta: anche "undefined"
+      // annullerebbe l'immagine generata dal file opengraph-image della pagina.
+      ...(ogImage ? { images: [{ url: ogImage }] } : {}),
     },
     twitter: {
       card: "summary_large_image",
       title,
       description,
-      images: ogImage ? [ogImage] : undefined,
+      ...(ogImage ? { images: [ogImage] } : {}),
     },
   };
 }
@@ -82,7 +84,7 @@ export function blogPostJsonLd(post: BlogPost) {
       name: "Cosimo Patronella",
       url: SITE_URL,
     },
-    image: post.seo_og_image ?? post.cover_image ?? undefined,
+    image: post.seo_og_image ?? undefined,
     datePublished: post.published_at,
     dateModified: post.updated_at,
     mainEntityOfPage: `${SITE_URL}/blog/${post.slug}`,

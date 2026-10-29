@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { CoverImage } from "@/components/ui/CoverImage";
 import { AnimatedText } from "@/components/ui/AnimatedText";
 import { blogPostJsonLd } from "@/lib/seo";
 import { normalizeHeadings } from "@/lib/html";
@@ -79,20 +78,10 @@ export function BlogPostView({
         </div>
       </header>
 
-      <div className={`theme-paper container-px pb-20 sm:pb-28 ${post.cover_image ? "" : "pt-14 sm:pt-20"}`}>
-        {/* Testo e immagine condividono la stessa colonna, come un vero
-            editoriale; la copertina parte dal bordo tra scuro e carta. */}
+      <div className="theme-paper container-px pt-14 pb-20 sm:pt-20 sm:pb-28">
+        {/* Niente copertina: il titolo in apertura basta, e le immagini vere
+            (schermate di progetti) stanno dentro il testo quando servono. */}
         <div className="mx-auto flex max-w-3xl flex-col gap-12">
-          {post.cover_image ? (
-            <div className="aspect-[3/2] w-full overflow-hidden">
-              <CoverImage
-                src={post.cover_image}
-                alt={post.title}
-                priority
-                className="h-full w-full"
-              />
-            </div>
-          ) : null}
 
           <div
             className="prose-editor text-base leading-relaxed text-foreground-muted sm:text-lg"
