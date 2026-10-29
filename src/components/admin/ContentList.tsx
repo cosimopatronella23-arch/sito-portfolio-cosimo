@@ -64,6 +64,7 @@ export function ContentList({
   duplicateAction,
   deleteAction,
   emptyText,
+  showThumbnails = true,
 }: {
   items: ContentListItem[];
   /** Se presente, l'elenco si può riordinare e salvare su questa tabella. */
@@ -71,6 +72,8 @@ export function ContentList({
   duplicateAction: (formData: FormData) => Promise<void>;
   deleteAction: (formData: FormData) => Promise<void>;
   emptyText: string;
+  /** false per gli articoli: non hanno più immagini, la colonna sarebbe vuota. */
+  showThumbnails?: boolean;
 }) {
   const router = useRouter();
   const [order, setOrder] = useState(() => items.map((i) => i.id));
@@ -272,17 +275,19 @@ export function ContentList({
                     </span>
                   ) : null}
 
-                  <div className="relative hidden h-12 w-18 shrink-0 overflow-hidden border border-border bg-background sm:block">
-                    {item.thumbnail && !isVideoUrl(item.thumbnail) ? (
-                      <Image
-                        src={item.thumbnail}
-                        alt=""
-                        fill
-                        sizes="72px"
-                        className="object-cover"
-                      />
-                    ) : null}
-                  </div>
+                  {showThumbnails ? (
+                    <div className="relative hidden h-12 w-18 shrink-0 overflow-hidden border border-border bg-background sm:block">
+                      {item.thumbnail && !isVideoUrl(item.thumbnail) ? (
+                        <Image
+                          src={item.thumbnail}
+                          alt=""
+                          fill
+                          sizes="72px"
+                          className="object-cover"
+                        />
+                      ) : null}
+                    </div>
+                  ) : null}
 
                   <div className="flex min-w-0 flex-col gap-1">
                     <Link

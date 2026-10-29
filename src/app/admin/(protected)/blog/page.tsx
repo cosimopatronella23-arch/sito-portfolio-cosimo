@@ -34,6 +34,7 @@ export default async function AdminBlogPage() {
         duplicateAction={duplicatePost}
         deleteAction={deletePost}
         emptyText="Nessun articolo ancora. Scrivine uno."
+        showThumbnails={false}
         items={posts.map((p) => ({
           id: p.id,
           title: p.title,
@@ -44,7 +45,6 @@ export default async function AdminBlogPage() {
             new Date(p.published_at) > new Date()
               ? ["Programmato"]
               : [],
-          thumbnail: p.cover_image,
           subtitle: [
             p.category,
             p.published_at ? dateFormat.format(new Date(p.published_at)) : "",
