@@ -310,7 +310,14 @@ try {
     utenti: users,
     visite_settimana_prima: sessPrev,
     provenienza: Object.fromEntries(sources.map((r) => [r.dimensionValues[0].value, Number(r.metricValues[0].value)])),
-    contatti: leads.map((r) => `${r.dimensionValues[0].value} ${r.dimensionValues[1].value}: ${r.metricValues[0].value}`),
+    // "form" = modulo inviato davvero (arriva anche la mail). Gli altri sono
+    // solo clic su WhatsApp/email/telefono: la persona può non scrivere mai.
+    moduli_contatto_inviati: leads
+      .filter((r) => r.dimensionValues[1].value === "form")
+      .map((r) => `${r.dimensionValues[0].value}: ${r.metricValues[0].value}`),
+    clic_su_whatsapp_email_telefono_non_sono_messaggi: leads
+      .filter((r) => r.dimensionValues[1].value !== "form")
+      .map((r) => `${r.dimensionValues[0].value} ${r.dimensionValues[1].value}: ${r.metricValues[0].value}`),
   };
 } catch (e) {
   add(avvisi, `Analytics non leggibile: ${e.message}`);
