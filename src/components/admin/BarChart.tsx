@@ -16,7 +16,7 @@ export function BarChart({
       {data.map((point, i) => (
         <div
           key={`${point.label}-${i}`}
-          className="group relative flex flex-1 flex-col items-center justify-end gap-2"
+          className="group relative flex h-full flex-1 flex-col items-center justify-end gap-2"
         >
           <span className="pointer-events-none absolute -top-6 hidden text-xs text-foreground group-hover:block">
             {point.value}
@@ -25,8 +25,9 @@ export function BarChart({
             className="w-full bg-accent/70 transition-colors group-hover:bg-accent"
             style={{ height: `${(point.value / max) * 100}%`, minHeight: 2 }}
           />
-          {data.length <= 12 ? (
-            <span className="text-[10px] text-foreground-muted">
+          {/* Con molti punti solo la prima e l'ultima data, per orientarsi. */}
+          {data.length <= 12 || i === 0 || i === data.length - 1 ? (
+            <span className="text-[10px] whitespace-nowrap text-foreground-muted">
               {formatLabel ? formatLabel(point.label) : point.label}
             </span>
           ) : null}

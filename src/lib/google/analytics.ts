@@ -1,6 +1,31 @@
 import { google } from "googleapis";
 import { getGoogleAuth } from "./client";
 
+/**
+ * GA4 non restituisce i giorni senza visite: li aggiungiamo a zero, così il
+ * grafico ha sempre tutti i giorni del periodo (dal 28° giorno fa a oggi) e
+ * i buchi si vedono invece di sparire. Date nel formato GA4 "AAAAMMGG".
+ */
+function fillMissingDays(
+  rows: Array<{ date: string; pageviews: number }>,
+): Array<{ date: string; pageviews: number }> {
+  const byDate = new Map(rows.map((r) => [r.date, r.pageviews]));
+  const out: Array<{ date: string; pageviews: number }> = [];
+  // Giorni in ora italiana, come li conta GA4 (il server è in UTC).
+  const toKey = (t: number) =>
+    new Date(t)
+      .toLocaleDateString("sv-SE", { timeZone: "Europe/Rome" })
+      .replaceAll("-", "");
+  const now = Date.now();
+  for (let i = 28; i >= 0; i--) {
+    const key = toKey(now - i * 86_400_000);
+    if (!out.some((d) => d.date === key)) {
+      out.push({ date: key, pageviews: byDate.get(key) ?? 0 });
+    }
+  }
+  return out;
+}
+
 export interface GA4Summary {
   totalUsers: number;
   sessions: number;
@@ -77,10 +102,12 @@ export async function getGA4Summary(): Promise<GA4Result> {
       totalUsers: numberFromRow(summaryRow?.metricValues?.[0]?.value),
       sessions: numberFromRow(summaryRow?.metricValues?.[1]?.value),
       pageviews: numberFromRow(summaryRow?.metricValues?.[2]?.value),
-      daily: (dailyReport?.rows ?? []).map((row) => ({
-        date: row.dimensionValues?.[0]?.value ?? "",
-        pageviews: numberFromRow(row.metricValues?.[0]?.value),
-      })),
+      daily: fillMissingDays(
+        (dailyReport?.rows ?? []).map((row) => ({
+          date: row.dimensionValues?.[0]?.value ?? "",
+          pageviews: numberFromRow(row.metricValues?.[0]?.value),
+        })),
+      ),
       topPages: (topPagesReport?.rows ?? []).map((row) => ({
         path: row.dimensionValues?.[0]?.value ?? "",
         pageviews: numberFromRow(row.metricValues?.[0]?.value),
