@@ -23,7 +23,6 @@ export async function ProjectsGrid({
   const published = await getPublishedProjects();
   const featured = published.filter((p) => p.featured).slice(0, HOMEPAGE_LIMIT);
   if (featured.length === 0) return null;
-  const others = published.length - featured.length;
 
   const newestId = newestRecentProjectId(published);
 
@@ -54,7 +53,7 @@ export async function ProjectsGrid({
         >
           <span className="font-display text-xl font-semibold tracking-[-0.02em] sm:text-2xl">
             <span className="link-draw">
-              {others > 0 ? `Vedi tutti i ${published.length} progetti` : "Tutti i progetti"}
+              Vedi tutti i progetti
             </span>
           </span>
           <span
