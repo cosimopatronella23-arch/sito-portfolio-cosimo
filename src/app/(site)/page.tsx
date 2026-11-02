@@ -9,7 +9,12 @@ import { Process } from "@/components/sections/Process";
 import { homeText, processSteps, sectionTheme } from "@/lib/homeDefaults";
 import { BlockRenderer } from "@/components/blocks/BlockRenderer";
 import { Reviews } from "@/components/sections/Reviews";
-import { buildMetadata, personJsonLd, websiteJsonLd } from "@/lib/seo";
+import {
+  buildMetadata,
+  personJsonLd,
+  professionalServiceJsonLd,
+  websiteJsonLd,
+} from "@/lib/seo";
 import { getPageSeo, getSiteSettings } from "@/lib/data/settings";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -43,6 +48,12 @@ export default async function HomePage() {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd()) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(professionalServiceJsonLd(settings)),
+        }}
       />
       <Hero content={c} eyebrow={homeText(c, "hero_eyebrow")} theme={theme("hero")} />
       <MarqueeBand items={c.services.map((s) => s.title)} theme={theme("marquee")} />

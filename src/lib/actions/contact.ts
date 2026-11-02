@@ -25,6 +25,15 @@ export async function sendContactMessage(
     return { error: null, success: true };
   }
 
+  // Seconda trappola: il modulo riceve l'ora in cui è comparso sullo
+  // schermo. Una persona impiega ben più di 3 secondi a scrivere nome,
+  // email e messaggio; un bot no. Se il dato manca (JavaScript spento) non
+  // si blocca nessuno.
+  const startedAt = Number(formData.get("started_at"));
+  if (startedAt && Date.now() - startedAt < 3000) {
+    return { error: null, success: true };
+  }
+
   // Il nome finisce nell'oggetto dell'email: niente a capo.
   const name = String(formData.get("name") || "")
     .replace(/[\r\n]+/g, " ")

@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect } from "react";
+import { useActionState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 import { sendContactMessage } from "@/lib/actions/contact";
@@ -72,6 +72,12 @@ export function ContactForm({
   const [state, formAction, pending] = useActionState(sendContactMessage, {
     error: null,
   });
+  // Ora di comparsa del modulo, per riconoscere gli invii dei bot (vedi
+  // sendContactMessage). Scritta nel campo nascosto dopo il caricamento.
+  const startedRef = useRef<HTMLInputElement>(null);
+  useEffect(() => {
+    if (startedRef.current) startedRef.current.value = String(Date.now());
+  }, []);
 
   useEffect(() => {
     if (state.success) trackLead("form");
@@ -141,6 +147,7 @@ export function ContactForm({
                 className="absolute h-0 w-0 opacity-0"
                 style={{ pointerEvents: "none" }}
               />
+              <input ref={startedRef} type="hidden" name="started_at" defaultValue="" />
               {FIELDS.map((field) => (
                 <div key={field.name} className="flex flex-col gap-1">
                   <label htmlFor={field.name} className="text-xs font-semibold tracking-[0.12em] uppercase">

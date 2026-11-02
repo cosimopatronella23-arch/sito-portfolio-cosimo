@@ -52,9 +52,43 @@ export function buildMetadata(input: {
 // entità dietro sito, progetti e articoli.
 const PERSON_ID = `${SITE_URL}/#person`;
 
+// Percorso Home > Sezione > Pagina, come già sulle pagine servizio.
+function breadcrumb(
+  section: { name: string; path: string },
+  name: string,
+  path: string,
+) {
+  return {
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: `${SITE_URL}/` },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: section.name,
+        item: `${SITE_URL}${section.path}`,
+      },
+      { "@type": "ListItem", position: 3, name, item: `${SITE_URL}${path}` },
+    ],
+  };
+}
+
 export function projectJsonLd(project: Project) {
   return {
     "@context": "https://schema.org",
+    "@graph": [
+      projectWork(project),
+      breadcrumb(
+        { name: "Progetti", path: "/progetti" },
+        project.title,
+        `/progetti/${project.slug}`,
+      ),
+    ],
+  };
+}
+
+function projectWork(project: Project) {
+  return {
     "@type": "CreativeWork",
     name: project.title,
     description: project.short_description,
@@ -75,6 +109,19 @@ export function projectJsonLd(project: Project) {
 export function blogPostJsonLd(post: BlogPost) {
   return {
     "@context": "https://schema.org",
+    "@graph": [
+      blogPosting(post),
+      breadcrumb(
+        { name: "Blog", path: "/blog" },
+        post.title,
+        `/blog/${post.slug}`,
+      ),
+    ],
+  };
+}
+
+function blogPosting(post: BlogPost) {
+  return {
     "@type": "BlogPosting",
     headline: post.title,
     description: post.excerpt,
@@ -125,6 +172,34 @@ export function personJsonLd(settings: SiteSettings) {
 }
 
 /**
+ * L'attività come servizio professionale che lavora in una zona (come la
+ * scheda Google: sede a Grottaglie, clienti anche a Roma). Solo dati veri:
+ * niente indirizzo inventato, niente stelline (Google ignora le recensioni
+ * pubblicate dall'attività su sé stessa).
+ */
+export function professionalServiceJsonLd(settings: SiteSettings) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "ProfessionalService",
+    "@id": `${SITE_URL}/#attivita`,
+    name: "Cosimo Patronella",
+    url: SITE_URL,
+    email: settings.contact_email,
+    telephone: settings.contact_phone
+      ? formatPhone(settings.contact_phone)
+      : undefined,
+    vatID: settings.home_content.vat_number || undefined,
+    founder: { "@id": PERSON_ID },
+    areaServed: ["Roma", "Taranto", "Grottaglie"].map((name) => ({
+      "@type": "City",
+      name,
+    })),
+    knowsAbout: ["Web design", "Graphic design", "SEO", "Web app"],
+    sameAs: Object.values(settings.social_links),
+  };
+}
+
+/**
  * Dati strutturati di una pagina servizio: il servizio (chi lo offre e
  * dove), il percorso Home > Servizi > pagina e, se presenti, le domande
  * frequenti. Tutto ricavato dai contenuti reali della pagina.
@@ -151,7 +226,12 @@ export function serviceJsonLd(service: ServicePage) {
     {
       "@type": "BreadcrumbList",
       itemListElement: [
-        { "@type": "ListItem", position: 1, name: "Home", item: `${SITE_URL}/` },
+        {
+          "@type": "ListItem",
+          position: 1,
+          name: "Home",
+          item: `${SITE_URL}/`,
+        },
         {
           "@type": "ListItem",
           position: 2,
