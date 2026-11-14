@@ -32,11 +32,26 @@ export async function generateMetadata(
 
 export default async function BlogPostPage(props: PageProps<"/blog/[slug]">) {
   const { slug } = await props.params;
-  const [post, settings] = await Promise.all([
+  const [post, settings, allPosts] = await Promise.all([
     getPostBySlug(slug),
     getSiteSettings(),
+    getPublishedPosts(),
   ]);
   if (!post) notFound();
 
-  return <BlogPostView post={post} contactPhone={settings.contact_phone} />;
+  // Due articoli da proporre in fondo: prima quelli della stessa categoria,
+  // poi i più recenti (l'elenco arriva già dal più nuovo al più vecchio).
+  const others = allPosts.filter((p) => p.slug !== post.slug);
+  const related = [
+    ...others.filter((p) => p.category && p.category === post.category),
+    ...others.filter((p) => !p.category || p.category !== post.category),
+  ].slice(0, 2);
+
+  return (
+    <BlogPostView
+      post={post}
+      contactPhone={settings.contact_phone}
+      related={related}
+    />
+  );
 }

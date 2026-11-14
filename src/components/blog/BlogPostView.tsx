@@ -3,6 +3,7 @@ import { AnimatedText } from "@/components/ui/AnimatedText";
 import { blogPostJsonLd } from "@/lib/seo";
 import { normalizeHeadings } from "@/lib/html";
 import { ClosingCta } from "@/components/sections/ClosingCta";
+import { BlogCard } from "@/components/blog/BlogCard";
 import type { BlogPost } from "@/lib/types";
 
 const dateFormatter = new Intl.DateTimeFormat("it-IT", {
@@ -17,6 +18,18 @@ function readingMinutes(html: string) {
   return Math.max(1, Math.round(words / 200));
 }
 
+const dayKey = new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Rome" });
+
+// "Aggiornato il..." solo se l'articolo è stato salvato in un giorno
+// successivo a quello di pubblicazione: è la stessa data che il sito già
+// comunica a Google (dateModified e sitemap).
+function revisedDate(post: BlogPost): Date | null {
+  if (!post.updated_at || !post.published_at) return null;
+  const updated = new Date(post.updated_at);
+  const published = new Date(post.published_at);
+  return dayKey.format(updated) > dayKey.format(published) ? updated : null;
+}
+
 /**
  * Pagina di un articolo. Usata dalla pagina pubblica e dall'anteprima in
  * /admin, così la bozza si vede esattamente come apparirà online.
@@ -26,10 +39,14 @@ function readingMinutes(html: string) {
 export function BlogPostView({
   post,
   contactPhone,
+  related = [],
 }: {
   post: BlogPost;
   contactPhone?: string;
+  /** Articoli da proporre in fondo ("Continua a leggere"). */
+  related?: BlogPost[];
 }) {
+  const revised = revisedDate(post);
   return (
     <article>
       <script
@@ -72,13 +89,26 @@ export function BlogPostView({
                 {dateFormatter.format(new Date(post.published_at))}
               </time>
               <span aria-hidden="true" className="size-1.5 rounded-full bg-accent" />
+              {revised ? (
+                <>
+                  <span>
+                    Aggiornato il{" "}
+                    <time dateTime={post.updated_at}>{dateFormatter.format(revised)}</time>
+                  </span>
+                  <span aria-hidden="true" className="size-1.5 rounded-full bg-accent" />
+                </>
+              ) : null}
               <span>{readingMinutes(post.content)} min di lettura</span>
             </p>
           </div>
         </div>
       </header>
 
-      <div className="theme-paper container-px pt-14 pb-20 sm:pt-20 sm:pb-28">
+      <div
+        className={`theme-paper container-px pt-14 sm:pt-20 ${
+          related.length ? "pb-14 sm:pb-20" : "pb-20 sm:pb-28"
+        }`}
+      >
         {/* Niente copertina: il titolo in apertura basta, e le immagini vere
             (schermate di progetti) stanno dentro il testo quando servono. */}
         <div className="mx-auto flex max-w-3xl flex-col gap-12">
@@ -89,6 +119,27 @@ export function BlogPostView({
           />
         </div>
       </div>
+
+      {related.length ? (
+        <section
+          aria-labelledby="continua-a-leggere"
+          className="theme-paper container-px pb-20 sm:pb-28"
+        >
+          <div className="mx-auto flex max-w-3xl flex-col gap-10 border-t border-border pt-14 sm:pt-20">
+            <h2
+              id="continua-a-leggere"
+              className="font-display text-3xl font-bold tracking-[-0.03em] sm:text-4xl"
+            >
+              Continua a leggere
+            </h2>
+            <div className="grid grid-cols-1 gap-x-8 gap-y-12 md:grid-cols-2">
+              {related.map((item) => (
+                <BlogCard key={item.id} post={item} />
+              ))}
+            </div>
+          </div>
+        </section>
+      ) : null}
 
       <ClosingCta
         title="Ti serve una mano?"
