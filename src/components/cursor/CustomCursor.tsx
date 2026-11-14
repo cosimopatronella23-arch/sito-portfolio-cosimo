@@ -51,8 +51,14 @@ export function CustomCursor() {
     let last = 0;
     let started = false;
 
+    // Posizione con left/top e non con transform: il pallino è ruotato di
+    // 45 gradi (classe rotate-45) e uno spostamento dentro transform
+    // verrebbe ruotato anche lui, portandolo in diagonale rispetto al mouse.
+    // Il transform resta solo per l'ingrandimento, animato dal CSS.
     function render() {
-      dot!.style.transform = `translate3d(${x}px, ${y}px, 0) scale(${scale})`;
+      dot!.style.left = `${x}px`;
+      dot!.style.top = `${y}px`;
+      dot!.style.transform = `scale(${scale})`;
     }
 
     function tick(now: number) {
