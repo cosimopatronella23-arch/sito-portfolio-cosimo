@@ -97,7 +97,7 @@ export default async function AdminMessagesPage(
             <div className="flex flex-col border border-border-strong">
               {messages.map((m) => (
                 <MessageItem
-                  key={`${m.id}-${m.read_at ? "r" : "u"}`}
+                  key={m.id}
                   id={m.id}
                   unread={box === "inbox" && !m.read_at}
                   header={

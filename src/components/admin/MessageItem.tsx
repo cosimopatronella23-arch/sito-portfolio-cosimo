@@ -20,7 +20,14 @@ export function MessageItem({
   header: React.ReactNode;
   children: React.ReactNode;
 }) {
+  // Aperto qui = letto subito, senza aspettare il server. Se il server poi
+  // lo riporta "da leggere" (pulsante apposito), si riallinea.
   const [isUnread, setIsUnread] = useState(unread);
+  const [prevUnread, setPrevUnread] = useState(unread);
+  if (unread !== prevUnread) {
+    setPrevUnread(unread);
+    setIsUnread(unread);
+  }
 
   return (
     <details
