@@ -53,87 +53,65 @@ export function GallerySlideshow({
     return () => window.clearTimeout(timer);
   }, [playing, active, items.length, intervalMs]);
 
-  const pad = (n: number) => String(n).padStart(2, "0");
-
+  // Aspetto da gif: nessun contatore né comandi visibili. Resta comunque
+  // fermabile (WCAG 2.2.2): clic o tocco sull'immagine mette in pausa e
+  // riprende; da tastiera il pulsante compare solo quando riceve il focus.
   return (
     <div
       ref={ref}
       role="group"
       aria-roledescription="sequenza di immagini"
       aria-label={alt}
-      className="flex flex-col gap-[5px]"
+      className="relative aspect-[3/2] w-full overflow-hidden bg-surface"
+      onClick={() => setUserPaused((p) => !p)}
     >
-      <div className="relative aspect-[3/2] w-full overflow-hidden bg-surface">
-        {items.map((item, i) => (
-          <div
-            key={item.url}
-            aria-hidden={i !== active}
-            style={{ transitionDuration: `${fadeMs}ms` }}
-            className={clsx(
-              "absolute inset-0 transition-opacity ease-out motion-reduce:transition-none",
-              i === active ? "opacity-100" : "opacity-0",
-            )}
-          >
-            <CoverImage
-              src={item.url}
-              alt={item.alt || alt}
-              sizes="100vw"
-              className="h-full w-full"
-            />
-          </div>
-        ))}
-      </div>
-
-      <div className="flex items-center justify-between gap-4 px-[calc(clamp(20px,4vw,24px)-5px)] py-2">
-        <span className="font-display text-sm font-semibold text-foreground-muted tabular-nums">
-          {pad(active + 1)} / {pad(items.length)}
-        </span>
-        <div className="flex items-center gap-2">
-          {items.map((item, i) => (
-            <button
-              key={item.url}
-              type="button"
-              onClick={() => setActive(i)}
-              aria-label={`Mostra immagine ${i + 1} di ${items.length}`}
-              aria-current={i === active ? "true" : undefined}
-              className="group flex size-6 items-center justify-center"
-            >
-              <span
-                className={clsx(
-                  "size-2 transition-[transform,background-color] duration-300 group-hover:scale-125",
-                  i === active ? "bg-foreground" : "bg-border-strong",
-                )}
-              />
-            </button>
-          ))}
-          <button
-            type="button"
-            onClick={() => setUserPaused((p) => !p)}
-            aria-label={
-              userPaused ? "Riprendi la sequenza" : "Metti in pausa la sequenza"
-            }
-            className="ml-2 flex size-9 items-center justify-center border border-border-strong text-foreground transition-colors hover:border-foreground hover:bg-foreground hover:text-background"
-          >
-            {userPaused ? (
-              <svg
-                aria-hidden="true"
-                viewBox="0 0 12 12"
-                className="size-3 fill-current"
-              >
-                <path d="M3 1.5v9l7-4.5z" />
-              </svg>
-            ) : (
-              <svg
-                aria-hidden="true"
-                viewBox="0 0 12 12"
-                className="size-3 fill-current"
-              >
-                <path d="M2.5 1.5h2.5v9H2.5zM7 1.5h2.5v9H7z" />
-              </svg>
-            )}
-          </button>
+      {items.map((item, i) => (
+        <div
+          key={item.url}
+          aria-hidden={i !== active}
+          style={{ transitionDuration: `${fadeMs}ms` }}
+          className={clsx(
+            "absolute inset-0 transition-opacity ease-out motion-reduce:transition-none",
+            i === active ? "opacity-100" : "opacity-0",
+          )}
+        >
+          <CoverImage
+            src={item.url}
+            alt={item.alt || alt}
+            sizes="100vw"
+            className="h-full w-full"
+          />
         </div>
-      </div>
+      ))}
+      <button
+        type="button"
+        onClick={(e) => {
+          e.stopPropagation();
+          setUserPaused((p) => !p);
+        }}
+        aria-label={
+          userPaused ? "Riprendi la sequenza" : "Metti in pausa la sequenza"
+        }
+        className="absolute right-3 bottom-3 flex size-11 items-center justify-center border border-foreground bg-background text-foreground opacity-0 focus-visible:opacity-100"
+      >
+        {userPaused ? (
+          <svg
+            aria-hidden="true"
+            viewBox="0 0 12 12"
+            className="size-3 fill-current"
+          >
+            <path d="M3 1.5v9l7-4.5z" />
+          </svg>
+        ) : (
+          <svg
+            aria-hidden="true"
+            viewBox="0 0 12 12"
+            className="size-3 fill-current"
+          >
+            <path d="M2.5 1.5h2.5v9H2.5zM7 1.5h2.5v9H7z" />
+          </svg>
+        )}
+      </button>
     </div>
   );
 }

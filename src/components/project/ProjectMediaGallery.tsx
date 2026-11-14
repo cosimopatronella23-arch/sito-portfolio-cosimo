@@ -172,12 +172,12 @@ export function ProjectMediaGallery({
 
   const rows = toRows(items);
 
-  // Come Dumbar: ogni immagine quasi a tutto schermo, 5 px dal bordo e 5 px
+  // Come Dumbar: ogni immagine quasi a tutto schermo, 10 px dal bordo e 10 px
   // tra una e l'altra (anche tra le due affiancate). Intere, sequenze e
   // coppie occupano sempre la stessa larghezza, così sembrano un'unica
   // serie e non formati diversi.
   return (
-    <div className="-mx-[clamp(20px,4vw,24px)] flex flex-col gap-[5px] px-[5px]">
+    <div className="-mx-[clamp(20px,4vw,24px)] flex flex-col gap-[10px] px-[10px]">
       {rows.map((row, rowIndex) =>
         row.kind === "slideshow" ? (
           <motion.div
@@ -194,7 +194,7 @@ export function ProjectMediaGallery({
             key={row.items.map((r) => r.url).join("-")}
             className={
               row.kind === "pair"
-                ? "grid grid-cols-2 gap-[5px]"
+                ? "grid grid-cols-2 gap-[10px]"
                 : undefined
             }
           >
