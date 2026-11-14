@@ -15,6 +15,7 @@ const GROUPS: { title: string; items: NavItem[] }[] = [
     title: "Contenuti",
     items: [
       { label: "Dashboard", href: "/admin", icon: "dashboard" },
+      { label: "Messaggi", href: "/admin/messaggi", icon: "mail" },
       { label: "Progetti", href: "/admin/progetti", icon: "projects" },
       { label: "Servizi", href: "/admin/servizi", icon: "services" },
       { label: "Blog", href: "/admin/blog", icon: "blog" },
@@ -36,7 +37,13 @@ function isActive(pathname: string, href: string) {
   return href === "/admin" ? pathname === href : pathname.startsWith(href);
 }
 
-function NavLinks({ pathname }: { pathname: string }) {
+function NavLinks({
+  pathname,
+  unreadMessages,
+}: {
+  pathname: string;
+  unreadMessages: number;
+}) {
   return (
     <nav aria-label="Admin" className="flex flex-col gap-7">
       {GROUPS.map((group) => (
@@ -63,6 +70,12 @@ function NavLinks({ pathname }: { pathname: string }) {
                   className={clsx("h-5 w-5", active && "text-accent")}
                 />
                 {item.label}
+                {item.href === "/admin/messaggi" && unreadMessages > 0 ? (
+                  <span className="ml-auto min-w-6 bg-accent px-1.5 py-0.5 text-center text-xs font-semibold text-ink tabular-nums">
+                    {unreadMessages}
+                    <span className="sr-only"> da leggere</span>
+                  </span>
+                ) : null}
               </Link>
             );
           })}
@@ -111,7 +124,13 @@ function Brand() {
  * Struttura dell'admin: menu laterale fisso da desktop, barra in alto con
  * menu a scomparsa su telefono e tablet.
  */
-export function AdminShell({ children }: { children: React.ReactNode }) {
+export function AdminShell({
+  children,
+  unreadMessages = 0,
+}: {
+  children: React.ReactNode;
+  unreadMessages?: number;
+}) {
   const pathname = usePathname();
   // Il menu mobile ricorda la pagina in cui è stato aperto: cambiando
   // pagina si chiude da solo. Si chiude anche con Esc.
@@ -144,7 +163,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
       <aside className="fixed inset-y-0 left-0 z-30 hidden w-60 flex-col justify-between border-r border-border bg-surface px-3 py-6 lg:flex">
         <div className="flex flex-col gap-8">
           <Brand />
-          <NavLinks pathname={pathname} />
+          <NavLinks pathname={pathname} unreadMessages={unreadMessages} />
         </div>
         <SidebarFooter />
       </aside>
@@ -187,7 +206,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
                   <AdminIcon name="close" />
                 </button>
               </div>
-              <NavLinks pathname={pathname} />
+              <NavLinks pathname={pathname} unreadMessages={unreadMessages} />
             </div>
             <SidebarFooter />
           </div>

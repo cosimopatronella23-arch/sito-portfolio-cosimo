@@ -28,6 +28,11 @@ export async function GET(request: Request) {
     return NextResponse.json({ ok: false, error: error.message }, { status: 500 });
   }
 
+  // Messaggi del modulo contatti oltre i 12 mesi: cancellati ogni giorno
+  // (vedi migrazione 0012). Se la funzione non c'è ancora, nessun problema.
+  const { error: purgeError } = await supabase.rpc("purge_old_contact_messages");
+  const messagesPurged = !purgeError;
+
   const domainHealthy = await isPrimaryHealthy(8000);
   let alertSent = false;
   const contactEmail = data?.[0]?.contact_email;
@@ -56,5 +61,6 @@ export async function GET(request: Request) {
     ranAt: new Date().toISOString(),
     domainHealthy,
     alertSent,
+    messagesPurged,
   });
 }

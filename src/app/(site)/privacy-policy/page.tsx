@@ -85,9 +85,13 @@ export default async function PrivacyPolicyPage() {
           <h2>Come vengono trattati i dati</h2>
           <p>
             I messaggi inviati tramite il modulo di contatto vengono
-            recapitati alla casella email del titolare attraverso il
+            salvati nell&apos;area riservata del sito, accessibile solo al
+            titolare, e recapitati alla sua casella email attraverso il
             servizio Resend, che agisce in qualità di responsabile del
-            trattamento per l&apos;invio tecnico dell&apos;email. Il sito è
+            trattamento per l&apos;invio tecnico dell&apos;email. Per limitare
+            gli invii automatici ripetuti, il sito registra per 24 ore
+            un&apos;impronta cifrata della connessione di chi scrive, che non
+            contiene l&apos;indirizzo IP in chiaro. Il sito è
             ospitato su Vercel e i contenuti sono gestiti tramite Supabase;
             entrambi i fornitori possono trattare dati tecnici come
             responsabili del trattamento, nel rispetto del GDPR. Nessun dato
@@ -96,9 +100,12 @@ export default async function PrivacyPolicyPage() {
 
           <h2>Periodo di conservazione</h2>
           <p>
-            I dati inviati tramite il modulo di contatto sono conservati per
-            il tempo necessario a gestire la richiesta e, successivamente,
-            per il tempo previsto dagli obblighi di legge applicabili. I
+            I messaggi inviati tramite il modulo di contatto restano
+            nell&apos;area riservata del sito per un massimo di 12 mesi, poi
+            vengono cancellati automaticamente. Le copie ricevute via email
+            sono conservate per il tempo necessario a gestire la richiesta e,
+            successivamente, per il tempo previsto dagli obblighi di legge
+            applicabili. I
             dati tecnici di navigazione sono conservati per il periodo
             minimo necessario alle finalità di sicurezza, secondo le
             policy del fornitore di hosting.

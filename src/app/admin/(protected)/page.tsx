@@ -8,6 +8,8 @@ import { getSearchConsoleSummary } from "@/lib/google/searchConsole";
 import { ExportButton } from "@/components/admin/ExportButton";
 import { RevalidateButton } from "@/components/admin/RevalidateButton";
 import { AdminIcon } from "@/components/admin/AdminIcons";
+import { countUnreadMessages } from "@/lib/data/messages";
+import { findUnusedMedia, listMediaFiles } from "@/lib/actions/media";
 
 type Item = {
   type: "Progetto" | "Articolo" | "Servizio";
@@ -109,6 +111,65 @@ function ItemRow({ item, meta }: { item: Item; meta: string }) {
   );
 }
 
+// Stesse soglie del "Controllo SEO" negli editor: titolo con
+// " | Cosimo Patronella" entro 62 caratteri, descrizione tra 70 e 160.
+function seoIncomplete(title: string, description: string | null | undefined) {
+  const d = (description ?? "").trim();
+  return title.trim().length + 20 > 62 || d.length < 70 || d.length > 160;
+}
+
+const shortDate = new Intl.DateTimeFormat("it-IT", {
+  day: "numeric",
+  month: "long",
+  timeZone: "Europe/Rome",
+});
+
+function isFuture(iso: string) {
+  return new Date(iso).getTime() > Date.now();
+}
+
+type TodoLine = { text: string; href: string };
+
+/**
+ * "Da sistemare": compare in cima solo se c'è qualcosa da fare. Ogni riga
+ * porta dove si risolve. Le bozze restano nel riquadro "Da completare".
+ */
+function TodoPanel({ lines }: { lines: TodoLine[] }) {
+  if (lines.length === 0) return null;
+  return (
+    <section
+      aria-labelledby="da-sistemare"
+      className="flex flex-col border border-accent bg-surface"
+    >
+      <h2
+        id="da-sistemare"
+        className="border-b border-border px-5 py-4 font-display text-base font-semibold"
+      >
+        Da sistemare
+      </h2>
+      <ul className="flex flex-col">
+        {lines.map((line) => (
+          <li
+            key={line.text}
+            className="border-b border-border last:border-b-0"
+          >
+            <Link
+              href={line.href}
+              className="group flex items-center justify-between gap-4 px-5 py-3.5 text-sm hover:bg-surface-hover"
+            >
+              <span className="group-hover:text-accent">{line.text}</span>
+              <AdminIcon
+                name="arrow"
+                className="h-4 w-4 shrink-0 text-foreground-muted group-hover:text-accent"
+              />
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
 const numberIt = new Intl.NumberFormat("it-IT", { useGrouping: "always" });
 
 async function GoogleStats() {
@@ -166,11 +227,74 @@ const quickActions = [
 ];
 
 export default async function AdminDashboardPage() {
-  const [projects, posts, services] = await Promise.all([
-    getAllProjectsAdmin(),
-    getAllPostsAdmin(),
-    getAllServicesAdmin(),
-  ]);
+  const [projects, posts, services, unreadMessages, mediaFiles] =
+    await Promise.all([
+      getAllProjectsAdmin(),
+      getAllPostsAdmin(),
+      getAllServicesAdmin(),
+      countUnreadMessages(),
+      listMediaFiles(),
+    ]);
+  const unusedMedia = await findUnusedMedia(mediaFiles.map((f) => f.url));
+
+  const scheduled = posts
+    .filter((p) => p.status === "published" && isFuture(p.published_at))
+    .sort((a, b) => a.published_at.localeCompare(b.published_at));
+  const seoToFix = [
+    ...projects
+      .filter((p) => p.status === "published")
+      .filter((p) =>
+        seoIncomplete(
+          p.seo_title ?? p.title,
+          p.seo_description ?? p.short_description,
+        ),
+      )
+      .map((p) => ({ title: p.title, href: `/admin/progetti/${p.id}` })),
+    ...posts
+      .filter((p) => p.status === "published")
+      .filter((p) =>
+        seoIncomplete(p.seo_title ?? p.title, p.seo_description ?? p.excerpt),
+      )
+      .map((p) => ({ title: p.title, href: `/admin/blog/${p.id}` })),
+    ...services
+      .filter((s) => s.status === "published")
+      .filter((s) =>
+        seoIncomplete(s.seo_title ?? s.title, s.seo_description ?? s.excerpt),
+      )
+      .map((s) => ({ title: s.title, href: `/admin/servizi/${s.id}` })),
+  ];
+
+  const todo: TodoLine[] = [];
+  if (unreadMessages > 0) {
+    todo.push({
+      text:
+        unreadMessages === 1
+          ? "1 messaggio da leggere"
+          : `${unreadMessages} messaggi da leggere`,
+      href: "/admin/messaggi",
+    });
+  }
+  for (const p of scheduled) {
+    todo.push({
+      text: `Programmato per il ${shortDate.format(new Date(p.published_at))}: "${p.title}"`,
+      href: `/admin/blog/${p.id}`,
+    });
+  }
+  for (const item of seoToFix) {
+    todo.push({
+      text: `Controllo SEO incompleto: "${item.title}"`,
+      href: item.href,
+    });
+  }
+  if (unusedMedia.length > 0) {
+    todo.push({
+      text:
+        unusedMedia.length === 1
+          ? "1 file in Media non è usato da nessuna parte"
+          : `${unusedMedia.length} file in Media non sono usati da nessuna parte`,
+      href: "/admin/media",
+    });
+  }
 
   const items: Item[] = [
     ...projects.map((p) => ({
@@ -233,6 +357,8 @@ export default async function AdminDashboardPage() {
           ))}
         </div>
       </header>
+
+      <TodoPanel lines={todo} />
 
       <div className="grid grid-cols-3 gap-3 sm:gap-4">
         <StatTile
@@ -313,8 +439,8 @@ export default async function AdminDashboardPage() {
         <div className="flex flex-col gap-3 border border-border-strong bg-surface p-5">
           <h2 className="font-display text-base font-semibold">Backup</h2>
           <p className="text-sm text-foreground-muted">
-            Ogni lunedì ricevi il backup via email. Da qui puoi scaricarne
-            uno aggiornato, bozze comprese.
+            Ogni lunedì ricevi il backup via email. Da qui puoi scaricarne uno
+            aggiornato, bozze comprese.
           </p>
           <ExportButton />
         </div>

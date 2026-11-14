@@ -1,9 +1,11 @@
 import { AdminShell } from "@/components/admin/AdminShell";
+import { countUnreadMessages } from "@/lib/data/messages";
 
-export default function AdminProtectedLayout({
+export default async function AdminProtectedLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  return <AdminShell>{children}</AdminShell>;
+  const unreadMessages = await countUnreadMessages();
+  return <AdminShell unreadMessages={unreadMessages}>{children}</AdminShell>;
 }
