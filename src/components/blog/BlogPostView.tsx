@@ -61,7 +61,7 @@ export function BlogPostView({
           <Link
             href="/blog"
             data-cursor="link"
-            className="group flex w-max items-center gap-2 text-xs font-semibold tracking-[0.12em] text-foreground-muted uppercase transition-colors hover:text-foreground"
+            className="group -my-3 flex w-max items-center gap-2 py-3 text-xs font-semibold tracking-[0.12em] text-foreground-muted uppercase transition-colors hover:text-foreground"
           >
             <span aria-hidden="true" className="transition-transform duration-300 group-hover:-translate-x-1">
               ←

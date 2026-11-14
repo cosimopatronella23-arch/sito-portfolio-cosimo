@@ -81,9 +81,9 @@ export function ReviewQuote({
             <Link
               href={`/progetti/${review.project_slug}`}
               data-cursor="link"
-              className="link-draw font-medium text-foreground"
+              className="-my-3 py-3 font-medium text-foreground"
             >
-              Vedi il progetto
+              <span className="link-draw">Vedi il progetto</span>
             </Link>
           ) : null}
         </span>

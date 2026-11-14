@@ -59,7 +59,7 @@ export function Reviews({
           target="_blank"
           rel="noopener noreferrer"
           data-cursor="link"
-          className="group mt-14 inline-flex items-center gap-2 text-sm font-medium"
+          className="group mt-11 inline-flex items-center gap-2 py-3 text-sm font-medium"
         >
           <span className="link-draw">Tutte le recensioni su Google</span>
           {/* Freccia disegnata, non il carattere: su iPhone diventerebbe un'emoji. */}

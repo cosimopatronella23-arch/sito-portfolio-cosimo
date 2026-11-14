@@ -1,6 +1,7 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { useRef } from "react";
+import { motion, useInView } from "framer-motion";
 
 const EASE_OUT: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
@@ -16,6 +17,11 @@ const EASE_OUT: [number, number, number, number] = [0.22, 1, 0.36, 1];
  * successo davvero con la "g" di "design" nell'Hero). Fix standard
  * "leading-trim": padding-bottom per dare spazio reale, margin-bottom
  * negativo della stessa misura per non allargare lo spazio tra le righe.
+ *
+ * L'ingresso parte quando l'intero testo entra nello schermo, non parola
+ * per parola: una parola ancora nascosta dalla sua maschera può non essere
+ * mai "vista" (su Safari capitava con la "i" di "Cosa dicono i clienti",
+ * rimasta ferma in basso con solo il puntino visibile).
  */
 export function AnimatedText({
   text,
@@ -27,9 +33,11 @@ export function AnimatedText({
   delay?: number;
 }) {
   const words = text.split(" ");
+  const ref = useRef<HTMLSpanElement>(null);
+  const inView = useInView(ref, { once: true, margin: "0px 0px -40px 0px" });
 
   return (
-    <span className={className}>
+    <span ref={ref} className={className}>
       {words.map((word, i) => (
         <span
           key={i}
@@ -38,8 +46,7 @@ export function AnimatedText({
           <motion.span
             className="inline-block"
             initial={{ y: "100%" }}
-            whileInView={{ y: "0%" }}
-            viewport={{ once: true, margin: "-40px" }}
+            animate={{ y: inView ? "0%" : "100%" }}
             transition={{
               duration: 0.7,
               delay: delay + i * 0.05,

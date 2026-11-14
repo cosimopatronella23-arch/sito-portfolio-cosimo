@@ -81,7 +81,7 @@ export function ProjectDetail({
 
           <Link
             href="/#progetti"
-            className="container-px absolute top-6 z-10 w-max text-sm text-white/70 transition-colors hover:text-white sm:top-10"
+            className="container-px absolute top-3 z-10 w-max py-3 text-sm text-white/70 transition-colors hover:text-white sm:top-7"
           >
             ← Torna ai progetti
           </Link>

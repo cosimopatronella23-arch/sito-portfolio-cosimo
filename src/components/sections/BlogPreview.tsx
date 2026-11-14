@@ -14,8 +14,8 @@ export async function BlogPreview({ theme }: { theme: SectionTheme }) {
     <section id="blog" className={`theme-${theme} container-px py-24 sm:py-32`}>
       <div className="flex flex-wrap items-end justify-between gap-6 pb-12 sm:pb-16">
         <SectionHeading title="Dal blog." size="poster" />
-        <Link href="/blog" data-cursor="link" className="link-draw text-sm font-semibold tracking-[0.1em] uppercase">
-          Tutti gli articoli →
+        <Link href="/blog" data-cursor="link" className="-my-3 py-3 text-sm font-semibold tracking-[0.1em] uppercase">
+          <span className="link-draw">Tutti gli articoli →</span>
         </Link>
       </div>
       <div className="grid grid-cols-1 gap-x-6 gap-y-12 md:grid-cols-3">
