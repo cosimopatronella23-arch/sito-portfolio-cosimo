@@ -1,11 +1,11 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import gsap from "gsap";
 import { isSafari } from "@/lib/isSafari";
 
 /**
- * Cursore custom con leggero delay (lerp) via GSAP quickTo.
+ * Cursore custom con leggero ritardo (lerp) calcolato a ogni fotogramma,
+ * senza librerie: il ciclo gira solo mentre il cursore si sta muovendo.
  * Disattivato su touch/mobile e quando l'utente preferisce ridurre le animazioni.
  * Si ingrandisce e mostra un'etichetta sugli elementi con data-cursor="link"
  * (opzionalmente data-cursor-text="Testo personalizzato").
@@ -24,8 +24,8 @@ export function CustomCursor() {
 
     // Anche da fermo (senza l'inversione di colore, già tolta) il cursore
     // custom restava percepibilmente a scatti su Safari/Mac: il problema
-    // non era solo il mix-blend-mode ma il ricalcolo continuo via GSAP ad
-    // ogni movimento del mouse. Su Safari si rinuncia del tutto e si torna
+    // non era solo il mix-blend-mode ma il ricalcolo continuo ad ogni
+    // movimento del mouse. Su Safari si rinuncia del tutto e si torna
     // al puntatore di sistema — la regola CSS accanto nasconde comunque il
     // pallino, questo evita pure di far girare il loop JS inutilmente.
     if (!supportsFinePointer || prefersReducedMotion || isSafari()) {
@@ -39,13 +39,57 @@ export function CustomCursor() {
     document.documentElement.classList.add("cursor-active-custom");
 
     // Ritardo breve solo per addolcire il movimento (effetto "morbido"),
-    // non abbastanza da percepirsi come lento o poco reattivo.
-    const xTo = gsap.quickTo(dot, "x", { duration: 0.15, ease: "power3" });
-    const yTo = gsap.quickTo(dot, "y", { duration: 0.15, ease: "power3" });
+    // non abbastanza da percepirsi come lento o poco reattivo: a ogni
+    // fotogramma il pallino percorre una parte della distanza che manca,
+    // in proporzione al tempo trascorso (uguale a 60 e a 120 Hz).
+    let x = 0;
+    let y = 0;
+    let targetX = 0;
+    let targetY = 0;
+    let scale = 1;
+    let frame = 0;
+    let last = 0;
+    let started = false;
+
+    function render() {
+      dot!.style.transform = `translate3d(${x}px, ${y}px, 0) scale(${scale})`;
+    }
+
+    function tick(now: number) {
+      const dt = last ? Math.min(now - last, 64) : 16.7;
+      last = now;
+      const k = 1 - Math.pow(1 - 0.35, dt / 16.7);
+      x += (targetX - x) * k;
+      y += (targetY - y) * k;
+      if (Math.abs(targetX - x) < 0.1 && Math.abs(targetY - y) < 0.1) {
+        x = targetX;
+        y = targetY;
+        render();
+        frame = 0;
+        last = 0;
+        return;
+      }
+      render();
+      frame = requestAnimationFrame(tick);
+    }
 
     function handleMove(e: MouseEvent) {
-      xTo(e.clientX);
-      yTo(e.clientY);
+      targetX = e.clientX;
+      targetY = e.clientY;
+      if (!started) {
+        // Primo movimento: il pallino compare già sotto il mouse.
+        started = true;
+        x = targetX;
+        y = targetY;
+        render();
+        return;
+      }
+      if (!frame) frame = requestAnimationFrame(tick);
+    }
+
+    function setScale(value: number) {
+      scale = value;
+      render();
     }
 
     function handleEnter(e: Event) {
@@ -53,17 +97,13 @@ export function CustomCursor() {
       const text = target.dataset.cursorText ?? "";
       label!.textContent = text;
       dot!.dataset.expanded = text ? "text" : "dot";
-      gsap.to(dot!, {
-        scale: text ? 1 : 1.8,
-        duration: 0.3,
-        ease: "power2.out",
-      });
+      setScale(text ? 1 : 1.8);
     }
 
     function handleLeave() {
       label!.textContent = "";
       dot!.dataset.expanded = "";
-      gsap.to(dot!, { scale: 1, duration: 0.3, ease: "power2.out" });
+      setScale(1);
     }
 
     window.addEventListener("mousemove", handleMove);
@@ -92,6 +132,7 @@ export function CustomCursor() {
     return () => {
       document.documentElement.classList.remove("cursor-active-custom");
       window.removeEventListener("mousemove", handleMove);
+      cancelAnimationFrame(frame);
       targets.forEach((el) => {
         el.removeEventListener("mouseenter", handleEnter);
         el.removeEventListener("mouseleave", handleLeave);

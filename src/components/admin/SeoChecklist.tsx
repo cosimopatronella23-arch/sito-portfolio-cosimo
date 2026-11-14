@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { AdminIcon } from "./AdminIcons";
+import { withYear } from "@/lib/year";
 
 // " | Cosimo Patronella" aggiunto dal sito a ogni titolo di pagina.
 const TITLE_SUFFIX_LENGTH = 20;
@@ -82,9 +83,9 @@ export function SeoChecklist({
     let lastKey = "";
 
     const evaluate = () => {
-      const title = firstValue(form, titleFields);
+      const title = withYear(firstValue(form, titleFields));
       const titleLength = title.length + TITLE_SUFFIX_LENGTH;
-      const description = firstValue(form, descriptionFields);
+      const description = withYear(firstValue(form, descriptionFields));
       const image = firstValue(form, imageFields);
       const content = value(form, contentField);
       const next: Check[] = [

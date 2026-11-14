@@ -5,6 +5,11 @@ import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
 import { MediaLibraryPicker } from "./MediaLibraryPicker";
 import { isVideoUrl } from "@/lib/isVideoUrl";
+import { MAX_IMAGE_SIDE, downscaleImage, videoWarning } from "@/lib/prepareUpload";
+
+function formatMb(bytes: number) {
+  return `${(bytes / 1024 / 1024).toFixed(1).replace(".", ",")} MB`;
+}
 
 /**
  * Carica un'immagine (o un video, se `accept` lo permette) sul bucket
@@ -31,6 +36,7 @@ export function ImageUploader({
   }
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
   const [libraryOpen, setLibraryOpen] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -60,6 +66,12 @@ export function ImageUploader({
 
     setUploading(true);
     setError(null);
+    setNotice(null);
+
+    // Foto troppo grandi ridotte nel browser prima di salire (vedi
+    // prepareUpload); i video restano come sono.
+    const original = file;
+    file = await downscaleImage(file);
 
     const supabase = createClient();
     const ext = file.name.split(".").pop();
@@ -80,6 +92,12 @@ export function ImageUploader({
     const { data } = supabase.storage.from("media").getPublicUrl(path);
     setUrl(data.publicUrl);
     setUploading(false);
+    setNotice(
+      videoWarning(file) ??
+        (file !== original
+          ? `Immagine ridotta a ${MAX_IMAGE_SIDE} px sul lato lungo: da ${formatMb(original.size)} a ${formatMb(file.size)}.`
+          : null),
+    );
   }
 
   return (
@@ -132,6 +150,11 @@ export function ImageUploader({
         ) : null}
       </div>
       {error ? <p className="text-sm text-error">{error}</p> : null}
+      {notice ? (
+        <p className="text-sm text-foreground-muted" role="status">
+          {notice}
+        </p>
+      ) : null}
       <input
         ref={inputRef}
         type="file"

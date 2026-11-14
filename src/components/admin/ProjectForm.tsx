@@ -213,7 +213,7 @@ export function ProjectForm({
       <SettingsSection id="sez-seo" title="SEO">
         <label className="flex flex-col gap-2">
           <span className="text-sm text-foreground-muted">
-            Titolo SEO (vuoto = usa il titolo)
+            Titolo SEO (vuoto = usa il titolo; {"{anno}"} = anno in corso)
           </span>
           <input
             name="seo_title"

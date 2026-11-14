@@ -9,6 +9,7 @@ import { ExportButton } from "@/components/admin/ExportButton";
 import { RevalidateButton } from "@/components/admin/RevalidateButton";
 import { AdminIcon } from "@/components/admin/AdminIcons";
 import { countUnreadMessages } from "@/lib/data/messages";
+import { withYear } from "@/lib/year";
 import { findUnusedMedia, listMediaFiles } from "@/lib/actions/media";
 
 type Item = {
@@ -114,8 +115,10 @@ function ItemRow({ item, meta }: { item: Item; meta: string }) {
 // Stesse soglie del "Controllo SEO" negli editor: titolo con
 // " | Cosimo Patronella" entro 62 caratteri, descrizione tra 70 e 160.
 function seoIncomplete(title: string, description: string | null | undefined) {
-  const d = (description ?? "").trim();
-  return title.trim().length + 20 > 62 || d.length < 70 || d.length > 160;
+  const d = (withYear(description) ?? "").trim();
+  return (
+    withYear(title).trim().length + 20 > 62 || d.length < 70 || d.length > 160
+  );
 }
 
 const shortDate = new Intl.DateTimeFormat("it-IT", {

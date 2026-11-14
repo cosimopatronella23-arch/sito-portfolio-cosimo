@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import type { BlogPost, Project, ServicePage, SiteSettings } from "./types";
 import { formatPhone } from "./phone";
 import { PRIMARY_URL } from "./domain";
+import { withYear } from "@/lib/year";
 
 /**
  * URL base del sito (canonical, sitemap, robots, dati strutturati). Se il
@@ -17,7 +18,9 @@ export function buildMetadata(input: {
   noindex?: boolean;
   siteName?: string;
 }): Metadata {
-  const { title, description, path, ogImage, noindex, siteName } = input;
+  const { path, ogImage, noindex, siteName } = input;
+  const title = withYear(input.title);
+  const description = withYear(input.description);
   const url = `${SITE_URL}${path}`;
 
   return {

@@ -1,4 +1,5 @@
 import { SITE_URL } from "@/lib/seo";
+import { withYear } from "@/lib/year";
 
 /**
  * Anteprima di come titolo e descrizione appariranno nei risultati di
@@ -22,10 +23,10 @@ export function SerpPreview({
           {url || SITE_URL}
         </span>
         <span className="truncate text-lg text-[#8ab4f8]">
-          {title || "Titolo della pagina"}
+          {withYear(title) || "Titolo della pagina"}
         </span>
         <span className="line-clamp-2 text-sm text-foreground-muted">
-          {description || "La meta description apparirà qui."}
+          {withYear(description) || "La meta description apparirà qui."}
         </span>
       </div>
     </div>
