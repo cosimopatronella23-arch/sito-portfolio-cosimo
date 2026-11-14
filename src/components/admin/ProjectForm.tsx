@@ -40,6 +40,7 @@ export function ProjectForm({
       action={action}
       submitLabel={project ? "Salva progetto" : "Crea progetto"}
       created={created}
+      version={project?.updated_at}
       sidebar={
         <>
           <label className="flex flex-col gap-2 text-sm">

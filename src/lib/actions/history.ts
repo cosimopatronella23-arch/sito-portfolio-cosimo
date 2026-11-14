@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/server";
 import { snapshotRevision, type HistoryTable } from "@/lib/history";
+import { friendlyDbError } from "@/lib/saveGuard";
 
 const TABLES: Record<HistoryTable, { admin: string; label: string }> = {
   projects: { admin: "/admin/progetti", label: "Progetto" },
@@ -102,7 +103,7 @@ export async function restoreRevision(
     .from(table)
     .update(fields)
     .eq("id", revision.record_id);
-  if (error) return { error: error.message };
+  if (error) return { error: friendlyDbError(error) };
 
   revalidateAll(table);
   return { error: null };

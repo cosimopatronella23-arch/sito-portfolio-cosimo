@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/server";
+import { friendlyDbError } from "@/lib/saveGuard";
 
 const TABLES = {
   projects: "/admin/progetti",
@@ -34,7 +35,7 @@ export async function saveOrder(
     ),
   );
   const failed = results.find((r) => r.error);
-  if (failed?.error) return { error: failed.error.message };
+  if (failed?.error) return { error: friendlyDbError(failed.error) };
 
   // L'ordine conta in homepage, nelle pagine elenco e nel footer (servizi):
   // si aggiorna tutto il sito.

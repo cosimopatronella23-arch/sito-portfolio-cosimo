@@ -5,8 +5,16 @@ import { revalidatePath } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/server";
 import { moveToTrash, purgeOldTrash, snapshotRevision } from "@/lib/history";
 import type { ContentBlock, ContentStatus, ServiceFaq } from "@/lib/types";
+import { currentVersion, friendlyDbError, isStaleSave } from "@/lib/saveGuard";
 
-type FormState = { error: string | null; success?: boolean };
+type FormState = {
+  error: string | null;
+  success?: boolean;
+  /** Il contenuto è cambiato dopo l'apertura del modulo: non salvato. */
+  conflict?: boolean;
+  /** Versione appena salvata, per i salvataggi successivi. */
+  updatedAt?: string | null;
+};
 
 function parseJson<T>(value: FormDataEntryValue | null): T[] {
   try {
@@ -64,7 +72,7 @@ export async function createService(
     .insert(payload)
     .select("id")
     .single();
-  if (error) return { error: error.message };
+  if (error) return { error: friendlyDbError(error) };
 
   revalidateServicePages(payload.slug);
   // Dopo la creazione si apre subito la pagina di modifica del nuovo
@@ -85,16 +93,25 @@ export async function updateService(
   }
 
   const supabase = await createAdminClient();
+  // Un'altra scheda ha salvato dopo l'apertura di questo modulo: non si
+  // sovrascrive senza chiedere.
+  if (await isStaleSave(supabase, "service_pages", id, formData)) {
+    return { error: null, conflict: true };
+  }
   // Copia della versione attuale nella cronologia, prima di sovrascriverla.
   await snapshotRevision(supabase, "service_pages", id);
   const { error } = await supabase
     .from("service_pages")
     .update(payload)
     .eq("id", id);
-  if (error) return { error: error.message };
+  if (error) return { error: friendlyDbError(error) };
 
   revalidateServicePages(payload.slug);
-  return { error: null, success: true };
+  return {
+    error: null,
+    success: true,
+    updatedAt: await currentVersion(supabase, "service_pages", id),
+  };
 }
 
 export async function duplicateService(formData: FormData) {

@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/server";
+import { friendlyDbError } from "@/lib/saveGuard";
 
 export interface MediaFile {
   name: string;
@@ -32,56 +33,64 @@ export async function listMediaFiles(): Promise<MediaFile[]> {
     });
 }
 
+type UsageSource = { label: string; text: string };
+
 /**
- * Controlla se un'immagine è ancora usata da qualche parte sul sito, prima
- * di permetterne la cancellazione. Guarda progetti, articoli, impostazioni
- * (homepage/blocchi/favicon) e SEO della homepage.
+ * Raccoglie tutto il contenuto del sito che può contenere un file: progetti,
+ * articoli, pagine servizio, impostazioni (homepage, blocchi, recensioni,
+ * favicon) e SEO delle pagine. Ogni riga viene letta per intero, così un
+ * campo nuovo è coperto senza doverlo aggiungere qui. Cestino e versioni
+ * precedenti non contano: lì un file vecchio non è più visibile sul sito.
+ */
+async function loadUsageSources(): Promise<UsageSource[]> {
+  const supabase = await createAdminClient();
+  const [projectsRes, postsRes, servicesRes, settingsRes, pageSeoRes] =
+    await Promise.all([
+      supabase.from("projects").select("*"),
+      supabase.from("blog_posts").select("*"),
+      supabase.from("service_pages").select("*"),
+      supabase.from("site_settings").select("*"),
+      supabase.from("page_seo").select("*"),
+    ]);
+
+  const rows = (
+    data: Record<string, unknown>[] | null,
+    label: (row: Record<string, unknown>) => string,
+  ) => (data ?? []).map((row) => ({ label: label(row), text: JSON.stringify(row) }));
+
+  return [
+    ...rows(projectsRes.data, (r) => `Progetto: "${r.title}"`),
+    ...rows(postsRes.data, (r) => `Articolo: "${r.title}"`),
+    ...rows(servicesRes.data, (r) => `Pagina servizio: "${r.title}"`),
+    ...rows(settingsRes.data, () => "Impostazioni sito (homepage, blocchi o footer)"),
+    ...rows(pageSeoRes.data, (r) => `SEO della pagina "${r.page_key}"`),
+  ];
+}
+
+/** Il pezzo di indirizzo che identifica il file, qualunque sia il dominio. */
+function fileKey(url: string): string {
+  const marker = "/storage/v1/object/public/media/";
+  const i = url.indexOf(marker);
+  return i >= 0 ? url.slice(i) : url;
+}
+
+/**
+ * Controlla se un file è ancora usato da qualche parte sul sito, prima di
+ * permetterne la cancellazione.
  */
 export async function checkMediaUsage(url: string): Promise<string[]> {
-  const supabase = await createAdminClient();
-  const usages: string[] = [];
+  const key = fileKey(url);
+  const sources = await loadUsageSources();
+  return [
+    ...new Set(sources.filter((s) => s.text.includes(key)).map((s) => s.label)),
+  ];
+}
 
-  const [projectsRes, postsRes, settingsRes, pageSeoRes] = await Promise.all([
-    supabase.from("projects").select("title, cover_image, gallery, seo_og_image"),
-    supabase.from("blog_posts").select("title, cover_image, seo_og_image, content"),
-    supabase.from("site_settings").select("favicon, home_content"),
-    supabase.from("page_seo").select("page_key, seo_og_image"),
-  ]);
-
-  for (const p of projectsRes.data ?? []) {
-    const gallery = (p.gallery ?? []) as { url?: string }[];
-    if (
-      p.cover_image === url ||
-      p.seo_og_image === url ||
-      gallery.some((item) => item?.url === url)
-    ) {
-      usages.push(`Progetto: "${p.title}"`);
-    }
-  }
-
-  for (const post of postsRes.data ?? []) {
-    if (
-      post.cover_image === url ||
-      post.seo_og_image === url ||
-      (post.content ?? "").includes(url)
-    ) {
-      usages.push(`Articolo: "${post.title}"`);
-    }
-  }
-
-  for (const s of settingsRes.data ?? []) {
-    if (s.favicon === url || JSON.stringify(s.home_content ?? {}).includes(url)) {
-      usages.push("Impostazioni sito (homepage, blocchi o footer)");
-    }
-  }
-
-  for (const seo of pageSeoRes.data ?? []) {
-    if (seo.seo_og_image === url) {
-      usages.push(`SEO della pagina "${seo.page_key}"`);
-    }
-  }
-
-  return usages;
+/** Indirizzi dei file che non risultano usati in nessuna pagina del sito. */
+export async function findUnusedMedia(urls: string[]): Promise<string[]> {
+  const sources = await loadUsageSources();
+  const all = sources.map((s) => s.text).join("\n");
+  return urls.filter((url) => !all.includes(fileKey(url)));
 }
 
 /** Elimina definitivamente un file dal bucket "media". Irreversibile. */
@@ -91,7 +100,7 @@ export async function deleteMediaFile(
   const supabase = await createAdminClient();
   const { error } = await supabase.storage.from("media").remove([name]);
 
-  if (error) return { error: error.message };
+  if (error) return { error: friendlyDbError(error) };
 
   revalidatePath("/admin/media");
   return { error: null };

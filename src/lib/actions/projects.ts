@@ -5,8 +5,16 @@ import { revalidatePath } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/server";
 import { moveToTrash, purgeOldTrash, snapshotRevision } from "@/lib/history";
 import type { ContentBlock, ContentStatus, GalleryItem } from "@/lib/types";
+import { currentVersion, friendlyDbError, isStaleSave } from "@/lib/saveGuard";
 
-type FormState = { error: string | null; success?: boolean };
+type FormState = {
+  error: string | null;
+  success?: boolean;
+  /** Il contenuto è cambiato dopo l'apertura del modulo: non salvato. */
+  conflict?: boolean;
+  /** Versione appena salvata, per i salvataggi successivi. */
+  updatedAt?: string | null;
+};
 
 function parseProjectForm(formData: FormData) {
   let contentBlocks: ContentBlock[] = [];
@@ -93,7 +101,7 @@ export async function createProject(
   }
 
   if (error) {
-    return { error: error.message };
+    return { error: friendlyDbError(error) };
   }
 
   revalidatePath("/");
@@ -118,6 +126,11 @@ export async function updateProject(
   }
 
   const supabase = await createAdminClient();
+  // Un'altra scheda ha salvato dopo l'apertura di questo modulo: non si
+  // sovrascrive senza chiedere.
+  if (await isStaleSave(supabase, "projects", id, formData)) {
+    return { error: null, conflict: true };
+  }
   // Copia della versione attuale nella cronologia, prima di sovrascriverla.
   await snapshotRevision(supabase, "projects", id);
   let { error } = await supabase.from("projects").update(payload).eq("id", id);
@@ -131,7 +144,7 @@ export async function updateProject(
   }
 
   if (error) {
-    return { error: error.message };
+    return { error: friendlyDbError(error) };
   }
 
   revalidatePath("/");
@@ -139,7 +152,11 @@ export async function updateProject(
   revalidatePath("/sitemap.xml");
   revalidatePath(`/progetti/${payload.slug}`);
   revalidatePath("/admin/progetti");
-  return { error: null, success: true };
+  return {
+    error: null,
+    success: true,
+    updatedAt: await currentVersion(supabase, "projects", id),
+  };
 }
 
 export async function duplicateProject(formData: FormData) {

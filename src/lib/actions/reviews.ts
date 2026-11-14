@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/server";
 import type { ClientReview, HomeContent } from "@/lib/types";
+import { friendlyDbError } from "@/lib/saveGuard";
 
 type FormState = { error: string | null; success?: boolean };
 
@@ -60,7 +61,7 @@ export async function updateReviews(
     .eq("id", "main")
     .maybeSingle();
   if (readError || !current) {
-    return { error: readError?.message ?? "Impostazioni non trovate." };
+    return { error: readError ? friendlyDbError(readError) : "Impostazioni non trovate." };
   }
 
   const homeContent = { ...(current.home_content as HomeContent), reviews };
@@ -68,7 +69,7 @@ export async function updateReviews(
     .from("site_settings")
     .update({ home_content: homeContent })
     .eq("id", "main");
-  if (error) return { error: error.message };
+  if (error) return { error: friendlyDbError(error) };
 
   revalidatePath("/", "layout");
   revalidatePath("/admin/recensioni");

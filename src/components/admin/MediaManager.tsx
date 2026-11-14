@@ -143,8 +143,20 @@ function MediaDetail({
  * sito e lo mostra chiaramente — cancellare un file in uso romperebbe la
  * pagina che lo mostra, quindi qui non si procede mai "alla cieca".
  */
-export function MediaManager({ files: initialFiles }: { files: MediaFile[] }) {
+export function MediaManager({
+  files: initialFiles,
+  unusedUrls = [],
+}: {
+  files: MediaFile[];
+  unusedUrls?: string[];
+}) {
   const [files, setFiles] = useState(initialFiles);
+  const [onlyUnused, setOnlyUnused] = useState(false);
+  const unusedSet = new Set(unusedUrls);
+  const unusedCount = files.filter((f) => unusedSet.has(f.url)).length;
+  const visible = onlyUnused
+    ? files.filter((f) => unusedSet.has(f.url))
+    : files;
   const [selectedName, setSelectedName] = useState<string | null>(null);
   const [checkingName, setCheckingName] = useState<string | null>(null);
   const [deletingName, setDeletingName] = useState<string | null>(null);
@@ -185,71 +197,112 @@ export function MediaManager({ files: initialFiles }: { files: MediaFile[] }) {
     );
   }
 
-  return (
-    <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_320px]">
-      <div className="grid grid-cols-2 gap-6 sm:grid-cols-3 xl:grid-cols-4">
-        {files.map((file) => {
-          const isSelected = file.name === selectedName;
-          return (
-            <button
-              key={file.name}
-              type="button"
-              onClick={() => setSelectedName(file.name)}
-              className="flex flex-col gap-2 text-left"
-            >
-              <div
-                className={`relative aspect-square overflow-hidden border bg-surface transition-colors ${
-                  isSelected
-                    ? "border-accent"
-                    : "border-border-strong hover:border-accent"
-                }`}
-              >
-                {isVideoUrl(file.url) ? (
-                  <video
-                    src={file.url}
-                    muted
-                    playsInline
-                    preload="metadata"
-                    className="h-full w-full object-cover"
-                  />
-                ) : (
-                  <Image
-                    src={file.url}
-                    alt=""
-                    fill
-                    sizes="200px"
-                    className="object-cover"
-                  />
-                )}
-              </div>
-              <span className="truncate text-xs font-medium">{file.name}</span>
-              <span className="text-xs text-foreground-muted">
-                {formatSize(file.size)}
-              </span>
-            </button>
-          );
-        })}
-      </div>
+  const filterButton = (active: boolean) =>
+    `min-h-11 border px-4 text-sm font-medium transition-colors ${
+      active
+        ? "border-foreground bg-foreground text-background"
+        : "border-border-strong text-foreground-muted hover:border-foreground hover:text-foreground"
+    }`;
 
-      {selected ? (
-        <div className="lg:sticky lg:top-6 lg:self-start">
-          <MediaDetail
-            file={selected}
-            onClose={() => setSelectedName(null)}
-            onDelete={() => handleDelete(selected)}
-            busy={
-              checkingName === selected.name || deletingName === selected.name
-            }
-            busyLabel={
-              checkingName === selected.name
-                ? "Controllo..."
-                : deletingName === selected.name
-                  ? "Elimino..."
-                  : null
-            }
-          />
-        </div>
+  return (
+    <div className="flex flex-col gap-6">
+      <div
+        role="group"
+        aria-label="Filtra i file"
+        className="flex flex-wrap gap-2"
+      >
+        <button
+          type="button"
+          aria-pressed={!onlyUnused}
+          onClick={() => setOnlyUnused(false)}
+          className={filterButton(!onlyUnused)}
+        >
+          Tutti ({files.length})
+        </button>
+        <button
+          type="button"
+          aria-pressed={onlyUnused}
+          onClick={() => setOnlyUnused(true)}
+          className={filterButton(onlyUnused)}
+        >
+          Non usati ({unusedCount})
+        </button>
+      </div>
+      {onlyUnused ? (
+        <p className="max-w-2xl text-sm text-foreground-muted">
+          {unusedCount === 0
+            ? "Ogni file caricato è usato in almeno una pagina del sito."
+            : "Questi file non compaiono in nessun progetto, articolo, pagina servizio o impostazione. Puoi eliminarli per tenere ordinata la libreria: il sistema ricontrolla comunque prima di cancellare."}
+        </p>
       ) : null}
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_320px]">
+        <div className="grid grid-cols-2 gap-6 sm:grid-cols-3 xl:grid-cols-4">
+          {visible.map((file) => {
+            const isSelected = file.name === selectedName;
+            return (
+              <button
+                key={file.name}
+                type="button"
+                onClick={() => setSelectedName(file.name)}
+                className="flex flex-col gap-2 text-left"
+              >
+                <div
+                  className={`relative aspect-square overflow-hidden border bg-surface transition-colors ${
+                    isSelected
+                      ? "border-accent"
+                      : "border-border-strong hover:border-accent"
+                  }`}
+                >
+                  {isVideoUrl(file.url) ? (
+                    <video
+                      src={file.url}
+                      muted
+                      playsInline
+                      preload="metadata"
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    <Image
+                      src={file.url}
+                      alt=""
+                      fill
+                      sizes="200px"
+                      className="object-cover"
+                    />
+                  )}
+                </div>
+                <span className="truncate text-xs font-medium">
+                  {file.name}
+                </span>
+                <span className="text-xs text-foreground-muted">
+                  {formatSize(file.size)}
+                  {!onlyUnused && unusedSet.has(file.url) ? " · non usato" : ""}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+
+        {selected ? (
+          <div className="lg:sticky lg:top-6 lg:self-start">
+            <MediaDetail
+              file={selected}
+              onClose={() => setSelectedName(null)}
+              onDelete={() => handleDelete(selected)}
+              busy={
+                checkingName === selected.name || deletingName === selected.name
+              }
+              busyLabel={
+                checkingName === selected.name
+                  ? "Controllo..."
+                  : deletingName === selected.name
+                    ? "Elimino..."
+                    : null
+              }
+            />
+          </div>
+        ) : null}
+      </div>
     </div>
   );
 }

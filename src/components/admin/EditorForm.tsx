@@ -11,7 +11,12 @@ import { usePathname, useRouter } from "next/navigation";
 import { AdminIcon } from "./AdminIcons";
 import { useUnsavedChanges } from "./useUnsavedChanges";
 
-export type EditorFormState = { error: string | null; success?: boolean };
+export type EditorFormState = {
+  error: string | null;
+  success?: boolean;
+  conflict?: boolean;
+  updatedAt?: string | null;
+};
 
 type EditorAction = (
   prevState: EditorFormState,
@@ -39,6 +44,7 @@ export function EditorForm({
   action,
   submitLabel,
   created = false,
+  version,
   sidebar,
   sidebarFooter,
   children,
@@ -47,6 +53,9 @@ export function EditorForm({
   submitLabel: string;
   /** Appena creato: mostra la conferma al primo caricamento. */
   created?: boolean;
+  /** Data dell'ultima modifica del contenuto aperto (updated_at): serve a
+   *  non sovrascrivere modifiche salvate nel frattempo da un'altra scheda. */
+  version?: string | null;
   /** Campi del riquadro laterale (stato, ordine, in evidenza...). */
   sidebar?: React.ReactNode;
   /** Sotto il pulsante (link di anteprima, controllo SEO...). */
@@ -63,12 +72,14 @@ export function EditorForm({
   );
   const [toast, setToast] = useState(created);
   const [lastState, setLastState] = useState(state);
+  const [currentVersion, setCurrentVersion] = useState(version ?? null);
 
   // Esito del salvataggio: aggiornato durante il render (pattern React
   // consigliato al posto di un effect) quando arriva un nuovo stato.
   if (state !== lastState) {
     setLastState(state);
     if (state.success) {
+      if (state.updatedAt) setCurrentVersion(state.updatedAt);
       setDirty(false);
       setSavedAt(new Date());
       setToast(true);
@@ -90,15 +101,29 @@ export function EditorForm({
     return () => window.clearTimeout(id);
   }, [toast]);
 
+  function submit(force: boolean) {
+    if (!formRef.current) return;
+    const formData = new FormData(formRef.current);
+    if (currentVersion) formData.set("expected_updated_at", currentVersion);
+    if (force) formData.set("force", "1");
+    startTransition(() => formAction(formData));
+  }
+
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    startTransition(() => formAction(formData));
+    submit(false);
+  }
+
+  // Ricarica la versione salvata più di recente: le modifiche di questa
+  // scheda si perdono, quindi niente avviso "modifiche non salvate".
+  function reloadLatest() {
+    setDirty(false);
+    window.setTimeout(() => window.location.reload(), 80);
   }
 
   const status = pending
     ? "Salvataggio in corso..."
-    : state.error
+    : state.error || state.conflict
       ? null
       : dirty
         ? "Modifiche non salvate"
@@ -144,6 +169,33 @@ export function EditorForm({
           <p role="alert" className="text-sm text-error">
             Non salvato: {state.error}
           </p>
+        ) : null}
+        {state.conflict && !pending ? (
+          <div
+            role="alert"
+            className="flex flex-col gap-3 border border-warning/50 p-3 text-sm"
+          >
+            <p>
+              <strong className="font-semibold">Non salvato.</strong> Questo
+              contenuto è stato modificato da un&apos;altra scheda dopo che
+              l&apos;hai aperto qui. Salvando ora cancelleresti quelle
+              modifiche.
+            </p>
+            <button
+              type="button"
+              onClick={reloadLatest}
+              className="min-h-10 border border-foreground px-3 text-sm font-medium transition-colors hover:bg-foreground hover:text-background"
+            >
+              Carica la versione più recente
+            </button>
+            <button
+              type="button"
+              onClick={() => submit(true)}
+              className="min-h-10 text-left text-sm text-foreground-muted underline underline-offset-4 hover:text-foreground"
+            >
+              Sovrascrivi con quello che vedo qui
+            </button>
+          </div>
         ) : null}
 
         {sidebarFooter ? (

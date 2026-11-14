@@ -44,6 +44,7 @@ export function PostForm({
       action={action}
       submitLabel={post ? "Salva articolo" : "Crea articolo"}
       created={created}
+      version={post?.updated_at}
       sidebar={
         <>
           <label className="flex flex-col gap-2 text-sm">

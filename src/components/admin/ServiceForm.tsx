@@ -43,6 +43,7 @@ export function ServiceForm({
       action={action}
       submitLabel={service ? "Salva servizio" : "Crea servizio"}
       created={created}
+      version={service?.updated_at}
       sidebar={
         <>
           <label className="flex flex-col gap-2 text-sm">

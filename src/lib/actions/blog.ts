@@ -5,8 +5,16 @@ import { revalidatePath } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/server";
 import { moveToTrash, purgeOldTrash, snapshotRevision } from "@/lib/history";
 import type { ContentStatus } from "@/lib/types";
+import { currentVersion, friendlyDbError, isStaleSave } from "@/lib/saveGuard";
 
-type FormState = { error: string | null; success?: boolean };
+type FormState = {
+  error: string | null;
+  success?: boolean;
+  /** Il contenuto è cambiato dopo l'apertura del modulo: non salvato. */
+  conflict?: boolean;
+  /** Versione appena salvata, per i salvataggi successivi. */
+  updatedAt?: string | null;
+};
 
 function parsePostForm(formData: FormData) {
   const publishedAtRaw = String(formData.get("published_at") || "");
@@ -73,7 +81,7 @@ export async function createPost(
   }
 
   if (error) {
-    return { error: error.message };
+    return { error: friendlyDbError(error) };
   }
 
   revalidatePath("/");
@@ -96,6 +104,11 @@ export async function updatePost(
   }
 
   const supabase = await createAdminClient();
+  // Un'altra scheda ha salvato dopo l'apertura di questo modulo: non si
+  // sovrascrive senza chiedere.
+  if (await isStaleSave(supabase, "blog_posts", id, formData)) {
+    return { error: null, conflict: true };
+  }
   // Copia della versione attuale nella cronologia, prima di sovrascriverla.
   await snapshotRevision(supabase, "blog_posts", id);
   let { error } = await supabase
@@ -112,7 +125,7 @@ export async function updatePost(
   }
 
   if (error) {
-    return { error: error.message };
+    return { error: friendlyDbError(error) };
   }
 
   revalidatePath("/");
@@ -120,7 +133,11 @@ export async function updatePost(
   revalidatePath("/sitemap.xml");
   revalidatePath(`/blog/${payload.slug}`);
   revalidatePath("/admin/blog");
-  return { error: null, success: true };
+  return {
+    error: null,
+    success: true,
+    updatedAt: await currentVersion(supabase, "blog_posts", id),
+  };
 }
 
 export async function duplicatePost(formData: FormData) {

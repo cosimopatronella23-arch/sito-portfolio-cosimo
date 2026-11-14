@@ -16,6 +16,7 @@ import type {
   PageSeo,
   ServiceItem,
 } from "@/lib/types";
+import { friendlyDbError } from "@/lib/saveGuard";
 
 type FormState = { error: string | null; success?: boolean };
 
@@ -221,7 +222,7 @@ export async function updateSiteSettings(
       .eq("id", "main"));
   }
 
-  if (error) return { error: error.message };
+  if (error) return { error: friendlyDbError(error) };
 
   revalidatePath("/", "layout");
   revalidatePath("/admin/impostazioni");
@@ -245,7 +246,7 @@ export async function updatePageSeo(
     .from("page_seo")
     .upsert({ page_key: pageKey, ...payload });
 
-  if (error) return { error: error.message };
+  if (error) return { error: friendlyDbError(error) };
 
   revalidatePath("/");
   revalidatePath("/admin/impostazioni");
