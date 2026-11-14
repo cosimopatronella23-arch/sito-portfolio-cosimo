@@ -54,7 +54,7 @@ export function ProjectDetail({
   const heroScale = useTransform(scrollYProgress, [0, 0.45], [1, 0.92]);
 
   return (
-    <article className="pb-20 sm:pb-28">
+    <article className="pb-[60px] lg:pb-[120px]">
       <div ref={heroWrapperRef} className="relative h-[130vh] sm:h-[170vh]">
         <motion.div
           style={shouldReduceMotion ? undefined : { scale: heroScale }}
@@ -102,12 +102,17 @@ export function ProjectDetail({
         </motion.div>
       </div>
 
-      <div className="container-px flex flex-col gap-16 pt-16 sm:gap-20 sm:pt-20">
-        <div className="mx-auto flex w-full max-w-3xl flex-col gap-8">
-          <p className="text-lg text-foreground-muted">
+      {/* Spaziature sul modello delle pagine progetto di Studio Dumbar:
+          margini laterali stretti, testi su una griglia a 12 colonne
+          (titoletti dal 25%, testo dal 50%), molto respiro verticale
+          (60 px su telefono, 120 px su computer tra i blocchi principali)
+          e media allineati a sinistra invece che a tutta pagina. */}
+      <div className="container-px flex flex-col gap-[60px] pt-[60px] lg:gap-[120px] lg:pt-[120px]">
+        <div className="flex flex-col gap-8 lg:grid lg:grid-cols-12 lg:gap-x-5 lg:gap-y-10">
+          <p className="text-xl leading-[1.2] text-balance text-foreground lg:col-span-8 lg:text-[30px] xl:col-span-7">
             {project.short_description}
           </p>
-          <dl className="flex flex-wrap gap-x-10 gap-y-3 border-t border-border pt-6 text-sm">
+          <dl className="flex flex-wrap gap-x-10 gap-y-3 text-sm lg:col-span-12 lg:text-base">
             <div>
               <dt className="text-foreground-muted">Cliente</dt>
               <dd className="font-medium">{project.client}</dd>
@@ -116,73 +121,91 @@ export function ProjectDetail({
               <dt className="text-foreground-muted">Anno</dt>
               <dd className="font-medium">{project.year}</dd>
             </div>
+            {project.category ? (
+              <div>
+                <dt className="text-foreground-muted">Ambito</dt>
+                <dd className="font-medium">{project.category}</dd>
+              </div>
+            ) : null}
           </dl>
         </div>
 
         {project.gallery.length > 0 ? (
-          <div className="mx-[calc(50%-50vw)] w-screen">
-            <ProjectMediaGallery items={project.gallery} alt={project.title} />
+          <ProjectMediaGallery items={project.gallery} alt={project.title} />
+        ) : null}
+
+        {project.content_blocks.length ? (
+          <div className="flex flex-col gap-[60px] lg:gap-[100px]">
+            {project.content_blocks.map((block, i) => (
+              <motion.section
+                key={i}
+                initial={{ opacity: 0, y: 24 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-80px" }}
+                transition={{ duration: 0.7, ease: EASE_OUT }}
+                className="flex flex-col gap-3 lg:grid lg:grid-cols-12 lg:gap-x-5"
+              >
+                <h2 className="font-display text-xl font-semibold lg:col-span-3 lg:col-start-4 lg:text-[22px] lg:leading-[1.3]">
+                  {block.heading}
+                </h2>
+                <div
+                  className="prose-editor text-base leading-relaxed text-foreground-muted lg:col-span-5 lg:col-start-7 lg:text-lg"
+                  dangerouslySetInnerHTML={{
+                    __html: normalizeHeadings(block.body),
+                  }}
+                />
+              </motion.section>
+            ))}
           </div>
         ) : null}
 
-        <div className="mx-auto flex w-full max-w-3xl flex-col gap-12">
-          {project.content_blocks.map((block, i) => (
-            <motion.section
-              key={i}
-              initial={{ opacity: 0, y: 24 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-80px" }}
-              transition={{ duration: 0.7, ease: EASE_OUT }}
-              className="flex flex-col gap-3"
-            >
-              <h2 className="font-display text-2xl font-semibold">
-                {block.heading}
-              </h2>
-              <div
-                className="prose-editor max-w-2xl text-base leading-relaxed text-foreground-muted"
-                dangerouslySetInnerHTML={{ __html: normalizeHeadings(block.body) }}
-              />
-            </motion.section>
-          ))}
+        {review || services.length || project.external_link ? (
+          <div className="flex flex-col gap-10 lg:grid lg:grid-cols-12 lg:gap-x-5">
+            {review ? (
+              <div className="border-t border-border pt-8 lg:col-span-9 lg:col-start-4">
+                <ReviewQuote review={review} />
+              </div>
+            ) : null}
 
-          {review ? (
-            <div className="border-t border-border pt-8">
-              <ReviewQuote review={review} />
-            </div>
-          ) : null}
+            {services.length || project.external_link ? (
+              <div className="flex flex-col gap-8 lg:col-span-5 lg:col-start-7">
+                {services.length ? (
+                  <nav
+                    aria-label="Servizi usati in questo progetto"
+                    className="flex flex-col gap-3 border-t border-border pt-6 text-sm"
+                  >
+                    <p className="text-foreground-muted">
+                      Servizi per questo progetto
+                    </p>
+                    <ul className="flex flex-wrap gap-x-6 gap-y-2">
+                      {services.map((service) => (
+                        <li key={service.slug}>
+                          <Link
+                            href={`/servizi/${service.slug}`}
+                            className="font-medium underline decoration-border-strong underline-offset-4 transition-colors hover:text-accent hover:decoration-accent"
+                          >
+                            {service.title}
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  </nav>
+                ) : null}
 
-          {services.length ? (
-            <nav
-              aria-label="Servizi usati in questo progetto"
-              className="flex flex-col gap-3 border-t border-border pt-6 text-sm"
-            >
-              <p className="text-foreground-muted">Servizi per questo progetto</p>
-              <ul className="flex flex-wrap gap-x-6 gap-y-2">
-                {services.map((service) => (
-                  <li key={service.slug}>
-                    <Link
-                      href={`/servizi/${service.slug}`}
-                      className="font-medium underline decoration-border-strong underline-offset-4 transition-colors hover:text-accent hover:decoration-accent"
-                    >
-                      {service.title}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </nav>
-          ) : null}
-
-          {project.external_link ? (
-            <Button
-              href={project.external_link}
-              variant="secondary"
-              size="lg"
-              className="w-max"
-            >
-              Visita il sito →
-            </Button>
-          ) : null}
-        </div>
+                {project.external_link ? (
+                  <Button
+                    href={project.external_link}
+                    variant="secondary"
+                    size="lg"
+                    className="w-max"
+                  >
+                    Visita il sito →
+                  </Button>
+                ) : null}
+              </div>
+            ) : null}
+          </div>
+        ) : null}
       </div>
     </article>
   );

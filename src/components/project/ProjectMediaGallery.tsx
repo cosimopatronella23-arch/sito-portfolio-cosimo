@@ -140,7 +140,7 @@ function FullGalleryMedia({
       alt={alt}
       width={0}
       height={0}
-      sizes="100vw"
+      sizes="(min-width: 1024px) 83vw, 85vw"
       priority={priority}
       className="h-auto w-full"
     />
@@ -172,8 +172,11 @@ export function ProjectMediaGallery({
 
   const rows = toRows(items);
 
+  // Come Dumbar: media allineati a sinistra (intere all'85% su telefono e
+  // all'83% su computer), coppie di larghezza diversa sulla griglia a 12
+  // colonne (la seconda parte dal 50%), molto spazio tra una riga e l'altra.
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-[72px] lg:gap-[140px]">
       {rows.map((row, rowIndex) =>
         row.kind === "slideshow" ? (
           <motion.div
@@ -182,6 +185,7 @@ export function ProjectMediaGallery({
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-60px" }}
             transition={{ duration: 0.6, ease: EASE_OUT }}
+            className="w-full lg:w-[83%]"
           >
             <GallerySlideshow items={row.items} alt={alt} />
           </motion.div>
@@ -190,8 +194,8 @@ export function ProjectMediaGallery({
             key={row.items.map((r) => r.url).join("-")}
             className={
               row.kind === "pair"
-                ? "grid grid-cols-2 gap-3 sm:gap-4"
-                : undefined
+                ? "grid grid-cols-2 gap-[15px] lg:grid-cols-12 lg:gap-5"
+                : "w-[85%] lg:w-[83%]"
             }
           >
             {row.items.map((item, i) => (
@@ -201,6 +205,13 @@ export function ProjectMediaGallery({
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-60px" }}
                 transition={{ duration: 0.6, delay: i * 0.1, ease: EASE_OUT }}
+                className={
+                  row.kind === "pair"
+                    ? i === 0
+                      ? "lg:col-span-5"
+                      : "lg:col-span-5 lg:col-start-7"
+                    : undefined
+                }
               >
                 {row.kind === "pair" ? (
                   <CroppedGalleryMedia

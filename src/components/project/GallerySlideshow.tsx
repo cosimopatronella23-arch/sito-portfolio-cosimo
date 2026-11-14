@@ -5,10 +5,7 @@ import clsx from "clsx";
 import { useReducedMotion } from "framer-motion";
 import { CoverImage } from "@/components/ui/CoverImage";
 import type { GalleryItem } from "@/lib/types";
-
-// Ritmo da gif: abbastanza veloce da sembrare un'animazione, abbastanza
-// lento da far leggere ogni tavola.
-const INTERVAL_MS = 1800;
+import { DEFAULT_SLIDE_MS } from "@/lib/slideSpeed";
 
 /**
  * Più immagini nello stesso riquadro che si alternano da sole, con una
@@ -41,15 +38,20 @@ export function GallerySlideshow({
   }, []);
 
   const playing = visible && !userPaused && !reduceMotion;
+  // Ritmo scelto in admin per questo progetto (predefinito molto veloce,
+  // effetto gif). La dissolvenza resta sempre più corta del cambio, così
+  // anche alla velocità massima ogni immagine si vede netta.
+  const intervalMs = items[0]?.interval ?? DEFAULT_SLIDE_MS;
+  const fadeMs = Math.min(300, Math.round(intervalMs * 0.3));
 
   useEffect(() => {
     if (!playing) return;
     const timer = window.setTimeout(
       () => setActive((i) => (i + 1) % items.length),
-      INTERVAL_MS,
+      intervalMs,
     );
     return () => window.clearTimeout(timer);
-  }, [playing, active, items.length]);
+  }, [playing, active, items.length, intervalMs]);
 
   const pad = (n: number) => String(n).padStart(2, "0");
 
@@ -66,8 +68,9 @@ export function GallerySlideshow({
           <div
             key={item.url}
             aria-hidden={i !== active}
+            style={{ transitionDuration: `${fadeMs}ms` }}
             className={clsx(
-              "absolute inset-0 transition-opacity duration-300 ease-out motion-reduce:transition-none",
+              "absolute inset-0 transition-opacity ease-out motion-reduce:transition-none",
               i === active ? "opacity-100" : "opacity-0",
             )}
           >
@@ -81,7 +84,7 @@ export function GallerySlideshow({
         ))}
       </div>
 
-      <div className="container-px flex items-center justify-between gap-4">
+      <div className="flex items-center justify-between gap-4">
         <span className="font-display text-sm font-semibold text-foreground-muted tabular-nums">
           {pad(active + 1)} / {pad(items.length)}
         </span>

@@ -8,7 +8,6 @@ import type { Project } from "@/lib/types";
 
 const EASE_OUT: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
-
 /**
  * Un progetto = uno schermo intero "sticky": resta fermo finché il
  * successivo non gli scorre sopra (effetto a pila). Nel linguaggio del
@@ -62,7 +61,8 @@ export function ProjectScreen({
       {/* Sotto la barra di navigazione, che resta fissa sopra lo schermo. */}
       <div className="container-px absolute inset-x-0 top-24 flex items-start justify-between gap-6 sm:top-28">
         <span className="font-display text-sm font-semibold text-paper/80 tabular-nums">
-          {String(index + 1).padStart(2, "0")} / {String(total).padStart(2, "0")}
+          {String(index + 1).padStart(2, "0")} /{" "}
+          {String(total).padStart(2, "0")}
         </span>
         <span className="flex flex-col items-end">
           <span className="flex gap-2">
@@ -87,7 +87,9 @@ export function ProjectScreen({
       >
         <div className="flex flex-col gap-3">
           <span className="text-xs font-semibold tracking-[0.14em] text-paper/75 uppercase">
-            {project.client && project.client !== project.title ? `${project.client} · ` : ""}
+            {project.client && project.client !== project.title
+              ? `${project.client} · `
+              : ""}
             {project.year}
           </span>
           <Heading
@@ -109,7 +111,10 @@ export function ProjectScreen({
             className="absolute inset-0 origin-left scale-x-0 bg-accent transition-transform duration-300 ease-out group-hover:scale-x-100"
           />
           <span className="relative">Vedi il progetto</span>
-          <span aria-hidden="true" className="relative transition-transform duration-300 group-hover:translate-x-1">
+          <span
+            aria-hidden="true"
+            className="relative transition-transform duration-300 group-hover:translate-x-1"
+          >
             →
           </span>
         </span>

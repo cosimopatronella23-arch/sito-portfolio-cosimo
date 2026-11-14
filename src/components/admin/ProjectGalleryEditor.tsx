@@ -4,6 +4,7 @@ import { useState } from "react";
 import { ImageUploader } from "./ImageUploader";
 import { isVideoUrl } from "@/lib/isVideoUrl";
 import type { GalleryItem } from "@/lib/types";
+import { DEFAULT_SLIDE_MS, SLIDE_SPEEDS } from "@/lib/slideSpeed";
 
 // Chiave stabile solo per React, mai salvata: ImageUploader inizializza il
 // proprio stato (url caricato) una sola volta al montaggio, non lo
@@ -44,6 +45,13 @@ export function ProjectGalleryEditor({
   const [items, setItems] = useState<EditableItem[]>(() =>
     withKeys(defaultValue),
   );
+  // Una sola velocità per tutte le sequenze del progetto.
+  const [slideMs, setSlideMs] = useState<number>(
+    () =>
+      defaultValue.find((item) => item.layout === "slide" && item.interval)
+        ?.interval ?? DEFAULT_SLIDE_MS,
+  );
+  const hasSlides = items.filter((item) => item.layout === "slide").length > 1;
 
   function update(key: string, patch: Partial<GalleryItem>) {
     setItems((prev) =>
@@ -76,21 +84,23 @@ export function ProjectGalleryEditor({
   return (
     <div className="flex flex-col gap-3">
       <p className="text-sm text-foreground-muted">
-        Foto o brevi video aggiuntivi, mostrati nella galleria della pagina
-        del progetto. Per i video usa sempre <strong>MP4</strong>: è l&apos;
-        unico formato che funziona su tutti i browser, incluso Safari su
-        Mac e iPhone (il WebM su Safari spesso non si vede). I video
-        partono in automatico, senza audio, in loop. Per ognuno scegli se
-        mostrarlo a tutta larghezza, affiancato a un altro, oppure &quot;in
-        sequenza&quot;: più immagini in sequenza una dopo l&apos;altra si
-        alternano da sole nello stesso riquadro (meglio se hanno le stesse
-        proporzioni; i video restano sempre fuori dalla sequenza).
+        Foto o brevi video aggiuntivi, mostrati nella galleria della pagina del
+        progetto. Per i video usa sempre <strong>MP4</strong>: è l&apos; unico
+        formato che funziona su tutti i browser, incluso Safari su Mac e iPhone
+        (il WebM su Safari spesso non si vede). I video partono in automatico,
+        senza audio, in loop. Per ognuno scegli se mostrarlo a tutta larghezza,
+        affiancato a un altro, oppure &quot;in sequenza&quot;: più immagini in
+        sequenza una dopo l&apos;altra si alternano da sole nello stesso
+        riquadro (meglio se hanno le stesse proporzioni; i video restano sempre
+        fuori dalla sequenza).
       </p>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         {items.map((item, i) => (
           <div key={item.key} className="flex flex-col gap-2">
             <div className="flex items-center gap-3">
-              <span className="text-sm font-medium">Immagine o video {i + 1}</span>
+              <span className="text-sm font-medium">
+                Immagine o video {i + 1}
+              </span>
               <div className="flex items-center gap-1">
                 <button
                   type="button"
@@ -161,6 +171,26 @@ export function ProjectGalleryEditor({
           </div>
         ))}
       </div>
+      {hasSlides ? (
+        <label className="flex flex-col gap-1 text-sm">
+          <span className="font-medium">Velocità delle sequenze</span>
+          <span className="text-foreground-muted">
+            Ogni quanto cambiano le immagini &quot;In sequenza&quot; su questa
+            pagina progetto.
+          </span>
+          <select
+            value={slideMs}
+            onChange={(e) => setSlideMs(Number(e.target.value))}
+            className="min-h-11 w-max border border-border-strong bg-transparent px-3 text-sm text-foreground focus-visible:border-accent focus-visible:outline-none"
+          >
+            {SLIDE_SPEEDS.map((speed) => (
+              <option key={speed.ms} value={speed.ms}>
+                {speed.label} ({String(speed.ms / 1000).replace(".", ",")} s)
+              </option>
+            ))}
+          </select>
+        </label>
+      ) : null}
       <button
         type="button"
         onClick={add}
@@ -172,9 +202,12 @@ export function ProjectGalleryEditor({
         type="hidden"
         name={name}
         value={JSON.stringify(
-          items.map(({ url, layout, alt }) =>
-            alt?.trim() ? { url, layout, alt: alt.trim() } : { url, layout },
-          ),
+          items.map(({ url, layout, alt }) => ({
+            url,
+            layout,
+            ...(alt?.trim() ? { alt: alt.trim() } : {}),
+            ...(layout === "slide" ? { interval: slideMs } : {}),
+          })),
         )}
       />
     </div>

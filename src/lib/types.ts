@@ -21,6 +21,9 @@ export interface GalleryItem {
   // Testo alternativo (descrizione per Google e lettori di schermo). Se
   // manca si usa il titolo del progetto. Ignorato per i video.
   alt?: string;
+  // Solo per "slide": millisecondi tra un'immagine e l'altra (vedi
+  // lib/slideSpeed). Uguale per tutte le sequenze del progetto.
+  interval?: number;
 }
 
 export interface Project {

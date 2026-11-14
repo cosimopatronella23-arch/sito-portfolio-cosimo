@@ -6,6 +6,7 @@ import { createAdminClient } from "@/lib/supabase/server";
 import { moveToTrash, purgeOldTrash, snapshotRevision } from "@/lib/history";
 import type { ContentBlock, ContentStatus, GalleryItem } from "@/lib/types";
 import { currentVersion, friendlyDbError, isStaleSave } from "@/lib/saveGuard";
+import { cleanSlideMs } from "@/lib/slideSpeed";
 
 type FormState = {
   error: string | null;
@@ -32,10 +33,17 @@ function parseProjectForm(formData: FormData) {
   }
   gallery = gallery
     .filter((item) => item.url)
-    .map(({ url, layout: rawLayout, alt }) => {
+    .map(({ url, layout: rawLayout, alt, interval: rawInterval }) => {
       const layout: GalleryItem["layout"] =
         rawLayout === "half" || rawLayout === "slide" ? rawLayout : "full";
-      return alt?.trim() ? { url, layout, alt: alt.trim() } : { url, layout };
+      const interval =
+        layout === "slide" ? cleanSlideMs(rawInterval) : undefined;
+      return {
+        url,
+        layout,
+        ...(alt?.trim() ? { alt: alt.trim() } : {}),
+        ...(interval ? { interval } : {}),
+      };
     });
 
   return {

@@ -2,6 +2,7 @@ import { createPublicClient } from "@/lib/supabase/publicClient";
 import { createClient } from "@/lib/supabase/server";
 import { withRetry } from "@/lib/withRetry";
 import type { GalleryItem, Project } from "@/lib/types";
+import { cleanSlideMs } from "@/lib/slideSpeed";
 
 /**
  * La colonna "gallery" è passata da un elenco di link (testo) a un elenco
@@ -24,7 +25,16 @@ function normalizeGallery(raw: unknown): GalleryItem[] {
         const layout =
           rawLayout === "half" || rawLayout === "slide" ? rawLayout : "full";
         const alt = String((item as { alt?: unknown }).alt ?? "").trim();
-        return alt ? { url, layout, alt } : { url, layout };
+        const interval =
+          layout === "slide"
+            ? cleanSlideMs((item as { interval?: unknown }).interval)
+            : undefined;
+        return {
+          url,
+          layout,
+          ...(alt ? { alt } : {}),
+          ...(interval ? { interval } : {}),
+        };
       }
       return null;
     })

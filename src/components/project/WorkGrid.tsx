@@ -7,12 +7,23 @@ import { newestRecentProjectId } from "@/lib/newProject";
 // Ritmo asimmetrico che si ripete ogni 4 progetti: grande/piccolo,
 // piccolo/grande. Su telefono un progetto per riga.
 const PATTERN = [
-  { span: "lg:col-span-8", h: "aspect-[4/3] lg:aspect-auto lg:h-[min(42vw,600px)]" },
-  { span: "lg:col-span-4", h: "aspect-[4/3] lg:aspect-auto lg:h-[min(42vw,600px)]" },
-  { span: "lg:col-span-4", h: "aspect-[4/3] lg:aspect-auto lg:h-[min(36vw,520px)]" },
-  { span: "lg:col-span-8", h: "aspect-[4/3] lg:aspect-auto lg:h-[min(36vw,520px)]" },
+  {
+    span: "lg:col-span-8",
+    h: "aspect-[4/3] lg:aspect-auto lg:h-[min(42vw,600px)]",
+  },
+  {
+    span: "lg:col-span-4",
+    h: "aspect-[4/3] lg:aspect-auto lg:h-[min(42vw,600px)]",
+  },
+  {
+    span: "lg:col-span-4",
+    h: "aspect-[4/3] lg:aspect-auto lg:h-[min(36vw,520px)]",
+  },
+  {
+    span: "lg:col-span-8",
+    h: "aspect-[4/3] lg:aspect-auto lg:h-[min(36vw,520px)]",
+  },
 ];
-
 
 /**
  * Griglia dei progetti (homepage e /progetti). Foto a colori; al passaggio
