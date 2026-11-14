@@ -61,7 +61,7 @@ export function GallerySlideshow({
       role="group"
       aria-roledescription="sequenza di immagini"
       aria-label={alt}
-      className="flex flex-col gap-3"
+      className="flex flex-col gap-[5px]"
     >
       <div className="relative aspect-[3/2] w-full overflow-hidden bg-surface">
         {items.map((item, i) => (
@@ -77,14 +77,14 @@ export function GallerySlideshow({
             <CoverImage
               src={item.url}
               alt={item.alt || alt}
-              sizes="(min-width: 1024px) 80vw, 100vw"
+              sizes="100vw"
               className="h-full w-full"
             />
           </div>
         ))}
       </div>
 
-      <div className="flex items-center justify-between gap-4">
+      <div className="flex items-center justify-between gap-4 px-[calc(clamp(20px,4vw,24px)-5px)] py-2">
         <span className="font-display text-sm font-semibold text-foreground-muted tabular-nums">
           {pad(active + 1)} / {pad(items.length)}
         </span>
