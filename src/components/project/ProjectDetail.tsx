@@ -10,9 +10,9 @@ import {
 } from "framer-motion";
 import { CoverImage } from "@/components/ui/CoverImage";
 import { ProjectMediaGallery } from "./ProjectMediaGallery";
-import { Button } from "@/components/ui/Button";
 import type { ClientReview, Project } from "@/lib/types";
-import { ReviewQuote } from "@/components/reviews/ReviewQuote";
+import { Stars } from "@/components/reviews/ReviewQuote";
+import { Button } from "@/components/ui/Button";
 import { normalizeHeadings } from "@/lib/html";
 
 const EASE_OUT: [number, number, number, number] = [0.22, 1, 0.36, 1];
@@ -159,54 +159,111 @@ export function ProjectDetail({
           </div>
         ) : null}
 
-        {review || services.length || project.external_link ? (
-          <div className="flex flex-col gap-10 lg:grid lg:grid-cols-12 lg:gap-x-5">
-            {review ? (
-              <div className="border-t border-border pt-8 lg:col-span-9 lg:col-start-4">
-                <ReviewQuote review={review} />
-              </div>
-            ) : null}
+        {review ? (
+          // La recensione come manifesto: citazione grande, a tutta griglia,
+          // con le virgolette in lavanda appese fuori dal testo.
+          <motion.figure
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-80px" }}
+            transition={{ duration: 0.8, ease: EASE_OUT }}
+            className="flex flex-col gap-8 border-t border-border pt-10 lg:grid lg:grid-cols-12 lg:gap-x-5 lg:pt-14"
+          >
+            <div className="lg:col-span-3 lg:pt-[0.9vw]">
+              <Stars rating={review.rating} />
+            </div>
+            <blockquote className="font-display relative text-[clamp(1.75rem,3.6vw,3.5rem)] leading-[1.08] font-semibold tracking-[-0.035em] text-pretty lg:col-span-9">
+              <span
+                aria-hidden="true"
+                className="absolute top-0 -left-[0.5em] hidden text-accent lg:block"
+              >
+                &ldquo;
+              </span>
+              <p>
+                <span className="text-accent lg:hidden">&ldquo;</span>
+                {review.text}
+                <span className="text-accent">&rdquo;</span>
+              </p>
+            </blockquote>
+            <figcaption className="text-sm text-foreground-muted lg:col-span-9 lg:col-start-4">
+              <span className="font-medium text-foreground">{review.author}</span>
+              {review.context ? <>{"\u00a0· "}{review.context}</> : null}
+              <span className="block sm:inline">
+                <span className="hidden sm:inline">{"\u00a0· "}</span>
+                Recensione Google{reviewMonth(review.date) ? `, ${reviewMonth(review.date)}` : ""}
+              </span>
+            </figcaption>
+          </motion.figure>
+        ) : null}
 
-            {services.length || project.external_link ? (
-              <div className="flex flex-col gap-8 lg:col-span-5 lg:col-start-7">
-                {services.length ? (
-                  <nav
-                    aria-label="Servizi usati in questo progetto"
-                    className="flex flex-col gap-3 border-t border-border pt-6 text-sm"
-                  >
-                    <p className="text-foreground-muted">
-                      Servizi per questo progetto
-                    </p>
-                    <ul className="flex flex-wrap gap-x-6 gap-y-2">
-                      {services.map((service) => (
-                        <li key={service.slug}>
-                          <Link
-                            href={`/servizi/${service.slug}`}
-                            className="font-medium underline decoration-border-strong underline-offset-4 transition-colors hover:text-accent hover:decoration-accent"
-                          >
-                            {service.title}
-                          </Link>
-                        </li>
-                      ))}
-                    </ul>
-                  </nav>
-                ) : null}
-
-                {project.external_link ? (
-                  <Button
-                    href={project.external_link}
-                    variant="secondary"
-                    size="lg"
-                    className="w-max"
-                  >
-                    Visita il sito →
-                  </Button>
-                ) : null}
-              </div>
+        {services.length || project.external_link ? (
+          // Titoli di coda del progetto: servizi in riga a sinistra, il sito
+          // del cliente come unica azione a destra.
+          <div className="flex flex-col gap-8 border-t border-border pt-8 sm:flex-row sm:items-end sm:justify-between">
+            {services.length ? (
+              <nav aria-label="Servizi usati in questo progetto" className="flex flex-col gap-3">
+                <p className="text-xs font-medium tracking-[0.14em] text-foreground-muted uppercase">
+                  Servizi
+                </p>
+                <ul className="font-display flex flex-wrap items-baseline gap-x-2 gap-y-1 text-xl font-semibold tracking-[-0.02em] sm:text-2xl">
+                  {services.map((service, i) => (
+                    <li key={service.slug} className="flex items-baseline gap-x-2">
+                      <Link
+                        href={`/servizi/${service.slug}`}
+                        data-cursor="link"
+                        className="-my-2 py-2 transition-colors duration-200 hover:text-accent"
+                      >
+                        <span className="link-draw">{service.title}</span>
+                      </Link>
+                      {/* La barra chiude la voce: se si va a capo resta in
+                          fondo alla riga, mai all'inizio della successiva. */}
+                      {i < services.length - 1 ? (
+                        <span aria-hidden="true" className="text-foreground-muted">/</span>
+                      ) : null}
+                    </li>
+                  ))}
+                </ul>
+              </nav>
+            ) : (
+              <span />
+            )}
+            {project.external_link ? (
+              <Button
+                href={project.external_link}
+                target="_blank"
+                rel="noopener noreferrer"
+                size="lg"
+                className="w-full justify-between gap-6 sm:w-auto"
+              >
+                <span>
+                  Visita {hostname(project.external_link)}
+                  <span className="sr-only"> (si apre in una nuova scheda)</span>
+                </span>
+                <span aria-hidden="true">↗</span>
+              </Button>
             ) : null}
           </div>
         ) : null}
       </div>
     </article>
   );
+}
+
+
+/** Dominio leggibile del sito del cliente ("www." tolto), o il link intero. */
+function hostname(url: string) {
+  try {
+    return new URL(url).hostname.replace(/^www\./, "");
+  } catch {
+    return url;
+  }
+}
+
+const monthFormat = new Intl.DateTimeFormat("it-IT", { month: "long", year: "numeric" });
+
+/** "2026-10" → "ottobre 2026" (stesso formato delle recensioni in home). */
+function reviewMonth(value: string) {
+  const [y, m] = value.split("-").map(Number);
+  if (!y || !m) return "";
+  return monthFormat.format(new Date(y, m - 1, 1));
 }
