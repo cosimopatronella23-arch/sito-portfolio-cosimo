@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Hero } from "@/components/sections/Hero";
+import { getReelItems } from "@/components/sections/HeroReel";
+import { ReelStage } from "@/components/sections/ReelStage";
 import { Services } from "@/components/sections/Services";
 import { ProjectsGrid } from "@/components/sections/ProjectsGrid";
 import { BlogPreview } from "@/components/sections/BlogPreview";
@@ -33,7 +35,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function HomePage() {
-  const settings = await getSiteSettings();
+  const [settings, reelItems] = await Promise.all([getSiteSettings(), getReelItems()]);
   const c = settings.home_content;
   const theme = (key: Parameters<typeof sectionTheme>[1]) => sectionTheme(c, key);
 
@@ -55,7 +57,12 @@ export default async function HomePage() {
           __html: JSON.stringify(professionalServiceJsonLd(settings)),
         }}
       />
-      <Hero content={c} eyebrow={homeText(c, "hero_eyebrow")} theme={theme("hero")} />
+      <Hero
+        content={c}
+        eyebrow={homeText(c, "hero_eyebrow")}
+        theme={theme("hero")}
+        stage={<ReelStage items={reelItems} />}
+      />
       <MarqueeBand items={c.services.map((s) => s.title)} theme={theme("marquee")} />
       {c.show_projects ?? true ? <ProjectsGrid title={homeText(c, "projects_title")} theme={theme("projects")} /> : null}
       {c.show_services ?? true ? (
