@@ -239,7 +239,17 @@ export function ProjectDetail({
                   Visita {hostname(project.external_link)}
                   <span className="sr-only"> (si apre in una nuova scheda)</span>
                 </span>
-                <span aria-hidden="true">↗</span>
+                <svg
+                  aria-hidden="true"
+                  viewBox="0 0 16 16"
+                  className="h-4 w-4 shrink-0"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.75"
+                  strokeLinecap="square"
+                >
+                  <path d="M4 12L12 4M5.5 4H12v6.5" />
+                </svg>
               </Button>
             ) : null}
           </div>
