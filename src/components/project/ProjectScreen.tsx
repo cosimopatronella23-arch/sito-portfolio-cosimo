@@ -17,13 +17,11 @@ const EASE_OUT: [number, number, number, number] = [0.22, 1, 0.36, 1];
 export function ProjectScreen({
   project,
   index = 0,
-  total = 1,
   isNew = false,
   headingLevel: Heading = "h3",
 }: {
   project: Project;
   index?: number;
-  total?: number;
   isNew?: boolean;
   headingLevel?: "h2" | "h3";
 }) {
@@ -57,13 +55,9 @@ export function ProjectScreen({
         className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/15 to-black/30"
       />
 
-      {/* In alto: contatore ed etichette. */}
+      {/* In alto: etichette. */}
       {/* Sotto la barra di navigazione, che resta fissa sopra lo schermo. */}
-      <div className="container-px absolute inset-x-0 top-24 flex items-start justify-between gap-6 sm:top-28">
-        <span className="font-display text-sm font-semibold text-paper/80 tabular-nums">
-          {String(index + 1).padStart(2, "0")} /{" "}
-          {String(total).padStart(2, "0")}
-        </span>
+      <div className="container-px absolute inset-x-0 top-24 flex items-start justify-end gap-6 sm:top-28">
         <span className="flex flex-col items-end">
           <span className="flex gap-2">
             {isNew ? (

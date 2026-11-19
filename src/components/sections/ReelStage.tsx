@@ -44,8 +44,6 @@ const POOL_LONG = [T.PUSH, T.ZOOM, T.RIPPLE, T.WIPE, T.IRIS];
 const POOL_MID = [T.TILES, T.SLATS, T.WIPE];
 const POOL_FAST = [T.GLITCH, T.SLATS];
 
-const pad = (n: number) => String(n).padStart(2, "0");
-
 export function ReelStage({ items }: { items: ReelItem[] }) {
   // `anim`: il nome del lavoro rientra con un'animazione solo sulle battute
   // lente; nei tagli rapidi cambia di scatto, come un contatore.
@@ -297,7 +295,7 @@ export function ReelStage({ items }: { items: ReelItem[] }) {
             >
               <Image
                 src={it.cover}
-                alt=""
+                alt={`${it.title}, ${it.category}`}
                 fill
                 sizes="100vw"
                 preload={i === 0}
@@ -328,9 +326,6 @@ export function ReelStage({ items }: { items: ReelItem[] }) {
           href={`/progetti/${item.slug}`}
           className={`${meta.anim ? "reel-meta-in " : ""}reel-meta group block min-w-0 bg-black px-3 py-2.5 text-sm text-foreground sm:px-4 sm:py-3 sm:text-base`}
         >
-          <span className="font-display block text-xs font-medium tracking-[0.14em] text-accent uppercase">
-            {pad(cur + 1)} / {pad(items.length)}
-          </span>
           <span className="font-display mt-1 block truncate font-bold tracking-[-0.02em] underline-offset-4 group-hover:underline">
             {item.title} <span aria-hidden="true">→</span>
           </span>

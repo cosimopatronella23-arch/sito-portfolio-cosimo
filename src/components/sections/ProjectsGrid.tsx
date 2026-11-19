@@ -38,7 +38,6 @@ export async function ProjectsGrid({
             key={project.id}
             project={project}
             index={i}
-            total={featured.length}
             isNew={project.id === newestId}
           />
         ))}
