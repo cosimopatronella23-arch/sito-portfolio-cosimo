@@ -39,7 +39,7 @@ export function buildMetadata(input: {
       locale: "it_IT",
       // Senza immagine la chiave non va proprio scritta: anche "undefined"
       // annullerebbe l'immagine generata dal file opengraph-image della pagina.
-      ...(ogImage ? { images: [{ url: ogImage }] } : {}),
+      ...(ogImage ? { images: [{ url: ogImage, alt: title }] } : {}),
     },
     twitter: {
       card: "summary_large_image",
