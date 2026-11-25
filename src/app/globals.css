@@ -293,6 +293,16 @@ body {
   cursor: none;
 }
 
+/* Il popup di conferma sta sopra a tutto (anche al cursore custom): lì dentro
+   torna quello di sistema. */
+.cursor-active-custom .site-dialog {
+  cursor: auto;
+}
+.cursor-active-custom .site-dialog a,
+.cursor-active-custom .site-dialog button {
+  cursor: pointer;
+}
+
 /* ---------------------------------------------------------------------- */
 /* Temi di sezione: ogni sezione sceglie uno sfondo e ridefinisce i colori */
 /* di testo, bordi ed evidenziazione così tutto resta leggibile.          */
@@ -384,6 +394,19 @@ a:focus-visible > .link-draw {
     opacity: 0;
     transform: translateY(16px);
   }
+}
+
+/* Popup "vai al sito": entra piano e ferma lo scorrimento sotto. */
+.site-dialog[open] {
+  animation: cookie-in 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+@media (prefers-reduced-motion: reduce) {
+  .site-dialog[open] {
+    animation: none;
+  }
+}
+html:has(.site-dialog[open]) {
+  overflow: hidden;
 }
 
 /* La banda che scorre si ferma quando ci si passa sopra. */

@@ -12,7 +12,7 @@ import { CoverImage } from "@/components/ui/CoverImage";
 import { ProjectMediaGallery } from "./ProjectMediaGallery";
 import type { ClientReview, Project } from "@/lib/types";
 import { Stars } from "@/components/reviews/ReviewQuote";
-import { Button } from "@/components/ui/Button";
+import { SiteLink } from "./SiteLink";
 import { normalizeHeadings } from "@/lib/html";
 
 const EASE_OUT: [number, number, number, number] = [0.22, 1, 0.36, 1];
@@ -41,6 +41,10 @@ export function ProjectDetail({
   // viene mai intercettato, si legge solo quanto si è avanzati per pilotare
   // una trasformazione). Bloccato con prefers-reduced-motion.
   const heroWrapperRef = useRef<HTMLDivElement>(null);
+  // Galleria e testi: servono a SiteLink per sapere se sono stati sfogliati.
+  const contentRef = useRef<HTMLDivElement>(null);
+  const hasContent =
+    project.gallery.length > 0 || project.content_blocks.length > 0;
   const shouldReduceMotion = useReducedMotion();
   const { scrollYProgress } = useScroll({
     target: heroWrapperRef,
@@ -127,35 +131,57 @@ export function ProjectDetail({
                 <dd className="font-medium">{project.category}</dd>
               </div>
             ) : null}
+            {project.external_link ? (
+              <div>
+                <dt className="text-foreground-muted">Sito</dt>
+                <dd className="font-medium">
+                  <SiteLink
+                    url={project.external_link}
+                    label={hostname(project.external_link)}
+                    contentRef={contentRef}
+                  />
+                </dd>
+              </div>
+            ) : null}
           </dl>
         </div>
 
-        {project.gallery.length > 0 ? (
-          <ProjectMediaGallery items={project.gallery} alt={project.title} />
-        ) : null}
+        {hasContent ? (
+          <div
+            ref={contentRef}
+            tabIndex={-1}
+            role="region"
+            aria-label="Il progetto"
+            className="flex flex-col gap-[60px] outline-none lg:gap-[120px]"
+          >
+            {project.gallery.length > 0 ? (
+              <ProjectMediaGallery items={project.gallery} alt={project.title} />
+            ) : null}
 
-        {project.content_blocks.length ? (
-          <div className="flex flex-col gap-[60px] lg:gap-[100px]">
-            {project.content_blocks.map((block, i) => (
-              <motion.section
-                key={i}
-                initial={{ opacity: 0, y: 24 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-80px" }}
-                transition={{ duration: 0.7, ease: EASE_OUT }}
-                className="flex flex-col gap-3 lg:grid lg:grid-cols-12 lg:gap-x-5"
-              >
-                <h2 className="font-display text-xl font-semibold lg:col-span-3 lg:col-start-4 lg:text-[22px] lg:leading-[1.3]">
-                  {block.heading}
-                </h2>
-                <div
-                  className="prose-editor text-base leading-relaxed text-foreground-muted lg:col-span-5 lg:col-start-7 lg:text-lg"
-                  dangerouslySetInnerHTML={{
-                    __html: normalizeHeadings(block.body),
-                  }}
-                />
-              </motion.section>
-            ))}
+            {project.content_blocks.length ? (
+              <div className="flex flex-col gap-[60px] lg:gap-[100px]">
+                {project.content_blocks.map((block, i) => (
+                  <motion.section
+                    key={i}
+                    initial={{ opacity: 0, y: 24 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, margin: "-80px" }}
+                    transition={{ duration: 0.7, ease: EASE_OUT }}
+                    className="flex flex-col gap-3 lg:grid lg:grid-cols-12 lg:gap-x-5"
+                  >
+                    <h2 className="font-display text-xl font-semibold lg:col-span-3 lg:col-start-4 lg:text-[22px] lg:leading-[1.3]">
+                      {block.heading}
+                    </h2>
+                    <div
+                      className="prose-editor text-base leading-relaxed text-foreground-muted lg:col-span-5 lg:col-start-7 lg:text-lg"
+                      dangerouslySetInnerHTML={{
+                        __html: normalizeHeadings(block.body),
+                      }}
+                    />
+                  </motion.section>
+                ))}
+              </div>
+            ) : null}
           </div>
         ) : null}
 
@@ -196,63 +222,34 @@ export function ProjectDetail({
           </motion.figure>
         ) : null}
 
-        {services.length || project.external_link ? (
-          // Titoli di coda del progetto: servizi in riga a sinistra, il sito
-          // del cliente come unica azione a destra.
-          <div className="flex flex-col gap-8 border-t border-border pt-8 sm:flex-row sm:items-end sm:justify-between">
-            {services.length ? (
-              <nav aria-label="Servizi usati in questo progetto" className="flex flex-col gap-3">
-                <p className="text-xs font-medium tracking-[0.14em] text-foreground-muted uppercase">
-                  Servizi
-                </p>
-                <ul className="font-display flex flex-wrap items-baseline gap-x-2 gap-y-1 text-xl font-semibold tracking-[-0.02em] sm:text-2xl">
-                  {services.map((service, i) => (
-                    <li key={service.slug} className="flex items-baseline gap-x-2">
-                      <Link
-                        href={`/servizi/${service.slug}`}
-                        data-cursor="link"
-                        className="-my-2 py-2 transition-colors duration-200 hover:text-accent"
-                      >
-                        <span className="link-draw">{service.title}</span>
-                      </Link>
-                      {/* La barra chiude la voce: se si va a capo resta in
-                          fondo alla riga, mai all'inizio della successiva. */}
-                      {i < services.length - 1 ? (
-                        <span aria-hidden="true" className="text-foreground-muted">/</span>
-                      ) : null}
-                    </li>
-                  ))}
-                </ul>
-              </nav>
-            ) : (
-              <span />
-            )}
-            {project.external_link ? (
-              <Button
-                href={project.external_link}
-                target="_blank"
-                rel="noopener noreferrer"
-                size="lg"
-                className="w-full justify-between gap-6 sm:w-auto"
-              >
-                <span>
-                  Visita {hostname(project.external_link)}
-                  <span className="sr-only"> (si apre in una nuova scheda)</span>
-                </span>
-                <svg
-                  aria-hidden="true"
-                  viewBox="0 0 16 16"
-                  className="h-4 w-4 shrink-0"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.75"
-                  strokeLinecap="square"
-                >
-                  <path d="M4 12L12 4M5.5 4H12v6.5" />
-                </svg>
-              </Button>
-            ) : null}
-          </div>
+        {services.length ? (
+          // Titoli di coda del progetto: i servizi usati, in riga.
+          <nav
+            aria-label="Servizi usati in questo progetto"
+            className="flex flex-col gap-3 border-t border-border pt-8"
+          >
+            <p className="text-xs font-medium tracking-[0.14em] text-foreground-muted uppercase">
+              Servizi
+            </p>
+            <ul className="font-display flex flex-wrap items-baseline gap-x-2 gap-y-1 text-xl font-semibold tracking-[-0.02em] sm:text-2xl">
+              {services.map((service, i) => (
+                <li key={service.slug} className="flex items-baseline gap-x-2">
+                  <Link
+                    href={`/servizi/${service.slug}`}
+                    data-cursor="link"
+                    className="-my-2 py-2 transition-colors duration-200 hover:text-accent"
+                  >
+                    <span className="link-draw">{service.title}</span>
+                  </Link>
+                  {/* La barra chiude la voce: se si va a capo resta in
+                      fondo alla riga, mai all'inizio della successiva. */}
+                  {i < services.length - 1 ? (
+                    <span aria-hidden="true" className="text-foreground-muted">/</span>
+                  ) : null}
+                </li>
+              ))}
+            </ul>
+          </nav>
         ) : null}
       </div>
     </article>
