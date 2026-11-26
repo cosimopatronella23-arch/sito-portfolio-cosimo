@@ -1,5 +1,5 @@
 import { Hero } from "@/components/sections/Hero";
-import { HeroShelf } from "@/components/sections/HeroShelf";
+import { HeroWall } from "@/components/sections/HeroWall";
 import type { ReelItem } from "@/components/sections/HeroReel";
 import { Services } from "@/components/sections/Services";
 import { ProjectsGrid } from "@/components/sections/ProjectsGrid";
@@ -80,7 +80,7 @@ export function HomeSections({
           content={c}
           eyebrow={homeText(c, "hero_eyebrow")}
           theme={theme("hero")}
-          stage={reelItems.length > 0 ? <HeroShelf items={reelItems} /> : undefined}
+          stage={reelItems.length > 0 ? <HeroWall items={reelItems} /> : undefined}
         />,
       )}
       {sectionOrder(c)
