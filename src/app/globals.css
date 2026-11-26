@@ -464,11 +464,14 @@ html:has(.site-dialog[open]) {
 
 /* Telefono e tablet in verticale: muro grande in alto, titolo sotto. */
 @media (max-width: 639px), (max-width: 1023px) and (orientation: portrait) {
+  /* Il piano parte molto più in alto: in Safari la prospettiva "allontana"
+     il bordo superiore e senza margine la parte sotto il menu resterebbe
+     vuota (il menu sembrerebbe una barra nera piatta). */
   .hero-wall-plane {
-    left: -34vw;
-    top: -36svh;
-    width: 190vw;
-    height: 150svh;
+    left: -40vw;
+    top: -95svh;
+    width: 200vw;
+    height: 230svh;
     --card-w: 34vw;
   }
   .hero-wall-veil {
@@ -486,8 +489,8 @@ html:has(.site-dialog[open]) {
 @media (min-width: 640px) and (max-width: 1023px) and (orientation: portrait) {
   .hero-wall-plane {
     --card-w: 27vw;
-    top: -40svh;
-    height: 210svh;
+    top: -95svh;
+    height: 260svh;
   }
   .hero-wall-veil {
     background: linear-gradient(

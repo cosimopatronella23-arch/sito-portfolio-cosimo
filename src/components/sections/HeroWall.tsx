@@ -23,7 +23,7 @@ import type { HeroWallSpeed } from "@/lib/types";
  */
 
 const COLUMNS = 6;
-const PER_COLUMN = 5;
+const PER_COLUMN = 7; // abbastanza alta da coprire il piano anche a fine giro
 // Durata di un giro completo di ogni colonna, in secondi, alla velocità
 // "normale": velocità diverse rendono il movimento meno meccanico.
 const DURATIONS = [44, 36, 52, 40, 48, 38];
