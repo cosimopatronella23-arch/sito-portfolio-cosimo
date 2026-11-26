@@ -10,6 +10,9 @@ const nextConfig: NextConfig = {
     // fallback automatico a WebP altrimenti — nessuna differenza visiva.
     formats: ["image/avif", "image/webp"],
   },
+  // Solo in sviluppo: permette di aprire l'anteprima dal telefono sulla
+  // rete di casa (es. http://192.168.1.3:3100). Non tocca il sito online.
+  allowedDevOrigins: ["192.168.1.*", "192.168.0.*"],
   // Non rivelare che il sito gira su Next.js (header "X-Powered-By").
   poweredByHeader: false,
   async headers() {
