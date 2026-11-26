@@ -19,9 +19,8 @@ const fadeUp: Variants = {
 };
 
 /**
- * Apertura della homepage, sistema grafico "Dumbar": titolo gigante sulla
- * un montaggio a schermo intero dei lavori dietro (tagli a ritmo, parallasse
- * col mouse) e un pulsante. Le linee della griglia si disegnano all'ingresso.
+ * Apertura della homepage: in alto lo scaffale dei lavori in prospettiva
+ * (HeroShelf), in basso il titolo a sinistra e il pulsante a destra.
  */
 export function Hero({
   content,
@@ -32,7 +31,7 @@ export function Hero({
   content: HomeContent;
   eyebrow: string;
   theme: SectionTheme;
-  /** Montaggio dei lavori a schermo intero dietro il titolo (ReelStage). */
+  /** Scaffale dei lavori sopra il titolo (HeroShelf). */
   stage?: ReactNode;
 }) {
   const reduce = useReducedMotion();
@@ -47,10 +46,8 @@ export function Hero({
   return (
     <section
       data-hero
-      className={`theme-${theme} relative isolate h-svh min-h-[34rem] overflow-hidden`}
+      className={`theme-${theme} relative isolate flex h-svh min-h-[40rem] flex-col overflow-hidden pt-[104px] sm:pt-[120px]`}
     >
-      {stage}
-
       {/* Ruolo, città e sottotitolo non si vedono (l'apertura è fatta di
           titolo e lavori) ma restano per Google e per gli screen reader:
           sono il punto che dice cosa fai e dove. */}
@@ -58,8 +55,11 @@ export function Hero({
         {eyebrow}. {content.hero_subtitle}
       </p>
 
-      <div className="container-px pointer-events-none relative z-10 flex h-full flex-col justify-end gap-6 pb-8 sm:pb-12 lg:flex-row lg:items-end lg:justify-between lg:gap-10">
-        <h1 className="hero-title font-display text-[clamp(3.25rem,min(11vw,15vh),11rem)] leading-[0.9] font-bold tracking-[-0.045em] lg:min-w-0 lg:flex-1">
+      {/* Scaffale dei lavori: occupa lo spazio tra la barra e il titolo. */}
+      {stage ? <div className="relative flex min-h-0 flex-1 items-center">{stage}</div> : <div className="flex-1" />}
+
+      <div className="container-px relative z-10 flex shrink-0 flex-col gap-5 pt-6 pb-6 sm:pt-8 sm:pb-10 lg:flex-row lg:items-end lg:justify-between lg:gap-10">
+        <h1 className="hero-title font-display text-[clamp(2.25rem,min(5vw,7.5vh),5.5rem)] leading-[0.92] font-bold tracking-[-0.045em] lg:min-w-0 lg:flex-1">
           <span className="block">
             <AnimatedText text={first ?? ""} />
           </span>
@@ -69,7 +69,7 @@ export function Hero({
           {others.map((line, i) => (
             <Fragment key={i}>
               {" "}
-              <span className="block sm:pl-[16.66%]">
+              <span className="block">
                 <AnimatedText text={line} delay={(i + 1) * 0.12} />
               </span>
             </Fragment>
@@ -86,7 +86,7 @@ export function Hero({
           initial={reduce ? false : "hidden"}
           animate="visible"
           custom={2}
-          className="pointer-events-auto lg:w-72 lg:shrink-0"
+          className="lg:w-72 lg:shrink-0"
         >
           <Button href="/#contatti" size="lg" arrow className="w-full justify-between">
             {content.cta_primary}

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Hero } from "@/components/sections/Hero";
 import { getReelItems } from "@/components/sections/HeroReel";
-import { ReelStage } from "@/components/sections/ReelStage";
+import { HeroShelf } from "@/components/sections/HeroShelf";
 import { Services } from "@/components/sections/Services";
 import { ProjectsGrid } from "@/components/sections/ProjectsGrid";
 import { BlogPreview } from "@/components/sections/BlogPreview";
@@ -61,7 +61,7 @@ export default async function HomePage() {
         content={c}
         eyebrow={homeText(c, "hero_eyebrow")}
         theme={theme("hero")}
-        stage={<ReelStage items={reelItems} />}
+        stage={reelItems.length > 0 ? <HeroShelf items={reelItems} /> : undefined}
       />
       <MarqueeBand items={c.services.map((s) => s.title)} theme={theme("marquee")} />
       {c.show_projects ?? true ? <ProjectsGrid title={homeText(c, "projects_title")} theme={theme("projects")} /> : null}
