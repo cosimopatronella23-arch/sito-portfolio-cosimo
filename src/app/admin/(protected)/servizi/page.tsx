@@ -3,9 +3,12 @@ import { getAllServicesAdmin } from "@/lib/data/services";
 import { deleteService, duplicateService } from "@/lib/actions/services";
 import { ContentList } from "@/components/admin/ContentList";
 import { AdminIcon } from "@/components/admin/AdminIcons";
+import { getSiteSettings } from "@/lib/data/settings";
+import { GroupForm } from "@/components/admin/settings/GroupForm";
+import { FieldRow, inputClass } from "@/components/admin/settings/FieldRow";
 
 export default async function AdminServicesPage() {
-  const services = await getAllServicesAdmin();
+  const [services, settings] = await Promise.all([getAllServicesAdmin(), getSiteSettings()]);
 
   return (
     <div className="flex flex-col gap-8">
@@ -27,6 +30,23 @@ export default async function AdminServicesPage() {
           Nuovo servizio
         </Link>
       </div>
+
+      <details className="border border-border-strong bg-surface">
+        <summary className="flex min-h-14 cursor-pointer items-center justify-between gap-4 px-5 text-sm font-semibold">
+          Pagina /servizi: titolo e introduzione
+          <span className="text-xs font-normal text-foreground-muted">{settings.home_content.services_title}</span>
+        </summary>
+        <div className="border-t border-border px-5 pb-2">
+          <GroupForm groups={["services-page"]} saveLabel="Salva titolo e introduzione">
+            <FieldRow label="Titolo" help="Il titolo della pagina /servizi. È anche il titolo della sezione Servizi in homepage." htmlFor="services_title">
+              <input id="services_title" name="services_title" defaultValue={settings.home_content.services_title} className={inputClass} />
+            </FieldRow>
+            <FieldRow label="Introduzione" help="Il testo sotto il titolo." htmlFor="services_intro">
+              <textarea id="services_intro" name="services_intro" defaultValue={settings.home_content.services_intro ?? ""} rows={4} className={inputClass} />
+            </FieldRow>
+          </GroupForm>
+        </div>
+      </details>
 
       <ContentList
         reorderTable="service_pages"

@@ -204,6 +204,10 @@ export type HomeSectionKey =
   | "blog"
   | "contact";
 
+/** Sezioni della homepage che si possono spostare ("blocks" = le sezioni
+ *  aggiunte a mano, sempre insieme). L'apertura resta sempre in cima. */
+export type HomeOrderKey = Exclude<HomeSectionKey, "hero"> | "blocks";
+
 /** Un passo della sezione "Come lavoro" in homepage. */
 export interface ProcessStep {
   title: string;
@@ -240,6 +244,11 @@ export interface HomeContent {
   /** Slider dei lavori nell'hero, nell'ordine scelto. Vuoto = le copertine
    *  dei progetti pubblicati (orizzontali, quindi ritagliate). */
   hero_slides?: HeroSlide[];
+  /** Ordine delle sezioni dopo l'apertura (vedi src/lib/homeLayout.ts).
+   *  Vuoto = ordine predefinito. */
+  section_order?: HomeOrderKey[];
+  /** Banda che scorre con i nomi dei servizi. Assente = visibile. */
+  show_marquee?: boolean;
   projects_title?: string;
   process_title?: string;
   process_subtitle?: string;

@@ -10,24 +10,39 @@ import { OWNER_OPT_OUT_KEY } from "@/lib/analytics";
 
 type NavItem = { label: string; href: string; icon: AdminIconName };
 
+// Come WordPress: in alto ciò che si guarda ogni giorno, poi i contenuti,
+// poi l'aspetto del sito e infine le impostazioni di sistema.
 const GROUPS: { title: string; items: NavItem[] }[] = [
+  {
+    title: "",
+    items: [
+      { label: "Bacheca", href: "/admin", icon: "dashboard" },
+      { label: "Messaggi", href: "/admin/messaggi", icon: "mail" },
+    ],
+  },
   {
     title: "Contenuti",
     items: [
-      { label: "Dashboard", href: "/admin", icon: "dashboard" },
-      { label: "Messaggi", href: "/admin/messaggi", icon: "mail" },
       { label: "Progetti", href: "/admin/progetti", icon: "projects" },
       { label: "Servizi", href: "/admin/servizi", icon: "services" },
-      { label: "Blog", href: "/admin/blog", icon: "blog" },
+      { label: "Articoli", href: "/admin/blog", icon: "blog" },
       { label: "Recensioni", href: "/admin/recensioni", icon: "star" },
       { label: "Media", href: "/admin/media", icon: "media" },
     ],
   },
   {
-    title: "Sito",
+    title: "Aspetto del sito",
     items: [
-      { label: "Analytics", href: "/admin/analytics", icon: "analytics" },
+      { label: "Homepage", href: "/admin/homepage", icon: "home" },
+      { label: "Menu e footer", href: "/admin/menu", icon: "menu" },
+      { label: "Colori", href: "/admin/colori", icon: "palette" },
+    ],
+  },
+  {
+    title: "Sistema",
+    items: [
       { label: "Impostazioni", href: "/admin/impostazioni", icon: "settings" },
+      { label: "Statistiche", href: "/admin/analytics", icon: "analytics" },
       { label: "Cestino", href: "/admin/cestino", icon: "trash" },
     ],
   },
@@ -45,12 +60,14 @@ function NavLinks({
   unreadMessages: number;
 }) {
   return (
-    <nav aria-label="Admin" className="flex flex-col gap-7">
+    <nav aria-label="Admin" className="flex flex-col gap-6">
       {GROUPS.map((group) => (
         <div key={group.title} className="flex flex-col gap-1">
-          <p className="px-3 pb-1 text-[0.6875rem] font-medium tracking-[0.12em] text-foreground-muted uppercase">
-            {group.title}
-          </p>
+          {group.title ? (
+            <p className="px-3 pb-1 text-[0.6875rem] font-medium tracking-[0.12em] text-foreground-muted uppercase">
+              {group.title}
+            </p>
+          ) : null}
           {group.items.map((item) => {
             const active = isActive(pathname, item.href);
             return (

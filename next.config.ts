@@ -31,6 +31,12 @@ const nextConfig: NextConfig = {
           { key: "X-Frame-Options", value: "DENY" },
         ],
       },
+      {
+        // L'anteprima dal vivo della homepage si mostra dentro l'admin
+        // stesso (stessa origine): solo lei può stare in un riquadro.
+        source: "/admin/anteprima/homepage",
+        headers: [{ key: "X-Frame-Options", value: "SAMEORIGIN" }],
+      },
     ];
   },
 };

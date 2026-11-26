@@ -19,7 +19,7 @@ export default async function AdminBlogPage() {
     <div className="flex flex-col gap-8">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <h1 className="font-display text-3xl font-semibold tracking-tight">
-          Blog
+          Articoli
         </h1>
         <Link
           href="/admin/blog/nuovo"

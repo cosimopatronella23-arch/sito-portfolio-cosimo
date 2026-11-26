@@ -37,7 +37,7 @@ export default async function AdminAnalyticsPage() {
   return (
     <div className="flex flex-col gap-16">
       <h1 className="font-display text-3xl font-semibold tracking-tight">
-        Analytics
+        Statistiche
       </h1>
 
       <section className="flex flex-col gap-6">
