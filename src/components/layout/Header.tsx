@@ -37,10 +37,12 @@ export function Header({ navLinks }: { navLinks?: NavLink[] }) {
     navLinks && navLinks.length > 0 ? navLinks : DEFAULT_NAV_LINKS;
 
   return (
-    // Barra sospesa al centro, sopra i contenuti (-mb-20: la pagina parte da
-    // sotto la barra, come l'hero a tutto schermo). Le pagine lasciano 80 px
-    // liberi in alto; a menu aperto il fondo diventa pieno per la lettura.
-    <header className="pointer-events-none sticky top-0 z-50 -mb-20 h-20 px-3 py-3 sm:px-5">
+    // Barra sospesa al centro, fissa sopra i contenuti: la pagina parte da
+    // sotto la barra (come l'hero a tutto schermo) e le pagine lasciano 80 px
+    // liberi in alto. "fixed" e non "sticky" con margine negativo, che in
+    // Safari non si sovrappone e lascia una fascia nera dietro la barra.
+    // A menu aperto il fondo diventa pieno per la lettura.
+    <header className="pointer-events-none fixed inset-x-0 top-0 z-50 h-20 px-3 py-3 sm:px-5">
       <div
         className={clsx(
           "theme-ink pointer-events-auto mx-auto max-w-[880px] border border-border-strong shadow-[0_12px_40px_-16px_rgb(0_0_0/0.5)] backdrop-blur-xl transition-colors duration-300",

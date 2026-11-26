@@ -441,9 +441,11 @@ html:has(.site-dialog[open]) {
   --gap: clamp(10px, 1.4vw, 24px);
   gap: var(--gap);
   left: 30vw;
-  top: -30svh;
+  /* Margine in alto abbondante: in Safari la prospettiva "allontana" il
+     bordo superiore del piano e senza margine resterebbe vuoto sotto il menu. */
+  top: -75svh;
   width: 120vw;
-  height: 190svh;
+  height: 250svh;
   transform: rotateX(calc(48deg - var(--tilt-y, 0) * 3deg))
     rotateZ(calc(-28deg + var(--tilt-x, 0) * 3deg));
   animation: hero-wall-in 1.8s cubic-bezier(0.22, 1, 0.36, 1) both;
