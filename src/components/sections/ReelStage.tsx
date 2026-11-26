@@ -320,7 +320,7 @@ export function ReelStage({ items }: { items: ReelItem[] }) {
       {/* Numero e nome del lavoro in scena; a destra avanzamento e pausa.
           Stanno su fondo nero pieno: sopra le copertine chiare il testo
           piccolo non sarebbe leggibile. */}
-      <div className="container-px absolute inset-x-0 top-5 z-10 flex items-start justify-between gap-4 sm:top-7">
+      <div className="container-px absolute inset-x-0 top-[100px] z-10 flex items-start justify-between gap-4 sm:top-[108px]">
         <Link
           key={meta.anim ? `${item.slug}-${meta.n}` : "reel-meta"}
           href={`/progetti/${item.slug}`}

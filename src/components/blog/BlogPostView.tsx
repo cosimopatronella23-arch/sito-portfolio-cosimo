@@ -56,7 +56,7 @@ export function BlogPostView({
         }}
       />
 
-      <header className="theme-ink container-px pt-10 pb-14 sm:pt-14 sm:pb-20">
+      <header className="theme-ink container-px pt-[120px] pb-14 sm:pt-[136px] sm:pb-20">
         <div className="mx-auto flex max-w-3xl flex-col gap-8">
           <Link
             href="/blog"

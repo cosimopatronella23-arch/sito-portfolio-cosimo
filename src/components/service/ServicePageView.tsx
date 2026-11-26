@@ -36,7 +36,7 @@ export function ServicePageView({
         }}
       />
 
-      <header className="theme-ink container-px pt-10 pb-16 sm:pt-14 sm:pb-24">
+      <header className="theme-ink container-px pt-[120px] pb-16 sm:pt-[136px] sm:pb-24">
         <nav aria-label="Percorso" className="text-xs font-semibold tracking-[0.12em] text-foreground-muted uppercase">
           <ol className="flex flex-wrap items-center gap-2">
             <li>

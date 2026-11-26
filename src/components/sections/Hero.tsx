@@ -47,7 +47,7 @@ export function Hero({
   return (
     <section
       data-hero
-      className={`theme-${theme} relative isolate h-[calc(100svh-85px)] min-h-[34rem] overflow-hidden md:h-[calc(100svh-79px)]`}
+      className={`theme-${theme} relative isolate h-svh min-h-[34rem] overflow-hidden`}
     >
       {stage}
 
