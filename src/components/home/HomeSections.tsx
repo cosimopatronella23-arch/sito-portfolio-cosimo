@@ -80,7 +80,7 @@ export function HomeSections({
           content={c}
           eyebrow={homeText(c, "hero_eyebrow")}
           theme={theme("hero")}
-          stage={reelItems.length > 0 ? <HeroWall items={reelItems} /> : undefined}
+          stage={reelItems.length > 0 ? <HeroWall items={reelItems} speed={c.hero_wall_speed} /> : undefined}
         />,
       )}
       {sectionOrder(c)

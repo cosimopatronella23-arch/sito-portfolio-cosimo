@@ -224,6 +224,8 @@ export interface HeroSlide {
   cover: string;
 }
 
+export type HeroWallSpeed = "lenta" | "normale" | "veloce";
+
 export interface HomeContent {
   hero_title_main: string;
   hero_title_accent: string;
@@ -244,6 +246,8 @@ export interface HomeContent {
   /** Slider dei lavori nell'hero, nell'ordine scelto. Vuoto = le copertine
    *  dei progetti pubblicati (orizzontali, quindi ritagliate). */
   hero_slides?: HeroSlide[];
+  /** Velocità del muro di copertine nell'hero. Assente = "normale". */
+  hero_wall_speed?: HeroWallSpeed;
   /** Ordine delle sezioni dopo l'apertura (vedi src/lib/homeLayout.ts).
    *  Vuoto = ordine predefinito. */
   section_order?: HomeOrderKey[];

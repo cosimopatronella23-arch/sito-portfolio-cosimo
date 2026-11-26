@@ -11,7 +11,7 @@ const MAX_SLIDES = 12;
 type Item = HeroSlide & { key: string };
 
 /**
- * Copertine dello slider dell'hero come miniature: si trascinano per
+ * Copertine del muro dell'hero come miniature: si trascinano per
  * cambiare ordine (o si spostano con i pulsanti, anche da tastiera), un
  * clic apre i dettagli sotto (progetto collegato, immagine, rimuovi).
  * Le immagini vanno verticali 1:2: la miniatura mostra subito il taglio.
@@ -63,11 +63,11 @@ export function HeroSlidesEditor({
   return (
     <div className="flex flex-col gap-3">
       <div className="flex items-baseline justify-between gap-3">
-        <span className="text-sm font-semibold">Copertine dello slider</span>
+        <span className="text-sm font-semibold">Copertine del muro</span>
         <span className="text-xs text-foreground-muted">trascina per riordinare</span>
       </div>
 
-      <ul className="grid grid-cols-5 gap-2" aria-label="Copertine, nell'ordine dello slider">
+      <ul className="grid grid-cols-5 gap-2" aria-label="Copertine, nell'ordine del muro">
         {slides.map((slide, i) => (
           <li
             key={slide.key}

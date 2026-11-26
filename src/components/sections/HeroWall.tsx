@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import clsx from "clsx";
 import type { ReelItem } from "./HeroReel";
+import type { HeroWallSpeed } from "@/lib/types";
 
 /**
  * "Piano inclinato": le copertine dei lavori in colonne, posate su un piano
@@ -23,11 +24,19 @@ import type { ReelItem } from "./HeroReel";
 
 const COLUMNS = 6;
 const PER_COLUMN = 5;
-// Durata di un giro completo di ogni colonna, in secondi: velocità diverse
-// rendono il movimento meno meccanico.
-const DURATIONS = [70, 58, 82, 64, 76, 60];
+// Durata di un giro completo di ogni colonna, in secondi, alla velocità
+// "normale": velocità diverse rendono il movimento meno meccanico.
+const DURATIONS = [44, 36, 52, 40, 48, 38];
+// Moltiplicatore della durata per la velocità scelta in admin.
+const SPEED_FACTOR: Record<HeroWallSpeed, number> = { lenta: 1.6, normale: 1, veloce: 0.65 };
 
-export function HeroWall({ items }: { items: ReelItem[] }) {
+export function HeroWall({
+  items,
+  speed = "normale",
+}: {
+  items: ReelItem[];
+  speed?: HeroWallSpeed;
+}) {
   const rootRef = useRef<HTMLDivElement>(null);
   const planeRef = useRef<HTMLDivElement>(null);
   const [paused, setPaused] = useState(false);
@@ -89,7 +98,7 @@ export function HeroWall({ items }: { items: ReelItem[] }) {
           className={clsx("hero-wall-plane absolute flex", stopped && "is-paused")}
         >
           {columns.map((col, c) => (
-            <div key={c} className="hero-wall-col shrink-0" style={{ ["--d" as string]: `${DURATIONS[c % DURATIONS.length]}s` }}>
+            <div key={c} className="hero-wall-col shrink-0" style={{ ["--d" as string]: `${Math.round(DURATIONS[c % DURATIONS.length] * (SPEED_FACTOR[speed] ?? 1))}s` }}>
               {/* Due copie una sotto l'altra: quando la prima è uscita, la
                   seconda è esattamente al suo posto e il giro ricomincia. */}
               <div className={clsx("hero-wall-track flex flex-col", c % 2 === 1 && "is-reverse")}>

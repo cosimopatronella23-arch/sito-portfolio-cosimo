@@ -159,6 +159,11 @@ export function applySettingsGroups(
         home.cta_primary = str(fd, "cta_primary", 80);
         home.hero_eyebrow = str(fd, "hero_eyebrow", 200);
         home.hero_subtitle = str(fd, "hero_subtitle", 600);
+        {
+          const speed = str(fd, "hero_wall_speed", 10);
+          home.hero_wall_speed =
+            speed === "lenta" || speed === "veloce" ? speed : "normale";
+        }
         home.hero_slides = json<HeroSlide[]>(fd, "hero_slides", [])
           .map((s) => ({
             project: String(s?.project ?? "").trim().slice(0, 120),

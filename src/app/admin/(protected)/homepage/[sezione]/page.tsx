@@ -63,18 +63,25 @@ export default async function HomeSectionEditor(
           <Field label="Parte colorata" help="Esce in lavanda, subito dopo il titolo.">
             <input name="hero_title_accent" defaultValue={c.hero_title_accent} className={inputClass} />
           </Field>
+          <Field label="Riga sopra il titolo" help="In piccolo, sopra il titolo: cosa fai e dove. La leggono anche Google e i lettori di schermo.">
+            <input name="hero_eyebrow" defaultValue={c.hero_eyebrow ?? ""} placeholder={HOME_DEFAULTS.hero_eyebrow} className={inputClass} />
+          </Field>
           <Field label="Testo del pulsante" help="Il pulsante porta al modulo di contatto.">
             <input name="cta_primary" defaultValue={c.cta_primary} className={inputClass} />
           </Field>
           <HeroSlidesEditor name="hero_slides" defaultValue={c.hero_slides ?? []} projects={projects} />
+          <Field label="Velocità del muro" help="Quanto scorrono veloci le colonne di copertine. Chi ha attivato &quot;riduci movimento&quot; le vede sempre ferme.">
+            <select name="hero_wall_speed" defaultValue={c.hero_wall_speed ?? "normale"} className={inputClass}>
+              <option value="lenta">Lenta</option>
+              <option value="normale">Normale</option>
+              <option value="veloce">Veloce</option>
+            </select>
+          </Field>
           <details className="border-t border-border pt-4">
             <summary className="min-h-11 cursor-pointer text-sm font-semibold">
               Solo per Google (non si vede sulla pagina)
             </summary>
             <div className="mt-3 flex flex-col gap-4">
-              <Field label="Chi sei e dove lavori" help="Lo leggono Google e i lettori di schermo.">
-                <input name="hero_eyebrow" defaultValue={c.hero_eyebrow ?? ""} placeholder={HOME_DEFAULTS.hero_eyebrow} className={inputClass} />
-              </Field>
               <Field label="Descrizione">
                 <textarea name="hero_subtitle" defaultValue={c.hero_subtitle} rows={3} className={inputClass} />
               </Field>

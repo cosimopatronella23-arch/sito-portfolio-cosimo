@@ -53,7 +53,7 @@ export default async function AdminHomepage() {
     key: "hero",
     href: "/admin/homepage/apertura",
     title: "Apertura",
-    summary: `"${firstLine} ${c.hero_title_accent}" · slider con ${slides} copertine · pulsante "${c.cta_primary}"`,
+    summary: `"${firstLine} ${c.hero_title_accent}" · muro con ${slides} copertine · pulsante "${c.cta_primary}"`,
     icon: "slider",
     visible: true,
   };
