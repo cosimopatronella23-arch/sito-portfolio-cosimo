@@ -41,7 +41,6 @@ export function Hero({
     .split(/\r?\n/)
     .map((l) => l.trim())
     .filter(Boolean);
-  const [first, ...others] = titleLines;
 
   return (
     <section
@@ -58,23 +57,18 @@ export function Hero({
       {/* Scaffale dei lavori: occupa lo spazio tra la barra e il titolo. */}
       {stage ? <div className="relative flex min-h-0 flex-1 items-center">{stage}</div> : <div className="flex-1" />}
 
-      <div className="container-px relative z-10 flex shrink-0 flex-col gap-5 pt-6 pb-6 sm:pt-8 sm:pb-10 lg:flex-row lg:items-end lg:justify-between lg:gap-10">
-        <h1 className="hero-title font-display text-[clamp(2.25rem,min(5vw,7.5vh),5.5rem)] leading-[0.92] font-bold tracking-[-0.045em] lg:min-w-0 lg:flex-1">
-          <span className="block">
-            <AnimatedText text={first ?? ""} />
-          </span>
-          {/* Gli spazi tra le righe non si vedono (sono blocchi) ma servono
-              a chi legge il testo: senza, Google e gli screen reader
-              leggerebbero "Grafica eweb design.Senza fronzoli." */}
-          {others.map((line, i) => (
+      <div className="container-px relative z-10 flex shrink-0 flex-col gap-5 pt-6 pb-6 sm:pt-8 sm:pb-10 xl:flex-row xl:items-end xl:justify-between xl:gap-10">
+        {/* Su computer il titolo sta su una riga, su telefono e tablet al
+            massimo su due (la parte in lavanda va a capo). Gli "a capo"
+            scritti in /admin qui diventano spazi. */}
+        <h1 className="font-display text-[min(7.6vw,3.25rem)] leading-[1.02] font-bold tracking-[-0.04em] lg:min-w-0 lg:flex-1 lg:text-[3.3vw] lg:whitespace-nowrap">
+          {titleLines.map((line, i) => (
             <Fragment key={i}>
-              {" "}
-              <span className="block">
-                <AnimatedText text={line} delay={(i + 1) * 0.12} />
-              </span>
+              {i > 0 ? " " : null}
+              <AnimatedText text={line} delay={i * 0.12} />
             </Fragment>
           ))}{" "}
-          <span className="block text-accent">
+          <span className="block text-accent lg:inline">
             <AnimatedText
               text={content.hero_title_accent}
               delay={titleLines.length * 0.12}
@@ -86,7 +80,7 @@ export function Hero({
           initial={reduce ? false : "hidden"}
           animate="visible"
           custom={2}
-          className="lg:w-72 lg:shrink-0"
+          className="sm:w-72 xl:shrink-0"
         >
           <Button href="/#contatti" size="lg" arrow className="w-full justify-between">
             {content.cta_primary}

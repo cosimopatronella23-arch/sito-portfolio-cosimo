@@ -7,20 +7,29 @@ import { useReducedMotion } from "framer-motion";
 import type { ReelItem } from "./HeroReel";
 
 /**
- * "Scaffale" dei lavori nell'hero: le copertine dei progetti in fila, in
- * prospettiva. Ognuna ruota in base a dove si trova: ai lati si apre verso
- * chi guarda, al centro si mette di taglio come il dorso di un disco. La
- * fila scorre piano da sola, si trascina col dito o col mouse, si sposta
- * con le frecce e si mette in pausa (WCAG 2.2.2). Al passaggio del mouse
- * (o col tasto Tab) la copertina si apre del tutto e le altre si abbassano.
+ * Lavori dell'hero come copertine in 3D: ogni copertina è una scatola vera
+ * (fronte e dorso sui due lati), non un'immagine piatta inclinata.
  *
- * Le posizioni si calcolano in un unico ciclo di animazione e si scrivono
- * direttamente sugli elementi, senza ridisegnare React a ogni fotogramma.
+ * - Computer e tablet ("scaffale"): fila che scorre piano da sola; ai lati
+ *   le copertine si aprono verso chi guarda, al centro si mettono di taglio
+ *   e si vede il dorso. Al passaggio del mouse (o con Tab) la copertina si
+ *   gira di fronte e le altre si abbassano.
+ * - Telefono ("sfoglia"): una copertina grande al centro e le vicine di
+ *   sbieco ai lati; si sfoglia una alla volta (dito o frecce), avanza da
+ *   sola ogni pochi secondi, sotto il nome del progetto in primo piano.
+ *
+ * Sempre: pausa (WCAG 2.2.2), niente movimento automatico con "riduci
+ * movimento", nessun ridisegno di React a ogni fotogramma (le posizioni si
+ * scrivono direttamente sugli elementi).
  */
 
-const SPEED = 26; // px al secondo, scorrimento automatico
-const MAX_ANGLE = 84; // gradi di rotazione al centro (quasi di taglio)
+const SPEED = 26; // px al secondo, scorrimento automatico dello scaffale
+const MAX_ANGLE = 84; // gradi al centro dello scaffale (quasi di taglio)
+const FLOW_ANGLE = 52; // gradi delle copertine vicine nello sfoglia
+const FLOW_HOLD = 3.4; // secondi su ogni copertina nello sfoglia
 const DRAG_THRESHOLD = 6;
+
+type Mode = "shelf" | "flow";
 
 function mod(n: number, m: number) {
   return ((n % m) + m) % m;
@@ -32,12 +41,14 @@ export function HeroShelf({ items }: { items: ReelItem[] }) {
   const measureRef = useRef<HTMLSpanElement>(null);
   const cardRefs = useRef<(HTMLElement | null)[]>([]);
   const labelRefs = useRef<(HTMLElement | null)[]>([]);
+  const [mode, setMode] = useState<Mode>("shelf");
   const [copies, setCopies] = useState(2);
   const [ready, setReady] = useState(false);
   const [paused, setPaused] = useState(false);
+  const [active, setActive] = useState(0);
 
-  // Stato del movimento: fuori da React, letto dal ciclo di animazione.
   const s = useRef({
+    mode: "shelf" as Mode,
     pos: 0,
     vel: 0,
     target: null as number | null,
@@ -54,6 +65,8 @@ export function HeroShelf({ items }: { items: ReelItem[] }) {
     moved: false,
     paused: false,
     reduce: false,
+    hold: 0,
+    active: 0,
   });
 
   useEffect(() => {
@@ -65,25 +78,42 @@ export function HeroShelf({ items }: { items: ReelItem[] }) {
 
   const total = items.length * copies;
 
-  // Misure: larghezza dello slot (dal CSS) e copie necessarie a coprire lo
-  // schermo senza che si veda il punto in cui la fila ricomincia.
+  // Misure e modalità. --slot è un clamp(): si legge dalla larghezza di un
+  // elemento invisibile che lo usa. Le copie servono a coprire lo schermo
+  // senza che si veda il punto in cui la fila ricomincia.
   useEffect(() => {
     const root = rootRef.current;
     if (!root) return;
+    const mq = window.matchMedia("(max-width: 639px)");
     const measure = () => {
-      // --slot è un clamp(): lo si legge dalla larghezza di un elemento
-      // invisibile che lo usa, non dalla variabile (che resta testo).
+      const m: Mode = mq.matches ? "flow" : "shelf";
       const slot = measureRef.current?.offsetWidth || 140;
       const width = root.clientWidth;
-      s.current.slot = slot;
-      s.current.width = width;
-      setCopies(Math.max(1, Math.ceil((width + slot * 6) / (items.length * slot))));
+      const st = s.current;
+      if (st.mode !== m || st.slot !== slot) {
+        // Al cambio di misura si riallinea alla copertina più vicina.
+        st.pos = Math.round(st.pos / st.slot) * slot;
+        st.target = null;
+      }
+      st.mode = m;
+      st.slot = slot;
+      st.width = width;
+      setMode(m);
+      setCopies(
+        m === "flow"
+          ? Math.max(1, Math.ceil(5 / items.length))
+          : Math.max(1, Math.ceil((width + slot * 6) / (items.length * slot))),
+      );
       setReady(true);
     };
     measure();
     const ro = new ResizeObserver(measure);
     ro.observe(root);
-    return () => ro.disconnect();
+    mq.addEventListener("change", measure);
+    return () => {
+      ro.disconnect();
+      mq.removeEventListener("change", measure);
+    };
   }, [items.length]);
 
   // Ciclo di animazione.
@@ -101,18 +131,31 @@ export function HeroShelf({ items }: { items: ReelItem[] }) {
       last = now;
       const { slot, width } = st;
       const loop = total * slot;
+      const flow = st.mode === "flow";
 
+      // Movimento.
       if (st.target !== null) {
         const diff = st.target - st.pos;
-        st.pos += diff * Math.min(1, dt * 7);
+        st.pos += diff * Math.min(1, dt * (st.reduce ? 30 : 7));
         if (Math.abs(diff) < 0.5) {
           st.pos = st.target;
           st.target = null;
         }
       } else if (!st.dragging) {
-        if (Math.abs(st.vel) > 1) {
+        if (Math.abs(st.vel) > 1 && !flow) {
           st.pos += st.vel * dt;
           st.vel *= Math.pow(0.04, dt);
+        } else if (flow) {
+          st.vel = 0;
+          const snapped = Math.round(st.pos / slot) * slot;
+          if (Math.abs(snapped - st.pos) > 0.5) st.target = snapped;
+          else if (!st.paused && !st.reduce) {
+            st.hold += dt;
+            if (st.hold > FLOW_HOLD) {
+              st.hold = 0;
+              st.target = snapped + slot;
+            }
+          }
         } else {
           st.vel = 0;
           if (!st.paused && !st.reduce && st.hover < 0) st.pos += SPEED * dt;
@@ -122,10 +165,20 @@ export function HeroShelf({ items }: { items: ReelItem[] }) {
       const half = width / 2;
       for (let i = 0; i < total; i++) {
         const card = cardRefs.current[i];
-        const label = labelRefs.current[i];
         if (!card) continue;
-        // Centro dello slot rispetto al centro dello scaffale.
         const x = mod(i * slot - st.pos + loop / 2, loop) - loop / 2;
+
+        if (flow) {
+          const n = Math.max(-1.6, Math.min(1.6, x / slot));
+          const a = Math.abs(n);
+          const angle = -n * FLOW_ANGLE * Math.min(1, a);
+          card.style.transform = `translate3d(${x * 0.8}px,0,${-Math.min(1, a) * 190}px) rotateY(${angle}deg)`;
+          card.style.zIndex = String(100 - Math.round(a * 10));
+          card.style.visibility = a > 1.55 ? "hidden" : "visible";
+          card.style.setProperty("--shade", String(Math.min(0.6, a * 0.45)));
+          continue;
+        }
+
         const d = Math.max(-1.2, Math.min(1.2, x / half));
         const k = Math.max(0, 1 - Math.abs(d));
         const base = Math.sign(d || 1) * MAX_ANGLE * Math.pow(k, 1.5);
@@ -133,14 +186,24 @@ export function HeroShelf({ items }: { items: ReelItem[] }) {
         st.open[i] += (want - st.open[i]) * Math.min(1, dt * (st.reduce ? 60 : 9));
         const o = st.open[i];
         const angle = base * (1 - o);
-        const dim = st.hover >= 0 && st.hover !== i ? 0.45 : 1;
-        card.style.transform = `translate3d(${x}px,0,${o * 60}px) rotateY(${angle}deg)`;
+        const dim = st.hover >= 0 && st.hover !== i ? 0.55 : 0;
+        const shade = Math.abs(Math.sin((angle * Math.PI) / 180)) * 0.5;
+        card.style.transform = `translate3d(${x}px,0,${o * 70}px) rotateY(${angle}deg)`;
         card.style.zIndex = String(o > 0.05 ? 50 : Math.round((1 - k) * 20));
-        card.style.opacity = String(dim + (1 - dim) * o);
-        card.style.setProperty("--shade", String(Math.abs(Math.sin((angle * Math.PI) / 180)) * 0.55));
+        card.style.visibility = Math.abs(d) > 1.15 ? "hidden" : "visible";
+        card.style.setProperty("--shade", String(Math.max(shade, dim) * (1 - o)));
+        const label = labelRefs.current[i];
         if (label) {
           label.style.transform = `translate3d(${x}px,0,0)`;
           label.style.opacity = String(Math.abs(d) > 1 ? 0 : st.hover >= 0 && st.hover !== i ? 0.35 : 1);
+        }
+      }
+
+      if (flow) {
+        const idx = mod(Math.round(st.pos / slot), total) % items.length;
+        if (idx !== st.active) {
+          st.active = idx;
+          setActive(idx);
         }
       }
       raf = requestAnimationFrame(frame);
@@ -169,7 +232,7 @@ export function HeroShelf({ items }: { items: ReelItem[] }) {
       io.disconnect();
       document.removeEventListener("visibilitychange", onVis);
     };
-  }, [ready, total]);
+  }, [ready, total, items.length]);
 
   // Rotellina/trackpad: solo lo scorrimento orizzontale, quello verticale
   // resta alla pagina.
@@ -179,9 +242,11 @@ export function HeroShelf({ items }: { items: ReelItem[] }) {
     const onWheel = (e: WheelEvent) => {
       if (Math.abs(e.deltaX) <= Math.abs(e.deltaY)) return;
       e.preventDefault();
-      s.current.target = null;
-      s.current.vel = 0;
-      s.current.pos += e.deltaX;
+      const st = s.current;
+      st.target = null;
+      st.vel = 0;
+      st.hold = 0;
+      st.pos += e.deltaX;
     };
     root.addEventListener("wheel", onWheel, { passive: false });
     return () => root.removeEventListener("wheel", onWheel);
@@ -196,7 +261,7 @@ export function HeroShelf({ items }: { items: ReelItem[] }) {
     st.lastT = performance.now();
     st.moved = false;
     st.vel = 0;
-    st.target = null;
+    st.hold = 0;
   }
 
   function onPointerMove(e: React.PointerEvent) {
@@ -207,6 +272,9 @@ export function HeroShelf({ items }: { items: ReelItem[] }) {
       st.dragging = true;
       st.moved = true;
       st.hover = -1;
+      st.target = null;
+      st.startPos = st.pos;
+      st.startX = e.clientX;
       (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
     }
     if (!st.dragging) return;
@@ -215,32 +283,51 @@ export function HeroShelf({ items }: { items: ReelItem[] }) {
     st.vel = (-(e.clientX - st.lastX) / dt) * 0.8;
     st.lastX = e.clientX;
     st.lastT = now;
-    st.pos = st.startPos - dx;
+    // Nello sfoglia il dito sposta la copertina un po' meno della distanza
+    // percorsa, così il gesto resta controllato.
+    st.pos = st.startPos - (e.clientX - st.startX) * (st.mode === "flow" ? 1.1 : 1);
   }
 
   function onPointerUp(e: React.PointerEvent) {
     const st = s.current;
     if (st.pointerId !== e.pointerId) return;
     st.pointerId = -1;
+    if (!st.dragging) return;
     st.dragging = false;
     if (performance.now() - st.lastT > 80) st.vel = 0;
+    if (st.mode === "flow") {
+      // Un gesto veloce porta alla copertina successiva anche se breve.
+      const fling = Math.abs(st.vel) > 250 ? Math.sign(st.vel) * st.slot * 0.5 : 0;
+      st.target = Math.round((st.pos + fling) / st.slot) * st.slot;
+      st.vel = 0;
+    }
   }
 
   function step(dir: 1 | -1) {
     const st = s.current;
-    const jump = Math.max(1, Math.round(st.width / st.slot / 3)) * st.slot;
+    const n = st.mode === "flow" ? 1 : Math.max(1, Math.round(st.width / st.slot / 3));
     const from = st.target ?? st.pos;
     st.vel = 0;
-    st.target = Math.round((from + dir * jump) / st.slot) * st.slot;
+    st.hold = 0;
+    st.target = Math.round((from + dir * n * st.slot) / st.slot) * st.slot;
   }
 
-  // Con Tab la copertina si apre e, se è vicina al bordo, la fila la porta
-  // dentro lo schermo.
+  function xOf(i: number) {
+    const st = s.current;
+    const loop = total * st.slot;
+    return mod(i * st.slot - st.pos + loop / 2, loop) - loop / 2;
+  }
+
+  // Con Tab la copertina si gira e, se è vicina al bordo, entra nello schermo.
   function onCardFocus(i: number) {
     const st = s.current;
+    const x = xOf(i);
+    if (st.mode === "flow") {
+      st.target = st.pos + x;
+      st.hold = 0;
+      return;
+    }
     st.hover = i;
-    const loop = total * st.slot;
-    const x = mod(i * st.slot - st.pos + loop / 2, loop) - loop / 2;
     const limit = st.width / 2 - st.slot * 1.5;
     if (Math.abs(x) > limit) st.target = st.pos + x - Math.sign(x) * limit;
   }
@@ -250,6 +337,26 @@ export function HeroShelf({ items }: { items: ReelItem[] }) {
     i,
     clone: i >= items.length,
   }));
+  const current = items[active] ?? items[0];
+  const flow = mode === "flow";
+
+  const controls = (
+    <div className="theme-ink pointer-events-auto flex border border-border-strong bg-background/70! backdrop-blur-md">
+      <ShelfButton label="Lavoro precedente" onClick={() => step(-1)}>
+        <path d="M10 3 5 8l5 5" />
+      </ShelfButton>
+      <ShelfButton
+        label={paused ? "Riprendi lo scorrimento" : "Metti in pausa lo scorrimento"}
+        onClick={() => setPaused((p) => !p)}
+        className="border-x border-border-strong"
+      >
+        {paused ? <path d="M5 3v10l8-5z" fill="currentColor" stroke="none" /> : <path d="M6 3v10M10 3v10" />}
+      </ShelfButton>
+      <ShelfButton label="Lavoro successivo" onClick={() => step(1)}>
+        <path d="m6 3 5 5-5 5" />
+      </ShelfButton>
+    </div>
+  );
 
   return (
     <div
@@ -257,7 +364,7 @@ export function HeroShelf({ items }: { items: ReelItem[] }) {
       role="region"
       aria-roledescription="carosello"
       aria-label="Lavori recenti"
-      className="hero-shelf relative flex h-full max-h-[calc(var(--slot)*3.6+4rem)] min-h-0 w-full touch-pan-y flex-col select-none [--slot:clamp(76px,21vw,110px)] sm:[--slot:clamp(110px,min(18vw,19svh),200px)]"
+      className="hero-shelf relative flex h-full max-h-[calc(var(--slot)*3.6+4rem)] min-h-0 w-full touch-pan-y flex-col select-none [--depth:calc(var(--slot)*0.09)] [--slot:58vw] max-sm:max-h-[calc(var(--slot)*1.9+5rem)] sm:[--depth:calc(var(--slot)*0.15)] sm:[--slot:clamp(110px,min(18vw,19svh),200px)]"
       onPointerDown={onPointerDown}
       onPointerMove={onPointerMove}
       onPointerUp={onPointerUp}
@@ -275,33 +382,33 @@ export function HeroShelf({ items }: { items: ReelItem[] }) {
     >
       <span ref={measureRef} aria-hidden="true" className="pointer-events-none invisible absolute h-0 w-[var(--slot)]" />
 
-      {/* Titoli sopra le copertine: restano dritti e seguono lo scorrimento. */}
-      <div
-        aria-hidden="true"
-        className={`relative h-14 shrink-0 transition-opacity duration-700 sm:h-16 ${ready ? "opacity-100" : "opacity-0"}`}
-      >
-        {cards.map(({ item, i }) => (
-          <div
-            key={`l${i}`}
-            ref={(el) => {
-              labelRefs.current[i] = el;
-            }}
-            className="absolute top-0 left-1/2 -ml-[calc(var(--slot)/2)] flex w-[var(--slot)] flex-col gap-0.5 pr-2 transition-opacity duration-300 will-change-transform"
-          >
-            <span className="line-clamp-2 text-[11px] leading-tight font-semibold text-foreground sm:text-xs">
-              {item.title}
-            </span>
-            <span className="truncate text-[10px] text-foreground-muted sm:text-[11px]">
-              {item.category}
-            </span>
-            <span className="mt-1.5 block size-0 border-y-[3px] border-l-[5px] border-y-transparent border-l-foreground-muted" />
-          </div>
-        ))}
-      </div>
+      {/* Scaffale: titoli dritti sopra ogni copertina, seguono lo scorrimento. */}
+      {!flow ? (
+        <div
+          aria-hidden="true"
+          className={`relative h-16 shrink-0 transition-opacity duration-700 ${ready ? "opacity-100" : "opacity-0"}`}
+        >
+          {cards.map(({ item, i }) => (
+            <div
+              key={`l${i}`}
+              ref={(el) => {
+                labelRefs.current[i] = el;
+              }}
+              className="absolute top-0 left-1/2 -ml-[calc(var(--slot)/2)] flex w-[var(--slot)] flex-col gap-0.5 pr-2 transition-opacity duration-300 will-change-transform"
+            >
+              <span className="line-clamp-2 text-xs leading-tight font-semibold text-foreground">
+                {item.title}
+              </span>
+              <span className="truncate text-[11px] text-foreground-muted">{item.category}</span>
+              <span className="mt-1.5 block size-0 border-y-[3px] border-l-[5px] border-y-transparent border-l-foreground-muted" />
+            </div>
+          ))}
+        </div>
+      ) : null}
 
-      {/* Copertine in prospettiva, sfumate ai bordi. */}
+      {/* Copertine 3D, sfumate ai bordi. */}
       <div
-        className={`relative min-h-0 flex-1 transition-opacity duration-700 [perspective:900px] [mask-image:linear-gradient(90deg,transparent,#000_6%,#000_94%,transparent)] ${ready ? "opacity-100" : "opacity-0"}`}
+        className={`relative min-h-0 flex-1 transition-opacity duration-700 [perspective:1000px] max-sm:[perspective:800px] sm:[mask-image:linear-gradient(90deg,transparent,#000_6%,#000_94%,transparent)] ${ready ? "opacity-100" : "opacity-0"}`}
       >
         {cards.map(({ item, i, clone }) => (
           <Link
@@ -316,50 +423,87 @@ export function HeroShelf({ items }: { items: ReelItem[] }) {
             tabIndex={clone ? -1 : undefined}
             draggable={false}
             onMouseEnter={() => {
-              if (!s.current.dragging) s.current.hover = i;
+              if (!s.current.dragging && s.current.mode === "shelf") s.current.hover = i;
             }}
             onFocus={() => onCardFocus(i)}
             onBlur={() => {
               s.current.hover = -1;
             }}
-            className="absolute inset-y-0 left-1/2 -ml-[calc(var(--slot)*0.65)] block w-[calc(var(--slot)*1.3)] bg-surface outline-offset-4 will-change-transform [transform-style:preserve-3d] focus-visible:outline-2 focus-visible:outline-accent"
+            onClick={(e) => {
+              // Nello sfoglia, toccare una copertina laterale la porta al
+              // centro; solo quella al centro apre il progetto.
+              const st = s.current;
+              if (st.mode === "flow" && Math.abs(xOf(i)) > st.slot * 0.3) {
+                e.preventDefault();
+                st.target = st.pos + xOf(i);
+                st.hold = 0;
+              }
+            }}
+            className="absolute inset-y-0 left-1/2 -ml-[calc(var(--slot)*0.65)] my-auto block h-full w-[calc(var(--slot)*1.3)] outline-offset-4 will-change-transform [transform-style:preserve-3d] focus-visible:outline-2 focus-visible:outline-accent max-sm:-ml-[calc(var(--slot)*0.5)] max-sm:h-[min(100%,calc(var(--slot)*1.3))] max-sm:w-[var(--slot)]"
           >
-            <Image
-              src={item.cover}
-              alt=""
-              fill
-              draggable={false}
-              sizes="(min-width: 640px) 18vw, 45vw"
-              loading={i < 8 ? "eager" : "lazy"}
-              className="pointer-events-none object-cover"
-            />
-            {/* Ombra che cresce quando la copertina si mette di taglio. */}
-            <span
-              aria-hidden="true"
-              className="pointer-events-none absolute inset-0 bg-black opacity-[var(--shade,0)]"
-            />
+            {/* Fronte */}
+            <span className="absolute inset-0 overflow-hidden bg-surface [backface-visibility:hidden] [transform:translateZ(calc(var(--depth)/2))]">
+              <Image
+                src={item.cover}
+                alt=""
+                fill
+                draggable={false}
+                sizes="(min-width: 640px) 18vw, 60vw"
+                loading={i < 8 ? "eager" : "lazy"}
+                className="pointer-events-none object-cover"
+              />
+              {/* Luce: un filo chiaro sul bordo e un velo che scurisce la
+                  copertina quando si gira di taglio. */}
+              <span aria-hidden="true" className="absolute inset-0 bg-[linear-gradient(90deg,rgb(255_255_255/0.14),transparent_8%,transparent_92%,rgb(0_0_0/0.25))]" />
+              <span aria-hidden="true" className="absolute inset-0 bg-black opacity-[var(--shade,0)]" />
+            </span>
+            {/* Dorso sinistro e destro: una striscia della copertina, più scura. */}
+            {(["left", "right"] as const).map((side) => (
+              <span
+                key={side}
+                aria-hidden="true"
+                className={`absolute inset-y-0 w-[var(--depth)] overflow-hidden bg-surface [backface-visibility:hidden] ${
+                  side === "left"
+                    ? "left-[calc(var(--depth)/-2)] [transform:rotateY(-90deg)]"
+                    : "left-[calc(100%-var(--depth)/2)] [transform:rotateY(90deg)]"
+                }`}
+              >
+                <Image
+                  src={item.cover}
+                  alt=""
+                  fill
+                  draggable={false}
+                  sizes="(min-width: 640px) 18vw, 60vw"
+                  loading={i < 8 ? "eager" : "lazy"}
+                  className={`pointer-events-none object-cover ${side === "left" ? "object-left" : "object-right"}`}
+                />
+                <span className="absolute inset-0 bg-[linear-gradient(90deg,rgb(0_0_0/0.55),rgb(0_0_0/0.25)_50%,rgb(0_0_0/0.55))]" />
+              </span>
+            ))}
+            {/* Niente retro: le copertine non girano mai oltre i 90 gradi, e
+                in Safari una faccia girata di 180 gradi copriva tutto. */}
           </Link>
         ))}
+
+        {!flow ? (
+          <div className="pointer-events-none absolute inset-x-0 bottom-5 z-[60] flex justify-center">
+            {controls}
+          </div>
+        ) : null}
       </div>
 
-      {/* Comandi: indietro, pausa, avanti. */}
-      <div className="pointer-events-none absolute inset-x-0 bottom-3 z-[60] flex justify-center sm:bottom-5">
-        <div className="theme-ink pointer-events-auto flex border border-border-strong bg-background/70! backdrop-blur-md">
-          <ShelfButton label="Lavori precedenti" onClick={() => step(-1)}>
-            <path d="M10 3 5 8l5 5" />
-          </ShelfButton>
-          <ShelfButton
-            label={paused ? "Riprendi lo scorrimento" : "Metti in pausa lo scorrimento"}
-            onClick={() => setPaused((p) => !p)}
-            className="border-x border-border-strong"
-          >
-            {paused ? <path d="M5 3v10l8-5z" fill="currentColor" stroke="none" /> : <path d="M6 3v10M10 3v10" />}
-          </ShelfButton>
-          <ShelfButton label="Lavori successivi" onClick={() => step(1)}>
-            <path d="m6 3 5 5-5 5" />
-          </ShelfButton>
+      {/* Sfoglia: nome del lavoro in primo piano e comandi sotto le copertine. */}
+      {flow ? (
+        <div className="container-px flex shrink-0 items-end justify-between gap-4 pt-4">
+          <p aria-live="polite" className="min-w-0">
+            <span key={active} className="reel-caption block">
+              <span className="block truncate text-sm font-semibold text-foreground">{current.title}</span>
+              <span className="block truncate text-xs text-foreground-muted">{current.category}</span>
+            </span>
+          </p>
+          {controls}
         </div>
-      </div>
+      ) : null}
     </div>
   );
 }
@@ -367,13 +511,11 @@ export function HeroShelf({ items }: { items: ReelItem[] }) {
 function ShelfButton({
   label,
   onClick,
-  pressed,
   className = "",
   children,
 }: {
   label: string;
   onClick: () => void;
-  pressed?: boolean;
   className?: string;
   children: React.ReactNode;
 }) {
@@ -381,7 +523,6 @@ function ShelfButton({
     <button
       type="button"
       aria-label={label}
-      aria-pressed={pressed}
       onClick={onClick}
       onPointerDown={(e) => e.stopPropagation()}
       className={`group flex size-11 items-center justify-center text-foreground transition-colors duration-300 hover:bg-foreground hover:text-background ${className}`}
