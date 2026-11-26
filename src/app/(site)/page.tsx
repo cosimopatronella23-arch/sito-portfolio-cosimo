@@ -35,8 +35,9 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function HomePage() {
-  const [settings, reelItems] = await Promise.all([getSiteSettings(), getReelItems()]);
+  const settings = await getSiteSettings();
   const c = settings.home_content;
+  const reelItems = await getReelItems(c.hero_slides);
   const theme = (key: Parameters<typeof sectionTheme>[1]) => sectionTheme(c, key);
 
   return (

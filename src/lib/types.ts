@@ -212,6 +212,14 @@ export interface ProcessStep {
   badge: string;
 }
 
+/** Una copertina dello slider dei lavori nell'hero (proporzione 1:2). */
+export interface HeroSlide {
+  /** Slug del progetto collegato: titolo e categoria arrivano da lì. */
+  project: string;
+  /** Immagine verticale 1:2 caricata in Media. */
+  cover: string;
+}
+
 export interface HomeContent {
   hero_title_main: string;
   hero_title_accent: string;
@@ -229,6 +237,9 @@ export interface HomeContent {
   // Design "Dumbar" (ottobre 2026): campi nuovi, tutti facoltativi. Se
   // mancano si usano i valori predefiniti di src/lib/homeDefaults.ts.
   hero_eyebrow?: string;
+  /** Slider dei lavori nell'hero, nell'ordine scelto. Vuoto = le copertine
+   *  dei progetti pubblicati (orizzontali, quindi ritagliate). */
+  hero_slides?: HeroSlide[];
   projects_title?: string;
   process_title?: string;
   process_subtitle?: string;

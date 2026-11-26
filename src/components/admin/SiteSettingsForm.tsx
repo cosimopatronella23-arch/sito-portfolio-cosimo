@@ -7,6 +7,7 @@ import { NavLinksEditor } from "./NavLinksEditor";
 import { HomepageBlocksEditor } from "./HomepageBlocksEditor";
 import { SettingsSection } from "./SettingsSection";
 import { ProcessStepsEditor } from "./ProcessStepsEditor";
+import { HeroSlidesEditor } from "./HeroSlidesEditor";
 import {
   DEFAULT_SECTION_THEMES,
   HOME_DEFAULTS,
@@ -27,7 +28,14 @@ const DEFAULT_FOREGROUND = "#f6f2ea";
 const fieldClasses =
   "w-full border-0 border-b border-border-strong bg-transparent px-0 py-2 text-foreground placeholder:text-foreground-muted focus-visible:border-accent focus-visible:outline-none";
 
-export function SiteSettingsForm({ settings }: { settings: SiteSettings }) {
+export function SiteSettingsForm({
+  settings,
+  projects = [],
+}: {
+  settings: SiteSettings;
+  /** Progetti pubblicati, da scegliere nello slider dell'hero. */
+  projects?: { slug: string; title: string }[];
+}) {
   const [state, formAction, pending] = useActionState(updateSiteSettings, {
     error: null,
   });
@@ -386,6 +394,19 @@ export function SiteSettingsForm({ settings }: { settings: SiteSettings }) {
               </label>
             ))}
           </div>
+        </SettingsSection>
+
+        <SettingsSection
+          id="sez-slider"
+          title="Homepage — Slider dei lavori"
+          description="Le copertine in 3D in apertura della homepage, nell'ordine scelto. Usa immagini verticali 1:2 (es. 900 x 1800 px): si vedono intere, senza tagli. Il clic su una copertina apre il progetto collegato."
+          defaultOpen
+        >
+          <HeroSlidesEditor
+            name="hero_slides"
+            defaultValue={settings.home_content.hero_slides ?? []}
+            projects={projects}
+          />
         </SettingsSection>
 
         <SettingsSection

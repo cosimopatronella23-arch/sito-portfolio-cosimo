@@ -7,27 +7,30 @@ import { useReducedMotion } from "framer-motion";
 import type { ReelItem } from "./HeroReel";
 
 /**
- * Lavori dell'hero come copertine in 3D: ogni copertina è una scatola vera
- * (fronte e dorso sui due lati), non un'immagine piatta inclinata.
+ * Slider dei lavori nell'hero, con copertine verticali 1:2 viste intere.
  *
- * - Computer e tablet ("scaffale"): fila che scorre piano da sola; ai lati
- *   le copertine si aprono verso chi guarda, al centro si mettono di taglio
- *   e si vede il dorso. Al passaggio del mouse (o con Tab) la copertina si
- *   gira di fronte e le altre si abbassano.
- * - Telefono ("sfoglia"): una copertina grande al centro e le vicine di
- *   sbieco ai lati; si sfoglia una alla volta (dito o frecce), avanza da
- *   sola ogni pochi secondi, sotto il nome del progetto in primo piano.
+ * - Computer e tablet ("ventaglio"): ogni copertina è un pannello con un
+ *   piccolo spessore, incernierato sul bordo esterno. Ai lati è aperto e
+ *   quasi piatto, verso il centro si chiude fino a mettersi di taglio; la
+ *   fila scorre piano da sola. Prospettiva lunga, così i bordi restano
+ *   dritti come nella fotografia di un oggetto. Al passaggio del mouse (o
+ *   con Tab) la copertina si apre del tutto e le altre si abbassano.
+ * - Telefono ("sfoglia"): una copertina al centro e le vicine di sbieco;
+ *   si sfoglia una alla volta, avanza da sola ogni pochi secondi.
  *
  * Sempre: pausa (WCAG 2.2.2), niente movimento automatico con "riduci
- * movimento", nessun ridisegno di React a ogni fotogramma (le posizioni si
- * scrivono direttamente sugli elementi).
+ * movimento", le posizioni si scrivono direttamente sugli elementi a ogni
+ * fotogramma senza ridisegnare React.
  */
 
-const SPEED = 26; // px al secondo, scorrimento automatico dello scaffale
-const MAX_ANGLE = 84; // gradi al centro dello scaffale (quasi di taglio)
-const FLOW_ANGLE = 52; // gradi delle copertine vicine nello sfoglia
+const SPEED = 30; // px al secondo, scorrimento del ventaglio
+const FLOW_ANGLE = 50; // gradi delle copertine vicine nello sfoglia
 const FLOW_HOLD = 3.4; // secondi su ogni copertina nello sfoglia
 const DRAG_THRESHOLD = 6;
+const SHELF_MAX_H = 440; // altezza massima delle copertine su computer
+const SHELF_GAP = 0.3; // spazio tra le copertine, in larghezze di copertina
+const LABELS_H = 64; // riga dei titoli sopra il ventaglio
+const CAPTION_H = 76; // riga del nome e dei comandi sotto lo sfoglia
 
 type Mode = "shelf" | "flow";
 
@@ -38,21 +41,22 @@ function mod(n: number, m: number) {
 export function HeroShelf({ items }: { items: ReelItem[] }) {
   const reduce = useReducedMotion();
   const rootRef = useRef<HTMLDivElement>(null);
-  const measureRef = useRef<HTMLSpanElement>(null);
   const cardRefs = useRef<(HTMLElement | null)[]>([]);
   const labelRefs = useRef<(HTMLElement | null)[]>([]);
   const [mode, setMode] = useState<Mode>("shelf");
+  const [size, setSize] = useState({ w: 0, h: 0, slot: 0 });
   const [copies, setCopies] = useState(2);
-  const [ready, setReady] = useState(false);
   const [paused, setPaused] = useState(false);
   const [active, setActive] = useState(0);
+  const ready = size.w > 0;
 
   const s = useRef({
     mode: "shelf" as Mode,
     pos: 0,
     vel: 0,
     target: null as number | null,
-    slot: 140,
+    slot: 300,
+    cardW: 200,
     width: 1200,
     hover: -1,
     open: [] as number[],
@@ -78,37 +82,52 @@ export function HeroShelf({ items }: { items: ReelItem[] }) {
 
   const total = items.length * copies;
 
-  // Misure e modalità. --slot è un clamp(): si legge dalla larghezza di un
-  // elemento invisibile che lo usa. Le copie servono a coprire lo schermo
-  // senza che si veda il punto in cui la fila ricomincia.
+  // Misure: le copertine sono sempre 1:2 e prendono l'altezza disponibile
+  // (con un massimo su computer), la distanza tra una e l'altra ne deriva.
   useEffect(() => {
     const root = rootRef.current;
-    if (!root) return;
+    const box = root?.parentElement;
+    if (!root || !box) return;
     const mq = window.matchMedia("(max-width: 639px)");
     const measure = () => {
       const m: Mode = mq.matches ? "flow" : "shelf";
-      const slot = measureRef.current?.offsetWidth || 140;
       const width = root.clientWidth;
+      // Spazio libero nell'hero, tolti i titoli (ventaglio) o la riga del
+      // nome con i comandi (sfoglia).
+      const avail = box.clientHeight - (m === "flow" ? CAPTION_H : LABELS_H);
+      let h: number;
+      let w: number;
+      let slot: number;
+      if (m === "flow") {
+        w = Math.round(Math.min(avail / 2, width * 0.52));
+        h = w * 2;
+        slot = w;
+      } else {
+        h = Math.round(Math.min(avail, SHELF_MAX_H));
+        w = Math.round(h / 2);
+        slot = Math.round(w * (1 + SHELF_GAP));
+      }
       const st = s.current;
-      if (st.mode !== m || st.slot !== slot) {
-        // Al cambio di misura si riallinea alla copertina più vicina.
+      if (st.slot && (st.mode !== m || st.slot !== slot)) {
         st.pos = Math.round(st.pos / st.slot) * slot;
         st.target = null;
       }
       st.mode = m;
       st.slot = slot;
+      st.cardW = w;
       st.width = width;
       setMode(m);
+      setSize((prev) => (prev.w === w && prev.h === h && prev.slot === slot ? prev : { w, h, slot }));
       setCopies(
         m === "flow"
           ? Math.max(1, Math.ceil(5 / items.length))
-          : Math.max(1, Math.ceil((width + slot * 6) / (items.length * slot))),
+          : Math.max(1, Math.ceil((width + slot * 4) / (items.length * slot))),
       );
-      setReady(true);
     };
     measure();
     const ro = new ResizeObserver(measure);
     ro.observe(root);
+    ro.observe(box);
     mq.addEventListener("change", measure);
     return () => {
       ro.disconnect();
@@ -129,11 +148,10 @@ export function HeroShelf({ items }: { items: ReelItem[] }) {
     const frame = (now: number) => {
       const dt = Math.min(0.05, (now - last) / 1000);
       last = now;
-      const { slot, width } = st;
+      const { slot, width, cardW } = st;
       const loop = total * slot;
       const flow = st.mode === "flow";
 
-      // Movimento.
       if (st.target !== null) {
         const diff = st.target - st.pos;
         st.pos += diff * Math.min(1, dt * (st.reduce ? 30 : 7));
@@ -142,10 +160,7 @@ export function HeroShelf({ items }: { items: ReelItem[] }) {
           st.target = null;
         }
       } else if (!st.dragging) {
-        if (Math.abs(st.vel) > 1 && !flow) {
-          st.pos += st.vel * dt;
-          st.vel *= Math.pow(0.04, dt);
-        } else if (flow) {
+        if (flow) {
           st.vel = 0;
           const snapped = Math.round(st.pos / slot) * slot;
           if (Math.abs(snapped - st.pos) > 0.5) st.target = snapped;
@@ -156,12 +171,18 @@ export function HeroShelf({ items }: { items: ReelItem[] }) {
               st.target = snapped + slot;
             }
           }
+        } else if (Math.abs(st.vel) > 1) {
+          st.pos += st.vel * dt;
+          st.vel *= Math.pow(0.04, dt);
         } else {
           st.vel = 0;
           if (!st.paused && !st.reduce && st.hover < 0) st.pos += SPEED * dt;
         }
       }
 
+      // Il ventaglio si chiude al centro: la cerniera è sul bordo esterno
+      // (sinistro a sinistra, destro a destra) e il bordo verso il centro
+      // va indietro.
       const half = width / 2;
       for (let i = 0; i < total; i++) {
         const card = cardRefs.current[i];
@@ -170,32 +191,36 @@ export function HeroShelf({ items }: { items: ReelItem[] }) {
 
         if (flow) {
           const n = Math.max(-1.6, Math.min(1.6, x / slot));
-          const a = Math.abs(n);
-          const angle = -n * FLOW_ANGLE * Math.min(1, a);
-          card.style.transform = `translate3d(${x * 0.8}px,0,${-Math.min(1, a) * 190}px) rotateY(${angle}deg)`;
-          card.style.zIndex = String(100 - Math.round(a * 10));
-          card.style.visibility = a > 1.55 ? "hidden" : "visible";
-          card.style.setProperty("--shade", String(Math.min(0.6, a * 0.45)));
+          const a = Math.min(1, Math.abs(n));
+          card.style.transformOrigin = "50% 50%";
+          card.style.transform = `translate3d(${x * 0.84 - cardW / 2}px,0,${-a * 170}px) rotateY(${-Math.sign(n) * a * FLOW_ANGLE}deg)`;
+          card.style.zIndex = String(100 - Math.round(Math.abs(n) * 10));
+          card.style.visibility = Math.abs(n) > 1.55 ? "hidden" : "visible";
+          card.style.setProperty("--shade", String(a * 0.4));
           continue;
         }
 
-        const d = Math.max(-1.2, Math.min(1.2, x / half));
-        const k = Math.max(0, 1 - Math.abs(d));
-        const base = Math.sign(d || 1) * MAX_ANGLE * Math.pow(k, 1.5);
+        const d = x / (half * 0.98);
+        const k = Math.max(0, 1 - Math.min(1, Math.abs(d)));
+        const closed = 88 * Math.pow(k, 0.85);
         const want = st.hover === i ? 1 : 0;
         st.open[i] += (want - st.open[i]) * Math.min(1, dt * (st.reduce ? 60 : 9));
         const o = st.open[i];
-        const angle = base * (1 - o);
+        const theta = closed * (1 - o);
+        const left = x < 0;
+        card.style.transformOrigin = left ? "0% 50%" : "100% 50%";
+        card.style.transform = `translate3d(${left ? x : x - cardW}px,0,${o * 50}px) rotateY(${left ? theta : -theta}deg)`;
+        card.style.zIndex = String(o > 0.05 ? 50 : 10);
+        card.style.visibility = Math.abs(d) > 1.25 ? "hidden" : "visible";
         const dim = st.hover >= 0 && st.hover !== i ? 0.55 : 0;
-        const shade = Math.abs(Math.sin((angle * Math.PI) / 180)) * 0.5;
-        card.style.transform = `translate3d(${x}px,0,${o * 70}px) rotateY(${angle}deg)`;
-        card.style.zIndex = String(o > 0.05 ? 50 : Math.round((1 - k) * 20));
-        card.style.visibility = Math.abs(d) > 1.15 ? "hidden" : "visible";
-        card.style.setProperty("--shade", String(Math.max(shade, dim) * (1 - o)));
+        card.style.setProperty("--shade", String(Math.max(Math.sin((theta * Math.PI) / 180) * 0.3, dim) * (1 - o)));
         const label = labelRefs.current[i];
         if (label) {
-          label.style.transform = `translate3d(${x}px,0,0)`;
-          label.style.opacity = String(Math.abs(d) > 1 ? 0 : st.hover >= 0 && st.hover !== i ? 0.35 : 1);
+          // Il titolo sta sopra il bordo sinistro visibile della copertina:
+          // a sinistra è la cerniera, a destra il bordo che si chiude.
+          const lx = left ? x : x - cardW * Math.cos((theta * Math.PI) / 180);
+          label.style.transform = `translate3d(${lx}px,0,0)`;
+          label.style.opacity = String(Math.abs(d) > 1.02 ? 0 : st.hover >= 0 && st.hover !== i ? 0.35 : 1);
         }
       }
 
@@ -267,8 +292,7 @@ export function HeroShelf({ items }: { items: ReelItem[] }) {
   function onPointerMove(e: React.PointerEvent) {
     const st = s.current;
     if (st.pointerId !== e.pointerId) return;
-    const dx = e.clientX - st.startX;
-    if (!st.dragging && Math.abs(dx) > DRAG_THRESHOLD) {
+    if (!st.dragging && Math.abs(e.clientX - st.startX) > DRAG_THRESHOLD) {
       st.dragging = true;
       st.moved = true;
       st.hover = -1;
@@ -283,9 +307,7 @@ export function HeroShelf({ items }: { items: ReelItem[] }) {
     st.vel = (-(e.clientX - st.lastX) / dt) * 0.8;
     st.lastX = e.clientX;
     st.lastT = now;
-    // Nello sfoglia il dito sposta la copertina un po' meno della distanza
-    // percorsa, così il gesto resta controllato.
-    st.pos = st.startPos - (e.clientX - st.startX) * (st.mode === "flow" ? 1.1 : 1);
+    st.pos = st.startPos - (e.clientX - st.startX) * (st.mode === "flow" ? 1.15 : 1);
   }
 
   function onPointerUp(e: React.PointerEvent) {
@@ -296,7 +318,6 @@ export function HeroShelf({ items }: { items: ReelItem[] }) {
     st.dragging = false;
     if (performance.now() - st.lastT > 80) st.vel = 0;
     if (st.mode === "flow") {
-      // Un gesto veloce porta alla copertina successiva anche se breve.
       const fling = Math.abs(st.vel) > 250 ? Math.sign(st.vel) * st.slot * 0.5 : 0;
       st.target = Math.round((st.pos + fling) / st.slot) * st.slot;
       st.vel = 0;
@@ -318,17 +339,17 @@ export function HeroShelf({ items }: { items: ReelItem[] }) {
     return mod(i * st.slot - st.pos + loop / 2, loop) - loop / 2;
   }
 
-  // Con Tab la copertina si gira e, se è vicina al bordo, entra nello schermo.
+  // Con Tab la copertina si apre e, se è vicina al bordo, entra nello schermo.
   function onCardFocus(i: number) {
     const st = s.current;
     const x = xOf(i);
+    st.hold = 0;
     if (st.mode === "flow") {
       st.target = st.pos + x;
-      st.hold = 0;
       return;
     }
     st.hover = i;
-    const limit = st.width / 2 - st.slot * 1.5;
+    const limit = st.width / 2 - st.slot * 1.2;
     if (Math.abs(x) > limit) st.target = st.pos + x - Math.sign(x) * limit;
   }
 
@@ -364,7 +385,16 @@ export function HeroShelf({ items }: { items: ReelItem[] }) {
       role="region"
       aria-roledescription="carosello"
       aria-label="Lavori recenti"
-      className="hero-shelf relative flex h-full max-h-[calc(var(--slot)*3.6+4rem)] min-h-0 w-full touch-pan-y flex-col select-none [--depth:calc(var(--slot)*0.09)] [--slot:58vw] max-sm:max-h-[calc(var(--slot)*1.9+5rem)] sm:[--depth:calc(var(--slot)*0.15)] sm:[--slot:clamp(110px,min(18vw,19svh),200px)]"
+      style={
+        {
+          "--cw": `${size.w}px`,
+          "--ch": `${size.h}px`,
+          "--lw": `${Math.max(0, size.slot - 16)}px`,
+          "--depth": flow ? "6px" : "10px",
+          height: ready ? size.h + (flow ? CAPTION_H : LABELS_H) : "100%",
+        } as React.CSSProperties
+      }
+      className="hero-shelf relative flex min-h-0 w-full touch-pan-y flex-col select-none"
       onPointerDown={onPointerDown}
       onPointerMove={onPointerMove}
       onPointerUp={onPointerUp}
@@ -380,13 +410,11 @@ export function HeroShelf({ items }: { items: ReelItem[] }) {
         s.current.hover = -1;
       }}
     >
-      <span ref={measureRef} aria-hidden="true" className="pointer-events-none invisible absolute h-0 w-[var(--slot)]" />
-
-      {/* Scaffale: titoli dritti sopra ogni copertina, seguono lo scorrimento. */}
+      {/* Ventaglio: titoli dritti sopra le cerniere, seguono lo scorrimento. */}
       {!flow ? (
         <div
           aria-hidden="true"
-          className={`relative h-16 shrink-0 transition-opacity duration-700 ${ready ? "opacity-100" : "opacity-0"}`}
+          className={`relative h-[64px] shrink-0 transition-opacity duration-700 ${ready ? "opacity-100" : "opacity-0"}`}
         >
           {cards.map(({ item, i }) => (
             <div
@@ -394,11 +422,9 @@ export function HeroShelf({ items }: { items: ReelItem[] }) {
               ref={(el) => {
                 labelRefs.current[i] = el;
               }}
-              className="absolute top-0 left-1/2 -ml-[calc(var(--slot)/2)] flex w-[var(--slot)] flex-col gap-0.5 pr-2 transition-opacity duration-300 will-change-transform"
+              className="absolute top-0 left-1/2 flex w-[var(--lw)] flex-col gap-0.5 transition-opacity duration-300 will-change-transform"
             >
-              <span className="line-clamp-2 text-xs leading-tight font-semibold text-foreground">
-                {item.title}
-              </span>
+              <span className="truncate text-xs leading-tight font-semibold text-foreground">{item.title}</span>
               <span className="truncate text-[11px] text-foreground-muted">{item.category}</span>
               <span className="mt-1.5 block size-0 border-y-[3px] border-l-[5px] border-y-transparent border-l-foreground-muted" />
             </div>
@@ -406,9 +432,9 @@ export function HeroShelf({ items }: { items: ReelItem[] }) {
         </div>
       ) : null}
 
-      {/* Copertine 3D, sfumate ai bordi. */}
+      {/* Palco delle copertine. */}
       <div
-        className={`relative min-h-0 flex-1 transition-opacity duration-700 [perspective:1000px] max-sm:[perspective:800px] sm:[mask-image:linear-gradient(90deg,transparent,#000_6%,#000_94%,transparent)] ${ready ? "opacity-100" : "opacity-0"}`}
+        className={`relative min-h-0 flex-1 transition-opacity duration-700 [perspective:2400px] max-sm:[perspective:900px] sm:[mask-image:linear-gradient(90deg,transparent,#000_5%,#000_95%,transparent)] ${ready ? "opacity-100" : "opacity-0"}`}
       >
         {cards.map(({ item, i, clone }) => (
           <Link
@@ -439,33 +465,31 @@ export function HeroShelf({ items }: { items: ReelItem[] }) {
                 st.hold = 0;
               }
             }}
-            className="absolute inset-y-0 left-1/2 -ml-[calc(var(--slot)*0.65)] my-auto block h-full w-[calc(var(--slot)*1.3)] outline-offset-4 will-change-transform [transform-style:preserve-3d] focus-visible:outline-2 focus-visible:outline-accent max-sm:-ml-[calc(var(--slot)*0.5)] max-sm:h-[min(100%,calc(var(--slot)*1.3))] max-sm:w-[var(--slot)]"
+            className="absolute top-1/2 left-1/2 -mt-[calc(var(--ch)/2)] block h-[var(--ch)] w-[var(--cw)] outline-offset-4 will-change-transform [transform-style:preserve-3d] focus-visible:outline-2 focus-visible:outline-accent"
           >
-            {/* Fronte */}
-            <span className="absolute inset-0 overflow-hidden bg-surface [backface-visibility:hidden] [transform:translateZ(calc(var(--depth)/2))]">
+            {/* Fronte: la copertina intera. */}
+            <span className="absolute inset-0 overflow-hidden bg-surface [backface-visibility:hidden]">
               <Image
                 src={item.cover}
                 alt=""
                 fill
                 draggable={false}
-                sizes="(min-width: 640px) 18vw, 60vw"
+                sizes="(min-width: 640px) 240px, 55vw"
                 loading={i < 8 ? "eager" : "lazy"}
-                className="pointer-events-none object-cover"
+                className="pointer-events-none object-cover object-top"
               />
-              {/* Luce: un filo chiaro sul bordo e un velo che scurisce la
-                  copertina quando si gira di taglio. */}
-              <span aria-hidden="true" className="absolute inset-0 bg-[linear-gradient(90deg,rgb(255_255_255/0.14),transparent_8%,transparent_92%,rgb(0_0_0/0.25))]" />
+              <span aria-hidden="true" className="absolute inset-0 bg-[linear-gradient(90deg,rgb(255_255_255/0.1),transparent_6%,transparent_94%,rgb(0_0_0/0.18))]" />
               <span aria-hidden="true" className="absolute inset-0 bg-black opacity-[var(--shade,0)]" />
             </span>
-            {/* Dorso sinistro e destro: una striscia della copertina, più scura. */}
+            {/* Spessore sui due lati: si vede quello verso chi guarda. */}
             {(["left", "right"] as const).map((side) => (
               <span
                 key={side}
                 aria-hidden="true"
                 className={`absolute inset-y-0 w-[var(--depth)] overflow-hidden bg-surface [backface-visibility:hidden] ${
                   side === "left"
-                    ? "left-[calc(var(--depth)/-2)] [transform:rotateY(-90deg)]"
-                    : "left-[calc(100%-var(--depth)/2)] [transform:rotateY(90deg)]"
+                    ? "right-full origin-right [transform:rotateY(-90deg)]"
+                    : "left-full origin-left [transform:rotateY(90deg)]"
                 }`}
               >
                 <Image
@@ -473,28 +497,26 @@ export function HeroShelf({ items }: { items: ReelItem[] }) {
                   alt=""
                   fill
                   draggable={false}
-                  sizes="(min-width: 640px) 18vw, 60vw"
+                  sizes="(min-width: 640px) 240px, 55vw"
                   loading={i < 8 ? "eager" : "lazy"}
                   className={`pointer-events-none object-cover ${side === "left" ? "object-left" : "object-right"}`}
                 />
-                <span className="absolute inset-0 bg-[linear-gradient(90deg,rgb(0_0_0/0.55),rgb(0_0_0/0.25)_50%,rgb(0_0_0/0.55))]" />
+                <span className="absolute inset-0 bg-black/45" />
               </span>
             ))}
-            {/* Niente retro: le copertine non girano mai oltre i 90 gradi, e
-                in Safari una faccia girata di 180 gradi copriva tutto. */}
           </Link>
         ))}
 
         {!flow ? (
-          <div className="pointer-events-none absolute inset-x-0 bottom-5 z-[60] flex justify-center">
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 z-[60] flex justify-center">
             {controls}
           </div>
         ) : null}
       </div>
 
-      {/* Sfoglia: nome del lavoro in primo piano e comandi sotto le copertine. */}
+      {/* Sfoglia: nome del lavoro in primo piano e comandi sotto. */}
       {flow ? (
-        <div className="container-px flex shrink-0 items-end justify-between gap-4 pt-4">
+        <div className="container-px flex h-[76px] shrink-0 items-end justify-between gap-4">
           <p aria-live="polite" className="min-w-0">
             <span key={active} className="reel-caption block">
               <span className="block truncate text-sm font-semibold text-foreground">{current.title}</span>

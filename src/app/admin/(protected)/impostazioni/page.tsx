@@ -1,4 +1,5 @@
 import { getSiteSettings, getPageSeo } from "@/lib/data/settings";
+import { getAllProjectsAdmin } from "@/lib/data/projects";
 import { SiteSettingsForm } from "@/components/admin/SiteSettingsForm";
 import { PageSeoForm } from "@/components/admin/PageSeoForm";
 import { SettingsTabs, SettingsTabPanel } from "@/components/admin/SettingsTabs";
@@ -12,10 +13,14 @@ const TABS = [
 ];
 
 export default async function AdminSettingsPage() {
-  const [settings, homeSeo] = await Promise.all([
+  const [settings, homeSeo, allProjects] = await Promise.all([
     getSiteSettings(),
     getPageSeo("home"),
+    getAllProjectsAdmin(),
   ]);
+  const projects = allProjects
+    .filter((p) => p.status === "published")
+    .map((p) => ({ slug: p.slug, title: p.title }));
 
   return (
     <div className="flex max-w-4xl flex-col gap-8">
@@ -23,7 +28,7 @@ export default async function AdminSettingsPage() {
         Impostazioni
       </h1>
       <SettingsTabs tabs={TABS}>
-        <SiteSettingsForm settings={settings} />
+        <SiteSettingsForm settings={settings} projects={projects} />
         {/* Modulo separato con il suo pulsante: sta fuori da quello delle
             impostazioni, ma si mostra come una scheda. */}
         <SettingsTabPanel tab="seo">

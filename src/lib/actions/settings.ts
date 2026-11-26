@@ -7,6 +7,7 @@ import {
   THEME_LABELS,
 } from "@/lib/homeDefaults";
 import type {
+  HeroSlide,
   HomeContent,
   HomeSectionKey,
   ProcessStep,
@@ -34,6 +35,7 @@ const HOME_CONTENT_TEXT_FIELDS: Array<
     | "blocks"
     | "reviews"
     | "process_steps"
+    | "hero_slides"
     | "show_process"
     | "show_reviews"
     | "section_style"
@@ -144,6 +146,20 @@ export async function updateSiteSettings(
   // sezione. Vuoti = valori predefiniti (src/lib/homeDefaults.ts).
   homeContent.show_process = formData.get("show_process") === "on";
   homeContent.show_reviews = formData.get("show_reviews") === "on";
+
+  let heroSlides: HeroSlide[] = [];
+  try {
+    heroSlides = JSON.parse(String(formData.get("hero_slides") || "[]"));
+  } catch {
+    heroSlides = [];
+  }
+  homeContent.hero_slides = (Array.isArray(heroSlides) ? heroSlides : [])
+    .map((slide) => ({
+      project: String(slide?.project ?? "").trim().slice(0, 120),
+      cover: String(slide?.cover ?? "").trim().slice(0, 500),
+    }))
+    .filter((slide) => slide.project && /^https?:\/\//.test(slide.cover))
+    .slice(0, 12);
 
   let processSteps: ProcessStep[] = [];
   try {
